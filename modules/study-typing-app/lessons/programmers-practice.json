@@ -1,0 +1,19 @@
+{
+  "course": "Programmer's Practice",
+  "lessons": [
+    {
+      "id": "prog-js-basics",
+      "title": "JS Basics",
+      "text": "const total = items.reduce((sum, item) => sum + item.price, 0); console.log(`total: ${total}`);",
+      "targetWPM": 30,
+      "targetAccuracy": 92
+    },
+    {
+      "id": "prog-python-basics",
+      "title": "Python Basics",
+      "text": "def average(values): return sum(values) / len(values) if values else 0",
+      "targetWPM": 30,
+      "targetAccuracy": 92
+    }
+  ]
+}

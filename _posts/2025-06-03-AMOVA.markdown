@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Diving into the Genetic Weave – AMOVA and the Glycine clandestina Enigma"
 date: 2025-06-03
 ---

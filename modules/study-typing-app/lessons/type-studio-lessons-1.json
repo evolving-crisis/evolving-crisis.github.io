@@ -1,0 +1,69 @@
+{
+  "exportedAt": "2026-10-14T16:49:39.574Z",
+  "lessons": [
+    {
+      "id": "custom-mv7eilqb-7rpx",
+      "title": "An Active Ciston Fragment - Champe and Benzer",
+      "course": "classical molecular genetics",
+      "text": "Wellcome Collection cover page An Active Ciston Fragment - Champe and Benzer Publication/Creation: 1961 Persistent URL: https://wellcomecollection.org/works/eh2pabdz License and attribution: You have permission to make copies of this work under a Creative Commons, Attribution, Non-commercial license. Non-commercial use includes private study, academic research, teaching, and other activities that are not primarily intended for, or directed towards, commercial advantage or private monetary compensation. See the Legal Code for further information. Image source should be attributed as specified in the full catalogue record. If no source is given the image should be attributed to Wellcome Collection. Wellcome Collection, 183 Euston Road, London NW1 2BE UK. T +44 (0)20 7611 8722. E library@wellcomecollection.org. https://wellcomecollection.org --- Handwritten letter on Purdue University, Department of Biological Sciences, Lafayette, Indiana letterhead December 12, 1961 Dear Francis, We have sent the original copy to Kendrew for J.M.B. If you or Sydney would undertake to act as referees, the delay in publication might perhaps be minimized. All the best, Seymour --- Title page (Handwritten note at top: \"final version (barring violent criticism from you)\") AN ACTIVE CISTRON FRAGMENT By Sewell P. Champe and Seymour Benzer Department of Biological Sciences, Purdue University, Lafayette, Indiana --- Summary An unusual rII mutant of phage T4 is described, in which a terminal portion of a cistron has been deleted without impairing the function of the remaining fragment. This suggests that the deleted section is non-essential. Nevertheless, mutations within this segment which do impair the function can be observed. --- 1. Introduction The entire amino acid sequence of an enzyme is not always essential to its function; a fragment of the molecule may retain all or part of the catalytic activity as shown, for example, by the work of Hill & Smith (1956) on papain, and Kalnitsky & Rogers (1956) on ribonuclease. Assuming that the amino acid sequence of an enzyme is dictated by the nucleotide sequence in a genetic structure, one might expect that it would be possible, in some instances, to delete a part of the genetic structure without seriously impairing the activity of its product. The present paper describes a mutant of bacteriophage T4 which appears to represent such a case. In this mutant, although a sizable fraction of the B cistron of the rII region has been deleted, the remaining fragment retains the B cistron function. 2. Results (a) The two cistrons in the rII region of phage T4 rII mutations in phage T4 prevent the phage from multiplying in strain K of E. coli. If a cell is also infected with the standard type phage, the function or functions needed by the mutant are supplied, and both mutant and standard type progeny are produced. Thus rII mutations are recessive. rII mutants can be classified into either of two functional groups by means of the cis-trans test (Benzer 1955, 1957), these groups being consistent with the location of the mutations either to the left or to the right of a unique divide in the genetic map constructed by recombination experiments. Of some hundreds of extended (\"deletion\") mutations that have been mapped in the rII region, four (r1605, rNB7006, r1231, and r1589) span the divide between the A and B cistrons, leaving fragments of a cistron on either side. A genetic map showing these mutations (and others pertinent to the following discussion) is given in Fig. 1. r1605, rNB7006, and r1231 behave in complementation tests in the expected way, that is, they fail to complement any A or B cistron mutant. However, the behavior of r1589 is exceptional. (b) Properties of the exceptional mutant r1589 The lesion in r1589 encompasses a large part of the A cistron and extends over 21 known sites (out of 129) of the B cistron. That is to say, when r1589 is crossed with any mutant located within or overlapping this span, no standard type recombinants have ever been detected in as many as 10^8 progeny. By the method of shrinkage of distance between outside markers (Nomura & Benzer, 1961) the lesion in r1589 has been shown (Bode, 1962) to be a true deletion. Now r1589, in spite of the fact that a sizable portion of the B cistron is missing, complements strongly every B cistron mutant with which it has been tested, including ones with overlapping extended mutations, such as r638. The phage yields per infected cell due to complementation are comparable to the standard type phage. r1589 does not, however, complement any A cistron mutant so far tested. Data for various combinations are given in Fig. 2. r1589 functions as if its B cistron (but not its A cistron) were intact. Thus, the portion of the B cistron deleted in r1589 appears to be non-essential for the activity of the remaining fragment. In mixed infection of K together with any B cistron mutant, r1589 supplies this active B fragment and the A activity is supplied by the other mutant, so that both necessary functions are present. Were it not for the fact that r1589 also has part of its lesion affecting the A cistron, it might not have appeared to be a mutant at all. This confronts us with a paradox. Mutations have been detected in the non-essential portion of the B cistron at at least 21 different sites, and these mutants lack B cistron activity. This suggests that mutations occurring in a non-essential portion may nevertheless prevent the expression of the remainder of the cistron. For instance, an alteration of the nucleotide sequence such that the information becomes \"nonsense\" could interfere with the completion of a polypeptide chain. The special properties of r1589 have been exploited by Crick, et al. (1961) in a brilliant experiment. They have shown that the B cistron function of r1589 can be eliminated by inserting certain deficiencies in its A cistron fragment, while other deficiencies have no effect. Their interpretation, reinforced by an impressive series of other experiments with suppressor mutations, is that deficiencies corresponding to an integral number of amino acid-determining groups (nucleotide triplets) allow continued formation of a polypeptide chain while non-integral deficiencies do not. It would appear that the lesion of r1589 represents an instance where the joining of the remaining A and B cistron fragments is such that the continuity of the information is not interrupted. It is to be noted that the mutations observable within the B-cistron span of r1589 include ones which are inducible to revert by the base analog 2-aminopurine, and therefore are probably due to substitutions of one base for another (Freese, 1959). Of the 21 known sites covered by r1589, eight are of this type, designated by asterisks in Fig. 1. This would seem to indicate that the genetic code is such that base pair substitutions are capable of converting sense to nonsense. In other words, the genetic code is not completely degenerate; not every triplet necessarily corresponds to an amino acid. Another possibility, however, is that certain amino acid substitutions, even in the non-essential region, could have drastic effects upon the folding of the rest of the polypeptide chain. 3. Discussion In the standard type phage, the A and B cistrons function as independent units. Presumably, there is some information element between the two cistrons that acts as a continuity break in the transcription of the genetic information. In r1589 this element must be missing and fortuitous joining of the A and B cistron fragments enables continuity to be preserved. The deletion r1231, which has also been shown by Bode (1962) to be a true deletion, extends only slightly further (2 known sites) into the B cistron than does r1589. However, r1231 lacks B cistron activity, as do rNB7006 and r1605 which extend still further. The loss of the B cistron activity of r1231 could be due to essentiality of the additional tiny segment involved, or to a non-fortuitous joining of the A and B fragments. In the latter case one would anticipate that insertion of suitable deletions to the left of r1231 according to Crick, et al., might revive its B cistron activity. r1589 is an illustration of how two cistrons can become joined together. One can easily imagine how the converse might also occur, i.e., the separation of one cistron into two parts, by a mutation which generates a continuity break at a suitable point. An example of an enzyme for which such cistron splitting could occur without deleterious effect is ribonuclease, since, as Richards (1958) has shown, the polypeptide chain can be cleaved into two fragments which, when both are present, still form an active enzyme. Genetically, this would then resemble the case of tryptophan synthetase in E. coli (Crawford & Yanofsky, 1958; Yanofsky & Crawford, 1959) where two dissociable chains of the enzyme are indeed controlled by two contiguous cistrons. This work was supported by grants from the National Science Foundation and the National Institutes of Health. --- REFERENCES Benzer, S. (1955). Proc. Nat. Acad. Sci., Wash. 41, 344. --- Fig. 1 (figure page) A cistron and B cistron are shown with a dotted line marking the divide between them. Deletion mutants drawn as bars: r1364, r164, r739, r196, r150, r638, r1605, rNB7006, r1231, r1589. An enlarged portion of the B cistron shows r1231 and r1589 over the individual sites, labeled: 1074, 997, 244, UV375, 360, 326, A31, 2074, A63, EM84, 375, 1651, N24, HB74, 176, NT332, F96, D10, D72, 1018, 556, 441, 370. Asterisks mark several of these sites. Legend to Fig. 1: Recombination map of the rII region showing the extent of mutations referred to in the text. A portion of the B cistron has been enlarged to show the individual sites. Asterisks indicate mutations that are strongly inducible to revert by 2-aminopurine to a form which shows the standard phenotype when plated on E. coli B. While the order of the five broken segments in the bottom line is known, the arrangement of sites within each segment is arbitrary. The method used for genetic mapping has been described (Benzer, 1961). --- Fig. 2 (figure page) Standard type (r+): 360. Complementation of A and B (r164 with r638): 280. SELF TEST (burst size): r1589 0.01; r1364 0.01; r164 0.02; r739 0.07; r196 0.00; r150 0.03; r638 0.00. COMPLEMENTATION TEST (burst size): r1589 with r+ 370.; r1589 with r1364 0.01; r1589 with r164 0.00; r1589 with r739 260.; r1589 with r196 220.; r1589 with r150 290.; r1589 with r638 300. Legend to Fig. 2: Physiological activity of rII mutants in various combinations. Each oval represents E. coli strain K infected with the mutant or pair of mutants indicated. The burst size is given to the right of each figure. Procedure: The bacteria were grown in broth (1% Difco bacto-tryptone plus 0.5% NaCl) to a cell concentration of 1.0-1.5 x 10^8/ml., and growth was arrested by adding NaCN to 5 x 10^-3 M. 2 ml of this culture was added to 1 ml of broth containing 1.0 x 10^9/ml particles of each phage mutant being tested, making the total input multiplicity 6-10 phage particles per cell. After 10 minutes of adsorption at 37°C two drops of T4 antiserum (k = 25/min) were added to eliminate the few percent of unadsorbed particles. Seven minutes later, the cells were diluted 10^4-fold, incubated in broth at 37°C for 60 minutes, then treated with chloroform. The phage yield was assayed by plating on E. coli B. The burst size was calculated as the ratio of phage yield to infective centers assayed by plating the cells (before burst) on strain B. In the case of complementing pairs, about half of the infected strain K cells survived to give infective centers. For non-complementing pairs, since the infective centers could not be assayed on B, the burst size was calculated on the basis of the average number of infective centers measured for complementing pairs.",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "custom": true
+    }
+  ],
+  "marks": [
+    {
+      "id": "mark-mv7ebqy3-ep6q",
+      "kind": "mark",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "fall as a lad asks",
+      "start": 39,
+      "end": 57,
+      "createdAt": 1791939188523
+    },
+    {
+      "id": "mask-mv7ec80u-mmxn",
+      "kind": "mask",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "add",
+      "start": 63,
+      "end": 66,
+      "createdAt": 1791939210654,
+      "attempts": 0,
+      "clean": 0
+    },
+    {
+      "id": "mask-mv7ecikz-w3vp",
+      "kind": "mask",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "flag",
+      "start": 69,
+      "end": 73,
+      "createdAt": 1791939224339,
+      "attempts": 0,
+      "clean": 0
+    },
+    {
+      "id": "mask-mv7f9xrg-hjv4",
+      "kind": "mask",
+      "lessonId": "custom-mv7eilqb-7rpx",
+      "lessonTitle": "An Active Ciston Fragment - Champe and Benzer",
+      "course": "classical molecular genetics",
+      "text": "8",
+      "start": 4066,
+      "end": 4067,
+      "createdAt": 1791940783660,
+      "attempts": 0,
+      "clean": 0
+    }
+  ],
+  "overrides": {
+    "home-row": "ask a lad; a sad flask fall glass jars fall as a lad asks dad; add a flag; salsa lasts all day"
+  }
+}

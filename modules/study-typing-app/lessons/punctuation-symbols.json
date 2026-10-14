@@ -1,0 +1,19 @@
+{
+  "course": "Punctuation & Symbols",
+  "lessons": [
+    {
+      "id": "punct-sentence",
+      "title": "Commas, Periods & Quotes",
+      "text": "\"Wait,\" she said, \"are you sure about this?\" He nodded, slowly, then added: one more thing, before we go.",
+      "targetWPM": 32,
+      "targetAccuracy": 94
+    },
+    {
+      "id": "punct-symbols",
+      "title": "Brackets & Operators",
+      "text": "total = (price * qty) + tax; if (total > 100) { apply_discount(total, 0.10); } else { skip(); }",
+      "targetWPM": 28,
+      "targetAccuracy": 93
+    }
+  ]
+}

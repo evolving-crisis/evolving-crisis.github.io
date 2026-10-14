@@ -28,6 +28,12 @@ url: "https://evolving-crisis.github.io" # the base hostname & protocol for your
 #github_username:  jekyll
 
 # Build settings
+sass:
+  quiet_deps: true
+  silence_deprecations:
+    - import
+    - global-builtin
+    - color-functions
 
 # Exclude from processing.
 # The following items will not be processed, by default.
@@ -51,5 +57,9 @@ url: "https://evolving-crisis.github.io" # the base hostname & protocol for your
 
 # Use Minima theme with feed
 remote_theme: jekyll/minima
+header_pages:
+  - about.markdown
+  - study-typing.markdown
 plugins:
   - jekyll-feed
+  - jekyll-remote-theme
