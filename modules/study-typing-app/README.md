@@ -105,19 +105,19 @@ in this browser." `getAllCourses()` in `app.js` merges all three tiers by
 course title for display, so from the visitor's point of view it's seamless —
 but only tier 3 is ever specific to them.
 
-**Editing a lesson in place (`Esc`, then `e`).** The lesson text becomes
+**Editing a lesson in place (`Esc`, then `i`).** The lesson text becomes
 editable *where it is* — no panel, no focus change. Same font, same line breaks,
 same green/red; the typing caret simply turns into the editing caret at the
 character you were on, and the hidden typing field keeps focus the whole time. The
-clock pauses (no veil). Everything you'd expect works: arrows, word jumps, Home/End
-and Up/Down by *visible* line, select, undo/redo, clipboard (pasted line breaks
-become spaces), click / shift-click / drag / double-click. `Esc` commits the edit
-and returns to Command mode,
-`Esc` cancels. Typing then resumes on the same character — or, if you changed
+clock pauses (no veil). When editing is opened from Typing mode, leaving the
+editor returns to Typing mode and resumes the clock; when it is opened from
+Command mode, it returns to paused Command mode. Everything you'd expect works:
+arrows, word jumps, Home/End and Up/Down by *visible* line, select, undo/redo, clipboard
+(pasted line breaks
+become spaces), click / shift-click / drag / double-click. `Esc` commits the edit and returns to the mode that was active before editing. Typing then resumes on the same character — or, if you changed
 something inside what you'd already typed, on the first changed character (and if
-you cut everything after the caret, the lesson completes). The pencil in the
-header does the same for touch screens. Marks follow the text, and open mark/mask
-spans are cancelled when you start editing.
+you cut everything after the caret, the lesson completes). Marks follow the text,
+and open mark/mask spans are cancelled when you start editing.
 
 Where the edit is stored depends on the tier:
 
@@ -167,23 +167,28 @@ Options, roughly in order of effort:
 All of these are genuinely separate services sitting *in front of* or *beside*
 your Pages site — Pages itself stays exactly what it is, a static file host.
 
-## Play, pause, and auto-pause
+## Typing, pause, and auto-pause
 
 The practice area is a small state machine (`App.state` in `app.js`):
 
 ```
-idle  --play / any key-->  ready  --first keystroke-->  running  <-->  paused
+idle  --type / any key-->  ready  --first keystroke-->  running  <-->  paused
                                                            |
                                                        finished
 ```
 
-- **idle** — the text is veiled. Press play (or any key) to reveal it; that
-  first key is swallowed, not typed into text you can't see yet.
+- **idle** — the text is veiled on the first visit to each lesson in a browser
+  session. Press Type (or any key) to reveal it; that first key is swallowed,
+  not typed into text you can't see yet.
 - **ready** — text revealed, "Start typing" pill showing, clock *not* running.
   The timer starts on your first real keystroke. "Try again", "Next lesson" and
   saving an edit skip the veil and land here directly.
 - **paused** — the clock is stopped and the veil returns (outside the scrolling
-  text box, so it's visible however far down a long lesson you are).
+  text box, so it's visible however far down a long lesson you are). When the
+  pause belongs to Command mode, the paused state is kept but the lesson stays
+  visible for navigation and editing.
+  The lesson visit record is kept in `sessionStorage`, so revisiting a lesson
+  during the same browser session does not show the first-visit veil again.
 
 **What pauses it automatically**, with the reason shown on the veil and sent in
 the `paused` event (`TypingStudio.on('paused', e => e.detail.reason)`):
@@ -194,12 +199,11 @@ the `paused` event (`TypingStudio.on('paused', e => e.detail.reason)`):
 | `window` | the window lost focus: alt-tab, another app, devtools, or the page hosting an embed |
 | `blur`   | the typing field lost focus (clicked elsewhere on the page) |
 | `idle`   | no keystroke for `IDLE_PAUSE_MS` (default 30 s; `0` disables) |
-| `manual` | the pause button |
 
 Two details worth knowing. Time away is **excluded from the clock** (and from
 checkpoint speeds); the idle pause is back-dated to your last keystroke so the
 30 s of silence never counts against your WPM. And **resuming is always
-explicit** — a click on the veil, the play button, or any key — so returning to
+explicit** — a click on the veil, the Type button, or any key — so returning to
 the tab never restarts the clock under your hands. The key that wakes it is
 swallowed rather than typed.
 
@@ -214,10 +218,9 @@ While you type, keep what's worth keeping without breaking flow:
 
 | keys | does |
 |------|------|
-| Command mode `m` | mark or unmark the current word |
+| Command mode `mw` | mark or unmark the current word |
+| Command mode `m`, then `t`, then `Esc` and `m` | start and finish a marked passage |
 | Command mode `M` | mask or unmask the current word |
-| mark icon in the header | start/end a mark span |
-| marker icon in the header | starts/ends a mark span, for touch screens |
 
 A mark is drawn as a rounded orchid underline with a faint wash. It sits *on top
 of* the green/red feedback instead of replacing it, and it comes back whenever
@@ -241,9 +244,8 @@ closed in either order:
 
 | keys | does |
 |------|------|
-| Command mode `m` | **mark or unmark** the current word |
+| Command mode `mw` | **mark or unmark** the current word |
 | Command mode `M` | **mask or unmask** the current word |
-| the two icons in the header | the same, for touch screens |
 
 A mask made while you type is already typed, so it shows as a dotted underline
 and takes effect **from the next run** (Try again, or next time you open the
@@ -272,31 +274,59 @@ well; only whitespace around the outside of a lesson is trimmed.
 
 ## Typing and command modes
 
+The header keeps Sound, Theme, Restart, and Type/Pause controls available in all
+modes. Editing, marking, and masking are intentionally Command-mode-only; use
+`Esc`, then `i`, `mw`, `m`, or `M`. `Esc` automatically pauses when entering
+Command mode; the Type/Pause button has the same behavior as `Esc` while
+typing and `t` while in Command mode. Restart resets the lesson normally.
+
+The header includes an **Esc commands** switch, enabled by default. When it is
+on, `Esc` enters Command mode and handles the app's Escape actions. Turn it off
+to leave `Esc` to the browser and assistive technology; the switch itself is
+keyboard-operable and exposes its state as an accessible `switch` control.
+
 The app has two user-facing modes:
 
 - **Typing mode** — type the lesson. `Enter` and `Tab` are lesson characters.
 - **Command mode** — navigate and change the lesson without browser shortcuts.
 
-Press `Esc` while typing to enter Command mode. It pauses the clock without
-hiding the lesson. Press `i` to return to Typing mode, or `p` to pause/resume
-while staying in Command mode.
+Press `Esc` while typing, with focus in the practice area, to enter Command
+mode. It pauses the clock without hiding the lesson. The Type button has the
+same return behavior as `t`: it focuses Typing mode, or leaves Command mode
+and resumes the clock. Escape first dismisses an
+open dialog, completion card, or lesson drawer, and does not enter Command mode
+when focus is on another interactive control. Press `t` to return to Typing
+mode, or `i` to enter inline editing.
 
 | keys | does |
 |------|------|
 | `n` | move to the beginning of the next word |
 | `b` | move to the beginning of the previous word |
+| `:1234` + `Enter` | jump to zero-based character position 1234 |
 | `dw` | delete the current word from the lesson template |
-| `u` | undo the last lesson-template edit or `dw` deletion |
-| `R` | reset the current typing session to the beginning |
-| `p` | pause or resume the session while staying in Command mode |
-| `m` | mark or unmark the current word |
+| `Backspace` | delete the previous word from the lesson template |
+| `u` | undo the last lesson-template edit, `dw`, or Backspace deletion |
+| `r` | redo a lesson-template edit, `dw`, or Backspace deletion |
+| `restart` | reset the current typing session to the beginning |
+| `mw` | mark or unmark the current word |
+| `m` | start or finish a marked passage |
 | `M` | mask or unmask the current word |
-| `e` | enter full template editing |
-| `i` | return to Typing mode |
+| `i` | enter full template editing |
+| `t` | return to Typing mode |
+
+An open marked or masked passage remains active while using lesson-template
+editing commands such as `dw` or `Backspace`; the capture boundary follows the
+updated text. Press `i` to edit the lesson without cancelling an open passage:
+the passage is hidden while editing, then typing can continue and `m` can close
+it when you return to Command mode.
 
 `Enter` and `Tab` remain literal lesson characters in Typing mode. Template
 edits are stored as custom lesson changes or per-lesson overrides, and `u`
-restores the previous template and cursor position.
+restores the previous template and cursor position. Template history keeps the
+most recent 20 entries and at most 500,000 characters, so repeated edits to a
+large lesson cannot grow memory without bound. New edits clear the redo history.
+The `r` redo command waits briefly to determine whether it is the beginning of
+the `restart` reset command.
 
 ## Accents and dead keys
 
@@ -309,13 +339,6 @@ Everything is normalized to NFC (lesson text and typed input), so a pasted
 decomposed `a` + combining acute counts as one `á`. Mobile keyboards that
 compose whole words still get live per-character feedback — only bare accents
 are held back.
-
-## Study mode: hide the text until play
-
-By default the text is visible before you start (a pill says "Press play or
-start typing"; the first key both starts the clock and is typed). For
-memorizing, "Hide text until play" in the drawer veils it until you press play
-or any key; that first key is swallowed, and the words rise in.
 
 ## One `localStorage` subtlety worth knowing
 

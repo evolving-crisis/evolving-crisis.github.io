@@ -57,6 +57,9 @@ const IDLE_PAUSE_MS = 30000;
 
 // What a dead key (´ ` ¨ ^ ~) leaves in the typing field while it waits for its vowel.
 const ACCENT_ONLY = /^[´`¨^~˜¸¯˘˙˚˝ˇ'"\u0300-\u036F]+$/u;
+const SESSION_VISITS_KEY = 'typingStudio.lessonVisits.v1';
+const TEMPLATE_HISTORY_LIMIT = 20;
+const TEMPLATE_HISTORY_MAX_CHARS = 500000;
 
 /* ---------------------------- lesson data ---------------------------- */
 // Each lesson: { id, title, text, targetWPM, targetAccuracy, objectives?, topics? }
@@ -334,9 +337,6 @@ class TypingEngine extends EventTarget{
     this.wordsCompleted = (text.slice(0, this.pos).match(/ /g) || []).length;
     this.lastCheckpointWords = Math.min(this.lastCheckpointWords, this.wordsCompleted);
     this.lastCheckpointChars = Math.min(this.lastCheckpointChars, this.pos);
-  }
-  forceFinish(){
-    if(!this.finished && this.startTime !== null && this.pos >= this.text.length) this._finish();
   }
   _finish(){
     this.finished = true;
@@ -641,7 +641,7 @@ class TextView{
     s.el.classList.remove('landing');
   }
   reveal(){
-    // "The text appears when you press play": words rise in with a short stagger,
+    // Words rise in with a short stagger when typing starts.
     // capped so even a long lesson is fully visible within about half a second.
     if(prefersReducedMotion() || typeof this.container.animate !== 'function') return;
     this.wordEls.forEach((w, i) => {
@@ -828,6 +828,7 @@ class StatsView{
     this.els.acc.textContent = '100%';
     this.els.time.textContent = '0:00';
     this.els.errors.textContent = '0';
+    this.els.position.textContent = '0/0';
     this.lastWpm = 0;
   }
   update(stats){
@@ -840,6 +841,7 @@ class StatsView{
     }
     this.lastWpm = stats.wpm;
   }
+  updatePosition(pos, length){ this.els.position.textContent = `${pos}/${length}`; }
 }
 
 /* ---------------------------- confetti ---------------------------- */
@@ -876,10 +878,11 @@ const App = {
   statsView: null,
   customLessons: [],
   staticPackCourses: [], // courses fetched from ./lessons/*.json — see fetchStaticPacks()
-  state: 'idle', // idle | ready | running | paused | finished  (see "play / pause state machine")
-  pauseReason: null, // 'manual' | 'normal' | 'blur' | 'window' | 'hidden' | 'idle'
-  normalMode: false,
-  pendingNormalCommand: '',
+  state: 'idle', // idle | ready | running | paused | finished
+  pauseReason: null, // 'command' | 'edit' | 'blur' | 'window' | 'hidden' | 'idle'
+  commandMode: false,
+  pendingCommand: '',
+  commandTimer: null,
   lastKeyAt: 0,      // performance.now() of the last keystroke, for the idle watchdog
   shadowValue: '',   // what the hidden input should currently contain
   marks: [],         // saved annotations: { id, kind:'mark'|'mask', lessonId, lessonTitle, course, text, start, end, createdAt, attempts?, clean? }
@@ -899,13 +902,17 @@ const App = {
   editStart: null,   // what the run looked like when the edit began: { text, pos, typed, wasState, states, badges }
   overrides: {},     // visitor's edits to built-in / static-pack lessons: lessonId -> text
   templateUndo: [],
+  templateRedo: [],
+  editRenderFrame: null,
   positions: {},     // unfinished cursor positions: lessonId -> { position, text }
+  sessionLessonVisits: new Set(),
+  lessonIntro: false,
   _editShown: '',    // the text currently drawn while editing
   _vx: null,         // remembered column for repeated Up / Down
   _lines: null,      // cached visible line geometry while editing
   _drag: null,       // mouse selection in progress
   composing: false,  // a dead key / IME composition is open in the typing field
-  hideUntilPlay: false, // study mode: keep the text hidden until play is pressed
+  escapeCommands: true, // when enabled, Escape enters command mode and handles app Escape actions
   currentLesson: null,
   currentCourseTitle: '',
   timerHandle: null,
@@ -918,23 +925,29 @@ const App = {
     this.deletedLessons = new Set(Storage.loadDeletedLessons());
     this.overrides = Storage.loadOverrides();
     this.positions = Storage.loadPositions();
-    this.hideUntilPlay = !!prefs.hideUntilPlay;
+    try{
+      const visits = JSON.parse(sessionStorage.getItem(SESSION_VISITS_KEY) || '[]');
+      if(Array.isArray(visits)) this.sessionLessonVisits = new Set(visits);
+    }catch(e){ /* sessionStorage may be unavailable in private or embedded contexts */ }
     this.masksOn = prefs.masksOn !== false;
+    this.escapeCommands = prefs.escapeCommands !== false;
 
     this.dom = {
       menuBtn: qs('#menuBtn'), drawer: qs('#drawer'), drawerScrim: qs('#drawerScrim'), drawerCloseBtn: qs('#drawerCloseBtn'),
       courseList: qs('#courseList'), newLessonBtn: qs('#newLessonBtn'),
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
-      soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'), restartBtn: qs('#restartBtn'), playBtn: qs('#playBtn'),
+      escapeSwitch: qs('#escapeSwitch'),
+      soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
+      restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
       progressFill: qs('#progressFill'), captureInput: qs('#captureInput'),
       textShell: qs('#textShell'), readyPill: qs('#readyPill'), startCueSub: qs('#startCueSub'),
-      markPill: qs('#markPill'), markBtn: qs('#markBtn'), marksScrim: qs('#marksScrim'), marksCloseBtn: qs('#marksCloseBtn'),
-      maskPill: qs('#maskPill'), maskBtn: qs('#maskBtn'), maskToggleBtn: qs('#maskToggleBtn'),
+      markPill: qs('#markPill'), marksScrim: qs('#marksScrim'), marksCloseBtn: qs('#marksCloseBtn'),
+      maskPill: qs('#maskPill'), maskToggleBtn: qs('#maskToggleBtn'),
       marksList: qs('#marksList'), marksCopyBtn: qs('#marksCopyBtn'), marksPracticeBtn: qs('#marksPracticeBtn'),
-      marksOpenBtn: qs('#marksOpenBtn'), marksCount: qs('#marksCount'), blindToggleBtn: qs('#blindToggleBtn'),
-      editBtn: qs('#editBtn'), editPill: qs('#editPill'),
-      statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'),
+      marksOpenBtn: qs('#marksOpenBtn'), marksCount: qs('#marksCount'),
+      editPill: qs('#editPill'),
+      statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
       modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), lessonForm: qs('#lessonForm'),
       lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
@@ -948,7 +961,7 @@ const App = {
 
     this.textView = new TextView(this.dom.textDisplay, this.dom.caret);
     this.keyboardView = new KeyboardView(this.dom.keyboard);
-    this.statsView = new StatsView({ wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors });
+    this.statsView = new StatsView({ wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors, position:this.dom.statPosition });
 
     // theme
     if(prefs.theme === 'light' || prefs.theme === 'dark') this.setTheme(prefs.theme, false);
@@ -959,9 +972,9 @@ const App = {
     if(prefs.keyboardHidden){ this.dom.keyboardPanel.style.display = 'none'; this.dom.keyboardToggleBtn.textContent = 'Show keyboard'; }
 
     this.wireEvents();
-    this.updateBlindBtn();
     this.updateMaskToggleBtn();
     this.updateMarksCount();
+    this.updateEscapeSwitch();
 
     // Load the manifest before rendering or selecting the first lesson. The
     // default lesson may live in a static pack, and rendering first would
@@ -1115,9 +1128,15 @@ const App = {
   loadLesson(lesson, courseTitle, opts = {}){
     if(this.editing) this.endInlineEdit(true); // switching lessons keeps what you edited
     this.currentLesson = lesson;
-    this.normalMode = false;
-    this.pendingNormalCommand = '';
+    this.lessonIntro = !this.sessionLessonVisits.has(lesson.id);
+    if(this.lessonIntro){
+      this.sessionLessonVisits.add(lesson.id);
+      try{ sessionStorage.setItem(SESSION_VISITS_KEY, JSON.stringify([...this.sessionLessonVisits])); }catch(e){ /* continue without session persistence */ }
+    }
+    this.commandMode = false;
+    this.clearCommandBuffer();
     this.templateUndo = [];
+    this.templateRedo = [];
     this.currentCourseTitle = courseTitle || lesson.course || '';
     this.engine = new TypingEngine(lesson);
     this.engine.addEventListener('start', () => this.onStart());
@@ -1136,9 +1155,11 @@ const App = {
     this.engine.wordsCompleted = (this.engine.text.slice(0, savedPosition).match(/ /g) || []).length;
     this.textView.build(this.engine.text);
     for(let i = 0; i < savedPosition; i++) this.textView.setCharState(i, 'correct');
+    this.textView.moveCaret(savedPosition);
     this.keyboardView.clearNext();
     this.keyboardView.highlightNext(lesson.text[0]);
     this.statsView.reset();
+    this.updateTypingPosition();
     this.state = 'idle';
     this.updateOverlay();
     this.hideCompletion();
@@ -1147,7 +1168,6 @@ const App = {
     this.dom.lessonGoal.textContent = `Goal: ${lesson.targetWPM} wpm · ${lesson.targetAccuracy}% accuracy`;
     this.dom.progressFill.style.width = '0%';
     this.dom.captureInput.value = this.engine.text.slice(0, savedPosition);
-    this.dom.playBtn.classList.remove('is-playing');
     this.shadowValue = this.dom.captureInput.value;
     this.pauseReason = null;
     this.resetRunState();
@@ -1158,21 +1178,23 @@ const App = {
     this.savePref('lastLessonId', lesson.id);
     this.renderSidebar();
     this.bus.dispatchEvent(new CustomEvent('lessonLoaded', { detail:{ lessonId:lesson.id } }));
-    if(opts.ready || savedPosition > 0) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
+    if(!this.lessonIntro && (opts.ready || savedPosition > 0)) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
   },
 
   restart(){
     if(!this.engine) return;
     if(this.editing) this.endInlineEdit(true);
-    this.normalMode = false;
-    this.pendingNormalCommand = '';
+    this.commandMode = false;
+    this.clearCommandBuffer();
     this.templateUndo = [];
+    this.templateRedo = [];
     this.engine.reset();
     delete this.positions[this.currentLesson.id];
     Storage.savePositions(this.positions);
     this.textView.build(this.engine.text);
     this.keyboardView.clearNext();
     this.statsView.reset();
+    this.updateTypingPosition();
     this.state = 'idle';
     this.pauseReason = null;
     this.resetRunState();
@@ -1200,6 +1222,7 @@ const App = {
     this.lastKeyAt = performance.now();
     this.textView.setCharState(index, correct ? 'correct' : 'incorrect');
     this.textView.moveCaret(this.engine.pos);
+    this.updateTypingPosition();
     this.textView.strike(index, correct, char);
     this.textView.refreshWord(index);
     this.keyboardView.flashPressed(char, correct);
@@ -1224,6 +1247,7 @@ const App = {
     this.textView.cancelStrike(index);
     this.textView.setCharState(index, null);
     this.textView.moveCaret(this.engine.pos);
+    this.updateTypingPosition();
     this.textView.refreshWord(index);
     this.sound.playKey({});
     this.statsView.update(this.engine.getStats());
@@ -1232,18 +1256,19 @@ const App = {
     if(this.captures.mark || this.captures.mask) this.refreshOverlays();
   },
   skipWord(){
-    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.normalMode && this.state === 'paused')) || this.editing) return;
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     const moved = this.engine.skipToNextWord();
     if(!moved) return;
     this.dom.captureInput.value = this.engine.text.slice(0, this.engine.pos);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(this.engine.pos);
+    this.updateTypingPosition();
     this.updateProgress();
     this.saveCursorPosition();
     this.hintNext();
   },
   previousWord(){
-    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.normalMode && this.state === 'paused')) || this.editing) return;
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     let target = this.engine.pos;
     while(target > 0 && /\s/.test(this.engine.text[target - 1])) target--;
     while(target > 0 && !/\s/.test(this.engine.text[target - 1])) target--;
@@ -1253,17 +1278,22 @@ const App = {
     this.dom.captureInput.value = this.engine.text.slice(0, target);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(target);
+    this.updateTypingPosition();
     this.updateProgress();
     this.saveCursorPosition();
     this.hintNext();
   },
   recordTemplateUndo(text, pos){
     this.templateUndo.push({ lessonId:this.currentLesson.id, text, pos });
-    if(this.templateUndo.length > 50) this.templateUndo.shift();
+    this.templateRedo = [];
+    this.trimTemplateHistory(this.templateUndo);
   },
-  undoTemplateEdit(){
-    const entry = this.templateUndo.pop();
-    if(!entry || entry.lessonId !== this.currentLesson.id) return;
+  trimTemplateHistory(history){
+    while(history.length > TEMPLATE_HISTORY_LIMIT || history.reduce((total, entry) => total + entry.text.length, 0) > TEMPLATE_HISTORY_MAX_CHARS){
+      history.shift();
+    }
+  },
+  applyTemplateHistoryEntry(entry){
     const snapshot = this.textView.snapshot(this.engine.pos);
     const pos = Math.min(entry.pos, entry.text.length);
     this.persistEdit(entry.text);
@@ -1273,68 +1303,172 @@ const App = {
     this.dom.captureInput.value = this.engine.text.slice(0, pos);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(pos);
+    this.updateTypingPosition();
     this.updateProgress();
     this.saveCursorPosition();
     this.hintNext();
     this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
   },
-  enterNormalMode(){
-    if(this.editing || this.normalMode || !this.engine || (this.state !== 'running' && this.state !== 'ready')) return;
-    this.normalMode = true;
-    this.pendingNormalCommand = '';
-    if(this.state === 'running') this.pauseTyping('normal');
-    this.updateOverlay();
-    this.showPill('edit', 'COMMAND mode · p to pause · i for typing mode');
+  undoTemplateEdit(){
+    const entry = this.templateUndo.pop();
+    if(!entry || entry.lessonId !== this.currentLesson.id) return;
+    this.templateRedo.push({ lessonId:this.currentLesson.id, text:this.engine.text, pos:this.engine.pos });
+    this.trimTemplateHistory(this.templateRedo);
+    this.applyTemplateHistoryEntry(entry);
   },
-  leaveNormalMode(){
-    if(!this.normalMode) return;
-    this.normalMode = false;
-    this.pendingNormalCommand = '';
-    this.hidePill('edit');
-    if(this.state === 'paused' && this.pauseReason === 'normal') this.resumeTyping();
-    else this.updateOverlay();
+  redoTemplateEdit(){
+    const entry = this.templateRedo.pop();
+    if(!entry || entry.lessonId !== this.currentLesson.id) return;
+    this.templateUndo.push({ lessonId:this.currentLesson.id, text:this.engine.text, pos:this.engine.pos });
+    this.trimTemplateHistory(this.templateUndo);
+    this.applyTemplateHistoryEntry(entry);
   },
-  toggleNormalPause(){
-    if(!this.normalMode || this.editing) return;
-    if(this.state === 'running'){
-      this.pauseTyping('normal');
-      this.showPill('edit', 'COMMAND mode · p to resume · i for typing mode');
-    } else if(this.state === 'paused' && this.pauseReason === 'normal'){
-      this.resumeTyping();
-      this.showPill('edit', 'COMMAND mode · p to pause · i for typing mode');
+  clearCommandBuffer(){
+    this.pendingCommand = '';
+    if(this.commandTimer !== null){
+      clearTimeout(this.commandTimer);
+      this.commandTimer = null;
     }
   },
-  handleNormalKeydown(e){
-    if(!this.normalMode) return false;
+  queueCommandBuffer(command){
+    this.clearCommandBuffer();
+    this.pendingCommand = command;
+    this.commandTimer = setTimeout(() => {
+      this.commandTimer = null;
+      if(this.pendingCommand === 'r') this.redoTemplateEdit();
+      this.pendingCommand = '';
+    }, 800);
+  },
+  enterCommandMode(){
+    if(this.editing || this.commandMode || !this.engine || (this.state !== 'running' && this.state !== 'ready')) return;
+    this.commandMode = true;
+    this.clearCommandBuffer();
+    if(this.state === 'running') this.pauseTyping('command');
+    this.updateOverlay();
+    this.showPill('edit', 'COMMAND mode · t for typing mode · i to edit');
+  },
+  leaveCommandMode(){
+    if(!this.commandMode) return;
+    this.commandMode = false;
+    this.clearCommandBuffer();
+    this.hidePill('edit');
+    if(this.state === 'paused' && this.pauseReason === 'command') this.resumeTyping();
+    else this.updateOverlay();
+  },
+  activateTyping(){
+    if(this.commandMode){
+      this.leaveCommandMode();
+      return;
+    }
+    if(this.state === 'running' || this.state === 'ready'){
+      this.enterCommandMode();
+      return;
+    }
+    this.activate();
+  },
+  handleCommandKeydown(e){
+    if(!this.commandMode) return false;
+    if(e.key === 'Escape' && !this.escapeCommands) return false;
     e.preventDefault();
     const key = e.key;
-    if(key === 'Escape'){ this.pendingNormalCommand = ''; return true; }
-    if(key === 'i'){ this.leaveNormalMode(); return true; }
-    if(key === 'p'){ this.toggleNormalPause(); return true; }
-    if(this.pendingNormalCommand === 'd'){
-      this.pendingNormalCommand = '';
+    if(key === 'Escape'){ this.clearCommandBuffer(); return true; }
+    if(this.pendingCommand.startsWith(':')){
+      if(/^\d$/.test(key)){
+        this.pendingCommand += key;
+        this.showPill('edit', `Jump to position: ${this.pendingCommand}`);
+      } else if(key === 'Enter'){
+        const position = Number(this.pendingCommand.slice(1));
+        this.clearCommandBuffer();
+        this.jumpToPosition(position);
+      } else if(key === 'Backspace' && this.pendingCommand.length > 1){
+        this.pendingCommand = this.pendingCommand.slice(0, -1);
+        this.showPill('edit', `Jump to position: ${this.pendingCommand}`);
+      } else {
+        this.clearCommandBuffer();
+      }
+      return true;
+    }
+    if(key === 'Backspace'){
+      this.deletePreviousWord();
+      return true;
+    }
+    if(this.pendingCommand === 'm'){
+      const candidate = 'm' + key.toLowerCase();
+      if(candidate === 'mw'){
+        this.clearCommandBuffer();
+        this.markWordAtCaret('mark');
+      } else if(key === 't'){
+        this.clearCommandBuffer();
+        this.toggleCapture('mark');
+        this.leaveCommandMode();
+      } else {
+        this.clearCommandBuffer();
+      }
+      return true;
+    }
+    if(this.pendingCommand === 'd'){
+      this.clearCommandBuffer();
       if(key === 'w') this.deleteCurrentWord();
       return true;
     }
-    if(key === 'd'){ this.pendingNormalCommand = 'd'; return true; }
+    const restartCommand = 'restart';
+    if(this.pendingCommand){
+      const candidate = this.pendingCommand + key.toLowerCase();
+      if(restartCommand === candidate){
+        this.clearCommandBuffer();
+        this.restart();
+        return true;
+      }
+      if(restartCommand.startsWith(candidate)){
+        this.queueCommandBuffer(candidate);
+        return true;
+      }
+      if(this.pendingCommand === 'r'){
+        this.clearCommandBuffer();
+        this.redoTemplateEdit();
+        return true;
+      } else {
+        this.clearCommandBuffer();
+      }
+    }
+    if(key === 't'){ this.leaveCommandMode(); return true; }
+    if(key.toLowerCase() === 'r'){
+      this.queueCommandBuffer('r');
+      return true;
+    }
+    if(key === 'd'){ this.queueCommandBuffer('d'); return true; }
     if(key === 'n'){ this.skipWord(); return true; }
     if(key === 'b'){ this.previousWord(); return true; }
     if(key === 'u'){ this.undoTemplateEdit(); return true; }
-    if(key === 'R'){ this.restart(); return true; }
-    if(key === 'm'){ this.markWordAtCaret('mark'); return true; }
+    if(key === 'm'){
+      this.clearCommandBuffer();
+      this.pendingCommand = 'm';
+      this.commandTimer = setTimeout(() => {
+        this.commandTimer = null;
+        if(this.pendingCommand === 'm') this.toggleCapture('mark');
+        this.pendingCommand = '';
+      }, 800);
+      return true;
+    }
+    if(key === ':'){
+      this.clearCommandBuffer();
+      this.pendingCommand = ':';
+      this.showPill('edit', 'Jump to position: :');
+      return true;
+    }
     if(key === 'M'){ this.markWordAtCaret('mask'); return true; }
-    if(key === 'e'){
-      this.normalMode = false;
-      this.pendingNormalCommand = '';
+    if(key === 'i'){
+      this.commandMode = false;
+      this.clearCommandBuffer();
       this.hidePill('edit');
       this.toggleInlineEdit();
       return true;
     }
-    this.pendingNormalCommand = '';
+    this.pendingCommand = '';
     return true;
   },
   deleteCurrentWord(){
-    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.normalMode && this.state === 'paused')) || this.editing) return;
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     const eng = this.engine;
     const text = eng.text;
     const pos = eng.pos;
@@ -1355,16 +1489,79 @@ const App = {
     const snapshot = this.textView.snapshot(pos);
     this.recordTemplateUndo(text, pos);
     this.persistEdit(newText);
+    this.adjustCapturesForDeletion(start, end);
     eng.replaceText(newText, Math.min(pos, newText.length));
     this.textView.build(eng.text, true);
     this.textView.restore(snapshot, eng.pos);
     this.dom.captureInput.value = eng.text.slice(0, eng.pos);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(eng.pos);
+    this.updateTypingPosition();
     this.updateProgress();
     this.saveCursorPosition();
     this.hintNext();
+    this.refreshOverlays();
     this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+  },
+  deletePreviousWord(){
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
+    const eng = this.engine;
+    const text = eng.text;
+    const pos = eng.pos;
+    let end = pos;
+    while(end > 0 && /\s/.test(text[end - 1])) end--;
+    let start = end;
+    while(start > 0 && !/\s/.test(text[start - 1])) start--;
+    if(start === pos) return;
+    const newText = normalizeLessonText(text.slice(0, start) + text.slice(pos));
+    if(!newText || newText === text) return;
+    const snapshot = this.textView.snapshot(pos);
+    this.recordTemplateUndo(text, pos);
+    this.persistEdit(newText);
+    this.adjustCapturesForDeletion(start, pos);
+    eng.replaceText(newText, Math.min(start, newText.length));
+    this.textView.build(eng.text, true);
+    this.textView.restore(snapshot, eng.pos);
+    this.dom.captureInput.value = eng.text.slice(0, eng.pos);
+    this.shadowValue = this.dom.captureInput.value;
+    this.textView.moveCaret(eng.pos);
+    this.updateTypingPosition();
+    this.updateProgress();
+    this.saveCursorPosition();
+    this.hintNext();
+    this.refreshOverlays();
+    this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+  },
+  adjustCapturesForDeletion(start, end){
+    const removed = end - start;
+    if(removed <= 0) return;
+    ['mark', 'mask'].forEach(kind => {
+      const capture = this.captures[kind];
+      if(!capture) return;
+      if(capture.start >= end) capture.start -= removed;
+      else if(capture.start > start) capture.start = start;
+    });
+  },
+  updateTypingPosition(){
+    if(this.engine) this.statsView.updatePosition(this.engine.pos, this.engine.text.length);
+  },
+  jumpToPosition(position){
+    if(!this.engine || !Number.isInteger(position)) return;
+    const target = Math.max(0, Math.min(position, this.engine.text.length));
+    const current = this.engine.pos;
+    if(target < current){
+      for(let i = target; i < current; i++) this.textView.setCharState(i, null);
+    }
+    this.engine.pos = target;
+    this.dom.captureInput.value = this.engine.text.slice(0, target);
+    this.shadowValue = this.dom.captureInput.value;
+    this.textView.moveCaret(target);
+    this.updateTypingPosition();
+    this.updateProgress();
+    this.saveCursorPosition();
+    this.hintNext();
+    this.refreshOverlays();
+    this.showPill('edit', target === position ? `Position ${target}` : `Position ${position} → ${target}`, 1200);
   },
   onError(e){
     this.textView.shake();
@@ -1392,7 +1589,6 @@ const App = {
     Storage.savePositions(this.positions);
     this.stopTicker();
     this.keyboardView.clearNext();
-    this.dom.playBtn.classList.remove('is-playing');
     this.sound.playComplete();
     this.saveBestStats(e.detail);
     const recall = this.recordRecall();
@@ -1417,35 +1613,41 @@ const App = {
   /* ----- overlay / pause / focus ----- */
   updateOverlay(){
     const d = this.dom, s = this.state;
-    const hidden = this.hideUntilPlay;
-    // The text is visible by default. Study mode veils it until play; a pause veils it too — except an
-    // inline edit, which keeps the text exactly where it is.
-    const veiled = (s === 'idle' && hidden) || (s === 'paused' && this.pauseReason !== 'edit' && this.pauseReason !== 'normal');
+    // First lesson visits and typing pauses show the veil. Editing and Command
+    // mode remain visible so the lesson can be worked with.
+    const veiled = (s === 'idle' && this.lessonIntro) ||
+      (s === 'paused' && this.pauseReason !== 'edit' && this.pauseReason !== 'command');
     d.startCue.classList.toggle('hidden', !veiled);
-    d.readyPill.classList.toggle('show', !this.editing && (s === 'ready' || (s === 'idle' && !hidden)));
-    d.readyPill.textContent = s === 'ready' ? 'Start typing' : 'Press play or start typing';
+    d.readyPill.classList.toggle('show', !this.editing && (s === 'ready' || s === 'idle'));
+    d.readyPill.textContent = s === 'ready' ? 'Start typing' : 'Type to begin';
     d.caret.classList.toggle('idle', s === 'idle' || s === 'ready' || s === 'paused');
-    d.playBtn.classList.toggle('is-playing', s === 'running');
+    const typingActive = s === 'running' || s === 'ready';
+    d.typeBtn.classList.toggle('is-typing', typingActive);
+    d.typeBtn.setAttribute('aria-label', typingActive ? 'Pause and enter Command mode' : 'Type');
+    d.typeBtn.title = typingActive ? 'Pause and enter Command mode' : 'Type';
     if(s === 'idle'){
-      d.startCueText.textContent = 'Press play to reveal the text';
+      d.startCueText.textContent = 'Type to reveal the text';
       d.startCueSub.textContent = 'or hit any key';
     } else if(s === 'paused'){
       const lead = {
         hidden: 'You switched tabs',
         window: 'You left the window',
         idle: "You've been idle for a while",
-        blur: 'Typing focus was lost'
+        blur: 'Typing focus was lost',
+        command: 'Command mode'
       }[this.pauseReason];
       d.startCueText.textContent = 'Paused';
-      d.startCueSub.textContent = lead ? `${lead} — press any key or click to continue` : 'Press any key or click to continue';
+      d.startCueSub.textContent = this.pauseReason === 'command'
+        ? 'Command mode — press t or click to return to typing'
+        : lead ? `${lead} — press any key or click to continue` : 'Press any key or click to continue';
     }
   },
 
-  /* ----- play / pause state machine -----
+  /* ----- typing state machine -----
        idle      text is veiled; nothing can be typed yet
-       ready     play pressed: text revealed, waiting for the first key (clock NOT running)
+       ready     typing activated: text revealed, waiting for the first key (clock NOT running)
        running   clock running
-       paused    clock stopped — by the pause button, Normal-mode p, or automatically (below)
+       paused    clock stopped — by Command mode or automatically (below)
        finished  lesson complete
 
      Auto-pause fires on: tab hidden (visibilitychange / pagehide), window blur
@@ -1458,6 +1660,10 @@ const App = {
   focusInput(){ this.dom.captureInput.focus({ preventScroll:true }); },
   activate(){
     if(this.editing){ this.focusInput(); return; } // a click while editing places the caret; it never resumes typing
+    if(this.commandMode && this.state === 'paused' && this.pauseReason === 'command'){
+      this.leaveCommandMode();
+      return;
+    }
     switch(this.state){
       case 'idle': this.beginReady(); break;
       case 'paused': this.resumeTyping(); break;
@@ -1469,7 +1675,6 @@ const App = {
     if(this.state !== 'idle') return;
     this.state = 'ready';
     this.updateOverlay();
-    if(this.hideUntilPlay) this.textView.reveal(); // the text was veiled: let it appear
     this.focusInput();
     this.bus.dispatchEvent(new CustomEvent('ready'));
   },
@@ -1482,7 +1687,7 @@ const App = {
       }
       return;
     }
-    if(this.state !== 'running' && !(this.normalMode && this.state === 'paused')) return;
+    if(this.state !== 'running') return;
     this.engine.pause(at);
     this.state = 'paused';
     this.pauseReason = reason;
@@ -1492,7 +1697,7 @@ const App = {
     this.bus.dispatchEvent(new CustomEvent('paused', { detail:{ reason } }));
   },
   resumeTyping(){
-    if(this.state !== 'paused' || this.editing) return;
+    if(this.state !== 'paused' || this.editing || this.commandMode) return;
     this.engine.resume();
     this.state = 'running';
     this.pauseReason = null;
@@ -1500,7 +1705,6 @@ const App = {
     this.startTicker();
     this.updateOverlay();
     this.focusInput();
-    if(this.normalMode) this.showPill('edit', 'COMMAND mode · p to pause · i for typing mode');
     this.bus.dispatchEvent(new CustomEvent('resumed'));
   },
   onGlobalKeydown(e){
@@ -1508,24 +1712,37 @@ const App = {
     const d = this.dom;
     const t = e.target;
     const inField = t !== d.captureInput && t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
+    if(e.key === 'Escape' && !this.escapeCommands) return;
     if(e.key === 'Escape'){
       if(d.marksScrim.classList.contains('open')){ this.closeMarks(); return; }
       if(d.modalScrim.classList.contains('open')){ this.closeModal(); return; }
+      if(d.completeOverlay.classList.contains('open')){ this.hideCompletion(); return; }
+      if(d.drawer.classList.contains('open')){ this.closeDrawer(); return; }
     }
     if(this.editing){
-      if(e.key === 'Escape'){ e.preventDefault(); this.endInlineEdit(true); return; }
+      if(e.key === 'Escape'){
+        if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+        e.preventDefault();
+        this.endInlineEdit(true);
+        return;
+      }
       // focus drifted (a click elsewhere): any plain key brings it back, and lands in the text
       if(t !== d.captureInput && !(t && t.closest && t.closest('input, textarea, select, [contenteditable="true"], button, a'))) this.focusInput();
       return;
     }
-    if(this.normalMode && inField){ this.handleNormalKeydown(e); return; }
+    if(this.commandMode && inField){ this.handleCommandKeydown(e); return; }
     if(this.state === 'running'){
-      if(e.key === 'Escape'){ e.preventDefault(); this.enterNormalMode(); }
+      if(e.key === 'Escape'){
+        if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+        e.preventDefault();
+        this.enterCommandMode();
+      }
       return;
     }
     if(this.state === 'ready' && e.key === 'Escape'){
+      if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
       e.preventDefault();
-      this.enterNormalMode();
+      this.enterCommandMode();
       return;
     }
     if(this.state === 'finished') return;
@@ -1539,8 +1756,6 @@ const App = {
     if(!(e.key.length === 1 || e.key === 'Enter' || e.key === 'Dead')) return; // printable keys (and dead keys) only
     if(this.state === 'idle'){
       if(e.key === 'Enter') e.preventDefault();
-      // Text visible: the key itself falls through into the field and is typed. Study mode: it's swallowed.
-      if(this.hideUntilPlay) e.preventDefault();
       this.beginReady();
     }
     else if(this.state === 'paused'){ e.preventDefault(); this.resumeTyping(); }
@@ -1557,7 +1772,7 @@ const App = {
   startTicker(){
     this.stopTicker();
     this.timerHandle = setInterval(() => {
-      if(this.state !== 'running' && !(this.normalMode && this.state === 'paused')) return;
+      if(this.state !== 'running') return;
       // Idle watchdog: walked away without leaving the window? Pause, back-dated to the last keystroke.
       if(IDLE_PAUSE_MS > 0 && performance.now() - this.lastKeyAt > IDLE_PAUSE_MS){
         this.pauseTyping('idle', this.lastKeyAt);
@@ -1667,7 +1882,7 @@ const App = {
   },
 
   /* ----- marks: keep a word or passage while you type -----
-     Normal-mode m starts and ends a mark. Marks are stored per lesson
+     Command-mode m starts and ends a mark. Marks are stored per lesson
      (localStorage) and drawn back onto the text next time. */
   resolveMarkRange(m, text){
     if(text.slice(m.start, m.end) === m.text) return [m.start, m.end];
@@ -1694,7 +1909,11 @@ const App = {
     this.refreshOverlays();
   },
   refreshOverlays(){
-    const live = (kind) => { const c = this.captures[kind]; return c ? [c.start, Math.max(c.start, this.engine.pos)] : null; };
+    const live = (kind) => {
+      if(this.editing) return null;
+      const c = this.captures[kind];
+      return c ? [c.start, Math.max(c.start, this.engine.pos)] : null;
+    };
     const masking = this.masksOn && !this.editing;
     this.textView.setMarks(this.markRanges.map(r => [r.s, r.e]), live('mark'));
     this.textView.setMasks(masking ? this.maskRanges.map(r => [r.s, r.e]) : [], this.soonRanges.map(r => [r.s, r.e]), live('mask'), this.hinted);
@@ -1710,8 +1929,6 @@ const App = {
   resetRunState(){
     this.captures = { mark:null, mask:null };
     this.composing = false;
-    this.dom.markBtn.classList.remove('active');
-    this.dom.maskBtn.classList.remove('active');
     this.hidePill('mark');
     this.hidePill('mask');
     this.freshMasks.clear();
@@ -1740,17 +1957,15 @@ const App = {
     this.dom.objectivesList.appendChild(li);
   },
   toggleCapture(kind){
-    if(this.state !== 'running') return;
+    if(this.state !== 'running' && !(this.commandMode && this.state === 'paused' && this.pauseReason === 'command')) return;
     if(this.captures[kind]){ this.commitCapture(kind); return; }
     this.captures[kind] = { start: this.engine.pos };
-    this.btnFor(kind).classList.add('active');
     this.showPill(kind, this.captureText(kind));
     this.refreshOverlays();
   },
   cancelCapture(kind){
     if(!this.captures[kind]) return;
     this.captures[kind] = null;
-    this.btnFor(kind).classList.remove('active');
     this.hidePill(kind);
     this.refreshOverlays();
   },
@@ -1767,7 +1982,7 @@ const App = {
     this.addMark(kind, s, e);
   },
   markWordAtCaret(kind){
-    if(this.state !== 'running' && !(this.normalMode && this.state === 'paused')) return;
+    if(this.state !== 'running' && !(this.commandMode && this.state === 'paused')) return;
     const text = this.engine.text, tv = this.textView;
     let i = this.engine.pos;
     if(i >= text.length || /\s/.test(text[i])) i--;  // at whitespace, use the word just completed
@@ -1841,14 +2056,9 @@ const App = {
     this.updateMarksCount();
     return added;
   },
-  onMarkButton(kind){
-    if(this.state === 'running') this.toggleCapture(kind);
-    else this.showPill(kind, kind === 'mask' ? 'Masks work while you type — use Command mode M' : 'Marks work while you type — use Command mode m', 2200);
-  },
   /* ----- capture pills: one per shortcut family, so both can be on screen together ----- */
   pillFor(kind){ return kind === 'edit' ? this.dom.editPill : kind === 'mask' ? this.dom.maskPill : this.dom.markPill; },
-  btnFor(kind){ return kind === 'edit' ? this.dom.editBtn : kind === 'mask' ? this.dom.maskBtn : this.dom.markBtn; },
-  captureText(kind){ return kind === 'edit' ? 'EDIT mode — Esc to save · Command mode follows' : kind === 'mask' ? 'Masking — use Command mode M' : 'Marking — use Command mode m'; },
+  captureText(kind){ return kind === 'edit' ? 'EDIT mode · Esc to save · Command mode follows' : kind === 'mask' ? 'Masking — use Command mode M' : 'Marking — use Command mode m'; },
   isOpen(kind){ return kind === 'edit' ? this.editing : !!this.captures[kind]; },
   showPill(kind, text, ms){
     const p = this.pillFor(kind);
@@ -1963,20 +2173,7 @@ const App = {
     this.loadLesson(lesson, lesson.course, { ready:true });
   },
 
-  /* ----- study mode: hide the text until play (for memorising) ----- */
-  toggleBlind(){
-    this.hideUntilPlay = !this.hideUntilPlay;
-    this.savePref('hideUntilPlay', this.hideUntilPlay);
-    this.updateBlindBtn();
-    this.updateOverlay();
-  },
-  updateBlindBtn(){
-    const b = this.dom.blindToggleBtn;
-    b.textContent = `Hide text until play: ${this.hideUntilPlay ? 'on' : 'off'}`;
-    b.setAttribute('aria-pressed', String(this.hideUntilPlay));
-  },
-
-  /* ----- template edit mode (Command mode: e): the text itself becomes editable, right where it is -----
+  /* ----- template edit mode (Command mode: i): the text itself becomes editable, right where it is -----
      The hidden typing field stays focused the whole time — it just holds the lesson text
      instead of what you've typed — and the visible spans mirror its value and selection, so
      the font, wrapping, colours and caret are the very ones you were typing in; nothing swaps
@@ -1985,8 +2182,7 @@ const App = {
      changed character). */
   canEdit(){
     const d = this.dom, s = this.state;
-    if(!this.engine || s === 'finished' || (s === 'paused' && this.pauseReason !== 'normal')) return false;
-    if(s === 'idle' && this.hideUntilPlay) return false;                  // study mode: the text is veiled
+    if(!this.engine || s === 'finished' || (s === 'paused' && this.pauseReason !== 'command')) return false;
     return !(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') || d.completeOverlay.classList.contains('open'));
   },
   toggleInlineEdit(){
@@ -1995,11 +2191,11 @@ const App = {
   },
   beginInlineEdit(){
     const d = this.dom, eng = this.engine;
-    this.cancelCapture('mark');
-    this.cancelCapture('mask');
     this.editStart = {
       text: eng.text, pos: eng.pos, typed: d.captureInput.value,
-      wasState: this.state, wasNormal: true,
+      wasState: this.state,
+      wasPauseReason: this.pauseReason,
+      wasCommandMode: this.commandMode || (this.state === 'paused' && this.pauseReason === 'command'),
       ...this.textView.snapshot(eng.pos)
     };
     this.editing = true;
@@ -2020,7 +2216,6 @@ const App = {
     this.applyAnnotations();                               // masks lift while editing, so you can see what you're changing
     this.hintNext();
     this.updateOverlay();
-    this.btnFor('edit').classList.add('active');
     this.showPill('edit', this.captureText('edit'));
     this.focusInput();
     this.renderEdit();
@@ -2034,10 +2229,10 @@ const App = {
     const changed = accept && newText !== es.text;
     this.editing = false;
     this.composing = false;
-    this.btnFor('edit').classList.remove('active');
     this.hidePill('edit');
     let pos = es.pos;
     if(changed){
+      if(this._editShown !== newText) this.remapCapturesForTextChange(this._editShown, newText);
       pos = Math.min(es.pos, commonPrefix(es.text, newText)); // changed something you'd already typed: resume at the first changed character
       this.recordTemplateUndo(es.text, es.pos);
       this.persistEdit(newText);
@@ -2057,23 +2252,28 @@ const App = {
     this.statsView.update(eng.getStats());
     this.updateProgress();
     this.hintNext();
-    if(es.wasNormal){
-      this.normalMode = true;
+    if(es.wasCommandMode && es.wasState === 'paused'){
+      this.commandMode = true;
       this.state = 'paused';
-      this.pauseReason = 'normal';
-      this.showPill('edit', 'COMMAND mode · p to pause · i for typing mode');
+      this.pauseReason = 'command';
+      this.showPill('edit', 'COMMAND mode · t for typing mode · i to edit');
     } else if(es.wasState === 'running'){
       eng.resume();
+      this.commandMode = es.wasCommandMode;
       this.state = 'running';
-      this.pauseReason = null;
+      this.pauseReason = es.wasPauseReason;
       this.lastKeyAt = performance.now();
       this.startTicker();
+    } else {
+      this.commandMode = es.wasCommandMode;
+      this.state = es.wasState;
+      this.pauseReason = es.wasPauseReason;
+      if(this.commandMode) this.showPill('edit', 'COMMAND mode · t for typing mode · i to edit');
     }
     this.updateOverlay();
     this.focusInput();
     if(changed){
       this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
-      eng.forceFinish(); // you cut everything after the caret: that's the end of the lesson
     }
   },
   persistEdit(text){
@@ -2141,6 +2341,9 @@ const App = {
   },
   rebuildForEdit(val){
     const es = this.editStart, tv = this.textView;
+    const previous = this._editShown;
+    if(previous !== val) this.remapCapturesForTextChange(previous, val);
+    this._editShown = val;
     // The typed prefix keeps its green / red only up to the first character that differs from where
     // the edit began — so undoing the change brings every colour back.
     const keep = Math.min(es.pos, commonPrefix(es.text, val));
@@ -2149,11 +2352,37 @@ const App = {
     this._lines = null;
     this.applyAnnotations();
   },
+  remapCapturesForTextChange(previous, next){
+    let prefix = 0;
+    const maxPrefix = Math.min(previous.length, next.length);
+    while(prefix < maxPrefix && previous[prefix] === next[prefix]) prefix++;
+    let suffix = 0;
+    const maxSuffix = Math.min(previous.length - prefix, next.length - prefix);
+    while(suffix < maxSuffix &&
+      previous[previous.length - suffix - 1] === next[next.length - suffix - 1]) suffix++;
+    const oldChangedEnd = previous.length - suffix;
+    const delta = next.length - previous.length;
+    ['mark', 'mask'].forEach(kind => {
+      const capture = this.captures[kind];
+      if(!capture) return;
+      if(capture.start <= prefix) return;
+      if(capture.start >= oldChangedEnd) capture.start += delta;
+      else capture.start = prefix;
+      capture.start = Math.max(0, Math.min(capture.start, next.length));
+    });
+  },
   onEditInput(){
-    const ta = this.dom.captureInput;
-    this.renderEdit();
+    this.scheduleEditRender();
+  },
+  scheduleEditRender(){
+    if(this.editRenderFrame !== null) return;
+    this.editRenderFrame = requestAnimationFrame(() => {
+      this.editRenderFrame = null;
+      this.renderEdit();
+    });
   },
   onEditKeydown(e){
+    if(e.key === 'Escape' && !this.escapeCommands) return;
     if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); this.endInlineEdit(true); return; }
     if(e.key === 'Tab'){
       e.preventDefault();
@@ -2173,7 +2402,7 @@ const App = {
                : ((k === 'End' && !mod) || (k === 'ArrowRight' && e.metaKey)) ? 'end' : null;
     if(edge){ e.preventDefault(); this.editLineEdge(edge, e.shiftKey); return; }
     this._vx = null;
-    requestAnimationFrame(() => this.renderEdit());
+    this.scheduleEditRender();
   },
   editLines(){
     // The visible lines, from the rendered spans: [{ top, first, last }] (cached until the next rebuild).
@@ -2358,6 +2587,7 @@ const App = {
     }
     const isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     this.dom.themeBtn.classList.toggle('is-dark', isDark);
+    this.dom.themeBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
     if(persist) this.savePref('theme', theme);
   },
   toggleTheme(){
@@ -2367,7 +2597,6 @@ const App = {
   },
   toggleSound(){
     this.sound.enabled = !this.sound.enabled;
-    this.dom.soundBtn.classList.toggle('is-muted', !this.sound.enabled);
     this.savePref('sound', this.sound.enabled);
   },
   toggleKeyboard(){
@@ -2381,12 +2610,26 @@ const App = {
     prefs[key] = value;
     Storage.savePrefs(prefs);
   },
+  toggleEscapeCommands(){
+    this.escapeCommands = !this.escapeCommands;
+    this.savePref('escapeCommands', this.escapeCommands);
+    this.updateEscapeSwitch();
+    if(!this.escapeCommands) this.clearCommandBuffer();
+  },
+  updateEscapeSwitch(){
+    const button = this.dom.escapeSwitch;
+    button.setAttribute('aria-checked', String(this.escapeCommands));
+    button.title = this.escapeCommands
+      ? 'Escape controls Study Typing commands; turn off to leave Escape to the browser'
+      : 'Escape is left to the browser; turn on to use Study Typing commands';
+  },
 
   /* ----- wiring ----- */
   wireEvents(){
     const d = this.dom;
 
     d.menuBtn.addEventListener('click', () => this.openDrawer());
+    d.escapeSwitch.addEventListener('click', () => this.toggleEscapeCommands());
     d.drawerCloseBtn.addEventListener('click', () => this.closeDrawer());
     d.drawerScrim.addEventListener('click', () => this.closeDrawer());
 
@@ -2415,21 +2658,12 @@ const App = {
     d.modalScrim.addEventListener('click', (e) => { if(e.target === d.modalScrim) this.closeModal(); });
     d.lessonForm.addEventListener('submit', (e) => this.submitLessonForm(e));
 
-    d.playBtn.addEventListener('click', () => {
-      if(this.state === 'running'){
-        if(this.normalMode) this.toggleNormalPause();
-        else { this.pauseTyping('manual'); d.captureInput.blur(); }
-      }
-      else this.activate();
-    });
+    d.typeBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    d.restartBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    d.typeBtn.addEventListener('click', () => this.activateTyping());
     d.restartBtn.addEventListener('click', () => this.restart());
-    d.editBtn.addEventListener('mousedown', (e) => e.preventDefault()); // never take focus from the typing field
-    d.editBtn.addEventListener('click', () => this.toggleInlineEdit());
-    // keep typing focus on mousedown (else the click would read as "focus lost" and pause)
-    d.markBtn.addEventListener('mousedown', (e) => e.preventDefault());
-    d.markBtn.addEventListener('click', () => this.onMarkButton('mark'));
-    d.maskBtn.addEventListener('mousedown', (e) => e.preventDefault());
-    d.maskBtn.addEventListener('click', () => this.onMarkButton('mask'));
+    d.soundBtn.addEventListener('click', () => this.toggleSound());
+    d.themeBtn.addEventListener('click', () => this.toggleTheme());
     d.maskToggleBtn.addEventListener('click', () => this.toggleMasks());
     d.marksOpenBtn.addEventListener('click', () => this.openMarks());
     d.marksCloseBtn.addEventListener('click', () => this.closeMarks());
@@ -2451,9 +2685,6 @@ const App = {
       btn.textContent = ok ? 'Copied' : 'Copy failed';
       setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
     });
-    d.blindToggleBtn.addEventListener('click', () => this.toggleBlind());
-    d.soundBtn.addEventListener('click', () => this.toggleSound());
-    d.themeBtn.addEventListener('click', () => this.toggleTheme());
     d.keyboardToggleBtn.addEventListener('click', () => this.toggleKeyboard());
 
     // Clicking the text/veil must not steal focus from the typing field (that would
@@ -2481,7 +2712,7 @@ const App = {
     // engine.pos, which is the single source of truth for "how far typed". This
     // matters: if we cleared the field after every keystroke, pressing Backspace
     // would land on an already-empty field — browsers fire no 'input' event when
-    // there's nothing to delete, so backspcase would silently do nothing. Diffing
+    // there's nothing to delete, so Backspace would silently do nothing. Diffing
     // also makes held-Backspace, Ctrl+Backspace (word delete), and selecting a
     // range of already-typed text and deleting it all behave correctly, since the
     // length delta — not the event count — drives how many chars we undo.
@@ -2495,7 +2726,7 @@ const App = {
     d.captureInput.addEventListener('input', (e) => this.syncFromInput(this.composing || e.isComposing));
     d.captureInput.addEventListener('keydown', (e) => {
       if(this.editing){ this.onEditKeydown(e); return; }
-      if(this.normalMode){ this.handleNormalKeydown(e); return; }
+      if(this.commandMode){ this.handleCommandKeydown(e); return; }
       // Two inline shortcut families that work together, one per hand:
       //   Tab   = MARK  (keep it for the digest)
       //   Enter = MASK  (hide it next time: you type it from memory)
@@ -2511,7 +2742,7 @@ const App = {
     });
     d.captureInput.addEventListener('paste', (e) => { if(!this.editing) e.preventDefault(); }); // no pasting your way through a lesson — but editing the lesson is fine
     // While editing, mirror the hidden field's caret + selection onto the visible text.
-    ['keyup', 'select', 'mouseup'].forEach(t => d.captureInput.addEventListener(t, () => { if(this.editing) this.renderEdit(); }));
+    ['keyup', 'select', 'mouseup'].forEach(t => d.captureInput.addEventListener(t, () => { if(this.editing) this.scheduleEditRender(); }));
     document.addEventListener('selectionchange', () => { if(this.editing && document.activeElement === d.captureInput) this.renderEdit(); });
 
     d.retryBtn.addEventListener('click', () => this.restart());
@@ -2524,14 +2755,6 @@ const App = {
       this.loadLesson(next.lesson, next.courseTitle, { ready:true });
     });
 
-    // Keep the system theme indicator in sync if no explicit override is set
-    if(window.matchMedia){
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if(!document.documentElement.dataset.theme){
-          this.dom.themeBtn.classList.toggle('is-dark', window.matchMedia('(prefers-color-scheme: dark)').matches);
-        }
-      });
-    }
   }
 };
 

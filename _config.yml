@@ -57,6 +57,8 @@ sass:
 
 # Use Minima theme with feed
 remote_theme: jekyll/minima
+minima:
+  skin: solarized
 header_pages:
   - about.markdown
   - study-typing.markdown
