@@ -28,6 +28,68 @@ function formatTime(ms){
   return `${m}:${String(rem).padStart(2,'0')}`;
 }
 
+// Stats are written one lesson at a time and older/imported data can be partial.
+// Read each value defensively so a missing field becomes a gap, never a zero.
+function finiteStat(value){
+  if(typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if(typeof value === 'string' && value.trim() !== ''){
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+function collectGlobalStats(raw){
+  const entries = Array.isArray(raw)
+    ? raw
+    : (raw && typeof raw === 'object' ? Object.values(raw) : []);
+  let wpmTotal = 0, wpmSamples = 0;
+  let accTotal = 0, accSamples = 0;
+  let runs = 0, lessons = 0;
+  let bestWpm = null, lastAt = null;
+  entries.forEach(entry => {
+    if(!entry || typeof entry !== 'object' || Array.isArray(entry)) return;
+    const wpm = finiteStat(entry.bestWpm !== undefined ? entry.bestWpm : entry.wpm);
+    const acc = finiteStat(entry.bestAccuracy !== undefined ? entry.bestAccuracy : entry.accuracy);
+    const attempts = finiteStat(entry.attempts);
+    const last = finiteStat(entry.lastAt);
+    const completed = attempts !== null && attempts > 0 ? Math.round(attempts) : 0;
+    const hasWpm = wpm !== null && (wpm > 0 || completed > 0);
+    const hasAcc = acc !== null && acc >= 0 && acc <= 100;
+    const hasLast = last !== null && last > 0;
+    if(!hasWpm && !hasAcc && completed <= 0 && !hasLast) return;
+    lessons++;
+    runs += completed;
+    if(hasWpm){
+      wpmTotal += wpm;
+      wpmSamples++;
+      if(bestWpm === null || wpm > bestWpm) bestWpm = wpm;
+    }
+    if(hasAcc){ accTotal += acc; accSamples++; }
+    if(hasLast && (lastAt === null || last > lastAt)) lastAt = last;
+  });
+  return {
+    lessons,
+    runs,
+    avgWpm: wpmSamples ? Math.round(wpmTotal / wpmSamples) : null,
+    avgAccuracy: accSamples ? Math.round(accTotal / accSamples) : null,
+    bestWpm,
+    lastAt
+  };
+}
+function describeGlobalStats(stats){
+  if(!stats.lessons) return 'No completed runs yet. Finish a lesson to start your global stats.';
+  const parts = [
+    `Saved results across ${stats.lessons} lesson${stats.lessons === 1 ? '' : 's'}`,
+    `${stats.runs} completed run${stats.runs === 1 ? '' : 's'}`
+  ];
+  if(stats.bestWpm !== null) parts.push(`best ${stats.bestWpm} wpm`);
+  if(stats.lastAt){
+    const date = new Date(stats.lastAt);
+    if(!Number.isNaN(date.getTime())) parts.push(`last ${date.toLocaleDateString()}`);
+  }
+  return `${parts.join(' · ')}. Averages include only saved speed and accuracy values; missing values are skipped.`;
+}
+
 // Merge overlapping / touching [start, end) ranges so a mark inside a marked sentence
 // paints as one continuous band with a single pair of rounded ends.
 function mergeRanges(ranges){
@@ -404,6 +466,8 @@ class TextView{
           sp.title = 'Newline character';
         } else {
           sp.textContent = '\u00A0';
+          sp.setAttribute('aria-label', 'space character');
+          sp.title = 'Space character';
         }
         this.charEls[i] = sp;
         frag.appendChild(sp);
@@ -887,6 +951,7 @@ const App = {
   shadowValue: '',   // what the hidden input should currently contain
   marks: [],         // saved annotations: { id, kind:'mark'|'mask', lessonId, lessonTitle, course, text, start, end, createdAt, attempts?, clean? }
   deletedLessons: new Set(),
+  exportSelection: new Set(),
   markRanges: [],    // the current lesson's marks, resolved to { id, s, e }
   maskRanges: [],    // masks that are ACTIVE this run (hidden behind tape)
   soonRanges: [],    // masks created during this run: already typed, they take effect next run
@@ -937,6 +1002,7 @@ const App = {
       courseList: qs('#courseList'), newLessonBtn: qs('#newLessonBtn'),
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
+      globalStats: qs('#globalStats'), globalWpm: qs('#gStatWpm'), globalAcc: qs('#gStatAcc'), globalRuns: qs('#gStatRuns'),
       soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
       restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
@@ -945,18 +1011,20 @@ const App = {
       markPill: qs('#markPill'), marksScrim: qs('#marksScrim'), marksCloseBtn: qs('#marksCloseBtn'),
       maskPill: qs('#maskPill'), maskToggleBtn: qs('#maskToggleBtn'),
       marksList: qs('#marksList'), marksCopyBtn: qs('#marksCopyBtn'), marksPracticeBtn: qs('#marksPracticeBtn'),
+      marksExportBtn: qs('#marksExportBtn'), marksImportBtn: qs('#marksImportBtn'), marksImportFileInput: qs('#marksImportFileInput'),
       marksOpenBtn: qs('#marksOpenBtn'), marksCount: qs('#marksCount'),
       editPill: qs('#editPill'),
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
-      modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), lessonForm: qs('#lessonForm'),
+      modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), modalTitle: qs('#modalTitle'), lessonForm: qs('#lessonForm'),
       lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
       courseNames: qs('#courseNames'),
       completeOverlay: qs('#completeOverlay'), completeLessonTitle: qs('#completeLessonTitle'),
       completeWpm: qs('#completeWpm'), completeAcc: qs('#completeAcc'), completeTime: qs('#completeTime'),
       objectivesList: qs('#objectivesList'), retryBtn: qs('#retryBtn'), nextLessonBtn: qs('#nextLessonBtn'), closeCompleteBtn: qs('#closeCompleteBtn'),
       confettiLayer: qs('#confettiLayer'),
-      exportLessonsBtn: qs('#exportLessonsBtn'), importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput')
+      exportLessonsBtn: qs('#exportLessonsBtn'), selectAllLessonsBtn: qs('#selectAllLessonsBtn'),
+      importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput'),
     };
 
     this.textView = new TextView(this.dom.textDisplay, this.dom.caret);
@@ -975,6 +1043,7 @@ const App = {
     this.updateMaskToggleBtn();
     this.updateMarksCount();
     this.updateEscapeSwitch();
+    this.updateGlobalStats();
 
     // Load the manifest before rendering or selecting the first lesson. The
     // default lesson may live in a static pack, and rendering first would
@@ -1033,28 +1102,40 @@ const App = {
 
   /* ----- data access ----- */
   withOverride(l){
-    // Built-in and static-pack lessons are never mutated. A visitor's inline edit is stored as an
-    // override by lesson id (same id => marks and best scores stay attached) and applied here.
+    // Built-in and static-pack lessons are never mutated. Visitor edits and metadata
+    // changes are stored by lesson id so marks and best scores stay attached.
     if(l.custom) return l;
     const ov = this.overrides[l.id];
-    return ov === undefined ? l : { ...l, text: ov, edited: true, originalText: l.text };
+    if(ov === undefined) return l;
+    if(typeof ov === 'string') return { ...l, text:ov, edited:true, originalText:l.text };
+    if(!ov || typeof ov !== 'object' || Array.isArray(ov)) return l;
+    return {
+      ...l,
+      ...(typeof ov.text === 'string' ? { text:ov.text, edited:true, originalText:l.text } : {}),
+      ...(typeof ov.title === 'string' ? { title:ov.title } : {}),
+      ...(typeof ov.course === 'string' ? { course:ov.course } : {}),
+      metadataEdited: typeof ov.title === 'string' || typeof ov.course === 'string'
+    };
   },
   getAllCourses(){
     const map = new Map();
-    DEFAULT_COURSES.forEach(c => map.set(c.title.toLowerCase(), { title:c.title, lessons:[...c.lessons] }));
+    const addCourseLessons = (courseTitle, lessons) => {
+      lessons.map(l => this.withOverride(l)).forEach(lesson => {
+        const title = lesson.course || courseTitle || 'My Lessons';
+        const key = title.toLowerCase();
+        if(!map.has(key)) map.set(key, { title, lessons:[] });
+        map.get(key).lessons.push(lesson);
+      });
+    };
+    DEFAULT_COURSES.forEach(c => addCourseLessons(c.title, c.lessons));
     this.staticPackCourses.forEach(c => {
-      const key = c.title.toLowerCase();
-      if(!map.has(key)) map.set(key, { title:c.title, lessons:[] });
-      map.get(key).lessons.push(...c.lessons);
+      addCourseLessons(c.title, c.lessons);
     });
     this.customLessons.forEach(l => {
-      const title = l.course || 'My Lessons';
-      const key = title.toLowerCase();
-      if(!map.has(key)) map.set(key, { title, lessons:[] });
-      map.get(key).lessons.push(l);
+      addCourseLessons(l.course, [l]);
     });
     return Array.from(map.values())
-      .map(c => ({ title: c.title, lessons: c.lessons.filter(l => !this.deletedLessons.has(l.id)).map(l => this.withOverride(l)) }))
+      .map(c => ({ title: c.title, lessons: c.lessons.filter(l => !this.deletedLessons.has(l.id)) }))
       .filter(c => c.lessons.length);
   },
   findLesson(id){
@@ -1081,9 +1162,19 @@ const App = {
       }
       const group = document.createElement('div');
       group.className = 'course-group';
+      const head = document.createElement('div');
+      head.className = 'course-head';
       const h3 = document.createElement('h3');
       h3.textContent = course.title;
-      group.appendChild(h3);
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'course-add';
+      add.dataset.courseNew = course.title;
+      add.title = `New lesson in ${course.title}`;
+      add.setAttribute('aria-label', `New lesson in ${course.title}`);
+      add.innerHTML = '<svg viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>';
+      head.append(h3, add);
+      group.appendChild(head);
       const ul = document.createElement('ul');
       course.lessons.forEach(lesson => {
         const li = document.createElement('li');
@@ -1091,10 +1182,43 @@ const App = {
         btn.className = 'lesson-item';
         btn.dataset.id = lesson.id;
         if(this.currentLesson && this.currentLesson.id === lesson.id) btn.classList.add('active');
+        const exportBox = document.createElement('input');
+        exportBox.type = 'checkbox';
+        exportBox.className = 'lesson-export';
+        exportBox.checked = this.exportSelection.has(lesson.id);
+        exportBox.dataset.exportId = lesson.id;
+        exportBox.title = 'Select this lesson for export';
+        exportBox.setAttribute('aria-label', `Select ${lesson.title} for export`);
+        btn.appendChild(exportBox);
         const titleSpan = document.createElement('span');
         titleSpan.className = 'lt-title';
         titleSpan.textContent = lesson.title;
         btn.appendChild(titleSpan);
+        {
+          const menu = document.createElement('span');
+          menu.className = 'lesson-menu';
+          menu.dataset.menuId = lesson.id;
+          const trigger = document.createElement('span');
+          trigger.className = 'lesson-menu-trigger';
+          trigger.title = 'Lesson actions';
+          trigger.setAttribute('role', 'button');
+          trigger.setAttribute('aria-label', `Actions for ${lesson.title}`);
+          trigger.innerHTML = '<svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16" cy="10" r="1.25"/></svg>';
+          menu.appendChild(trigger);
+          const menuList = document.createElement('span');
+          menuList.className = 'lesson-menu-list';
+          const rename = document.createElement('span');
+          rename.className = 'lesson-menu-action';
+          rename.dataset.action = 'rename';
+          rename.textContent = 'Rename lesson';
+          const assign = document.createElement('span');
+          assign.className = 'lesson-menu-action';
+          assign.dataset.action = 'assign-course';
+          assign.textContent = 'Assign to course';
+          menuList.append(rename, assign);
+          menu.appendChild(menuList);
+          btn.appendChild(menu);
+        }
         const best = stats[lesson.id];
         if(best && best.bestWpm){
           const meta = document.createElement('span');
@@ -1108,7 +1232,7 @@ const App = {
         del.title = 'Delete this lesson';
         del.innerHTML = '<svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>';
         btn.appendChild(del);
-        if(lesson.edited){
+        if(lesson.edited || lesson.metadataEdited){
           const rs = document.createElement('span');
           rs.className = 'lesson-restore';
           rs.dataset.restoreId = lesson.id;
@@ -1122,6 +1246,23 @@ const App = {
       group.appendChild(ul);
       this.dom.courseList.appendChild(group);
     });
+    this.updateExportButton();
+  },
+  updateExportButton(){
+    const lessons = this.getAllCourses().flatMap(course => course.lessons);
+    const lessonIds = new Set(lessons.map(l => l.id));
+    const selected = Array.from(lessonIds).filter(id => this.exportSelection.has(id)).length;
+    this.dom.exportLessonsBtn.textContent = selected ? `Export selected (${selected})` : 'Export selected';
+    this.dom.selectAllLessonsBtn.textContent = selected === lessonIds.size && selected ? 'Clear selection' : 'Select all';
+  },
+  toggleAllLessonSelection(){
+    const ids = Array.from(new Set(this.getAllCourses().flatMap(course => course.lessons).map(l => l.id)));
+    const allSelected = ids.length > 0 && ids.every(id => this.exportSelection.has(id));
+    ids.forEach(id => {
+      if(allSelected) this.exportSelection.delete(id);
+      else this.exportSelection.add(id);
+    });
+    this.renderSidebar();
   },
 
   /* ----- lesson lifecycle ----- */
@@ -1366,6 +1507,19 @@ const App = {
     }
     this.activate();
   },
+  startInlineEdit(){
+    // Shared by `i` and `cw`: drop Command-mode chrome, then edit the lesson at the caret.
+    this.commandMode = false;
+    this.clearCommandBuffer();
+    this.hidePill('edit');
+    this.toggleInlineEdit();
+  },
+  changeCurrentWord(){
+    // Vim's `cw` behaves here exactly like `dw` followed by `i`: delete the current word,
+    // then start editing in its place.
+    this.deleteCurrentWord();
+    this.startInlineEdit();
+  },
   handleCommandKeydown(e){
     if(!this.commandMode) return false;
     if(e.key === 'Escape' && !this.escapeCommands) return false;
@@ -1411,6 +1565,11 @@ const App = {
       if(key === 'w') this.deleteCurrentWord();
       return true;
     }
+    if(this.pendingCommand === 'c'){
+      this.clearCommandBuffer();
+      if(key === 'w') this.changeCurrentWord();
+      return true;
+    }
     const restartCommand = 'restart';
     if(this.pendingCommand){
       const candidate = this.pendingCommand + key.toLowerCase();
@@ -1437,6 +1596,7 @@ const App = {
       return true;
     }
     if(key === 'd'){ this.queueCommandBuffer('d'); return true; }
+    if(key === 'c'){ this.queueCommandBuffer('c'); return true; }
     if(key === 'n'){ this.skipWord(); return true; }
     if(key === 'b'){ this.previousWord(); return true; }
     if(key === 'u'){ this.undoTemplateEdit(); return true; }
@@ -1457,13 +1617,7 @@ const App = {
       return true;
     }
     if(key === 'M'){ this.markWordAtCaret('mask'); return true; }
-    if(key === 'i'){
-      this.commandMode = false;
-      this.clearCommandBuffer();
-      this.hidePill('edit');
-      this.toggleInlineEdit();
-      return true;
-    }
+    if(key === 'i'){ this.startInlineEdit(); return true; }
     this.pendingCommand = '';
     return true;
   },
@@ -1824,16 +1978,32 @@ const App = {
     this.dom.completeOverlay.classList.remove('open');
     this.dom.confettiLayer.innerHTML = '';
   },
+  updateGlobalStats(){
+    if(!this.dom.globalStats) return;
+    const stats = collectGlobalStats(Storage.loadStats());
+    this.dom.globalWpm.textContent = stats.avgWpm === null ? '—' : String(stats.avgWpm);
+    this.dom.globalAcc.textContent = stats.avgAccuracy === null ? '—' : `${stats.avgAccuracy}%`;
+    this.dom.globalRuns.textContent = stats.runs.toLocaleString();
+    this.dom.globalStats.classList.toggle('is-empty', !stats.lessons);
+    const description = describeGlobalStats(stats);
+    this.dom.globalStats.title = description;
+    this.dom.globalStats.setAttribute('aria-label', description);
+  },
   saveBestStats(stats){
-    const all = Storage.loadStats();
-    const prev = all[this.currentLesson.id] || { bestWpm:0, bestAccuracy:0, attempts:0 };
+    const stored = Storage.loadStats();
+    const all = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+    const prev = all[this.currentLesson.id] && typeof all[this.currentLesson.id] === 'object' ? all[this.currentLesson.id] : {};
+    const prevWpm = finiteStat(prev.bestWpm) || 0;
+    const prevAcc = finiteStat(prev.bestAccuracy) || 0;
+    const prevAttempts = finiteStat(prev.attempts) || 0;
     all[this.currentLesson.id] = {
-      bestWpm: Math.max(prev.bestWpm, stats.wpm),
-      bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
-      attempts: prev.attempts + 1,
+      bestWpm: Math.max(prevWpm, stats.wpm),
+      bestAccuracy: Math.max(prevAcc, stats.accuracy),
+      attempts: prevAttempts + 1,
       lastAt: Date.now()
     };
     Storage.saveStats(all);
+    this.updateGlobalStats();
   },
 
   /* ----- reading the hidden typing field -----
@@ -2047,7 +2217,7 @@ const App = {
         id, kind, lessonId:String(m.lessonId), lessonTitle:String(m.lessonTitle || ''), course:String(m.course || ''),
         text:m.text, start, end:Number(m.end) || start + m.text.length, createdAt:Number(m.createdAt) || Date.now()
       };
-      if(kind === 'mask'){ rec.attempts = Number(m.attempts) || 0; rec.clean = Number(m.clean) || 0; }
+      if(kind === 'mask'){ rec.attempts = Number(m.attempts) || 0; rec.clean = Number(m.clean) || 0; this.freshMasks.add(id); }
       this.marks.push(rec);
       added++;
     });
@@ -2105,6 +2275,7 @@ const App = {
     ul.innerHTML = '';
     const empty = !this.marks.length;
     d.marksCopyBtn.disabled = empty;
+    d.marksExportBtn.disabled = empty;
     d.marksPracticeBtn.disabled = !this.marks.some(m => m.kind !== 'mask');
     if(empty){
       const li = document.createElement('li');
@@ -2285,7 +2456,18 @@ const App = {
       // Built-in / static-pack lessons are code- or git-managed, so the edit is an override keyed by
       // lesson id: best scores and marks stay attached, and the original is one click away.
       const original = lesson.edited ? lesson.originalText : lesson.text;
-      if(text === original) delete this.overrides[lesson.id]; else this.overrides[lesson.id] = text;
+      const existing = this.overrides[lesson.id];
+      // Keep title/course metadata across a restore, but never let an old `text` ride along:
+      // otherwise undoing an edit would re-save the text it was supposed to remove.
+      const metadata = existing && typeof existing === 'object' && !Array.isArray(existing)
+        ? Object.fromEntries(Object.entries(existing).filter(([key]) => key !== 'text'))
+        : {};
+      if(text === original){
+        if(Object.keys(metadata).length) this.overrides[lesson.id] = metadata;
+        else delete this.overrides[lesson.id];
+      } else {
+        this.overrides[lesson.id] = { ...metadata, text };
+      }
       Storage.saveOverrides(this.overrides);
       const found = this.findLesson(lesson.id);
       if(found) this.currentLesson = found.lesson;
@@ -2308,6 +2490,13 @@ const App = {
     if(obj && typeof obj === 'object' && !Array.isArray(obj)){
       Object.entries(obj).forEach(([id, v]) => {
         if(typeof v === 'string' && v.trim()){ this.overrides[id] = normalizeLessonText(v); n++; }
+        else if(v && typeof v === 'object' && !Array.isArray(v)){
+          const next = {};
+          if(typeof v.text === 'string' && v.text.trim()) next.text = normalizeLessonText(v.text);
+          if(typeof v.title === 'string' && v.title.trim()) next.title = v.title.trim();
+          if(typeof v.course === 'string' && v.course.trim()) next.course = v.course.trim();
+          if(Object.keys(next).length){ this.overrides[id] = next; n++; }
+        }
       });
     }
     Storage.saveOverrides(this.overrides);
@@ -2485,14 +2674,18 @@ const App = {
   },
 
   /* ----- lesson editor modal ----- */
-  openModal(){
+  openModal(preset = {}){
     this.dom.lessonForm.reset();
     this.dom.lfWpm.value = '30';
     this.dom.lfAcc.value = '95';
+    // Opened from a course's + button: pre-fill that course, still editable.
+    this.dom.lfCourse.value = preset.course || '';
     this.dom.modalScrim.classList.add('open');
     setTimeout(() => { if(this.dom.modalScrim.classList.contains('open')) this.dom.lfTitle.focus(); }, 50);
   },
-  closeModal(){ this.dom.modalScrim.classList.remove('open'); },
+  closeModal(){
+    this.dom.modalScrim.classList.remove('open');
+  },
   submitLessonForm(e){
     e.preventDefault();
     const title = this.dom.lfTitle.value.trim();
@@ -2501,9 +2694,7 @@ const App = {
     const targetWPM = clamp(parseInt(this.dom.lfWpm.value, 10) || 30, 5, 200);
     const targetAccuracy = clamp(parseInt(this.dom.lfAcc.value, 10) || 95, 50, 100);
     if(!title || !text) return;
-    const lesson = {
-      id: uid('custom'), title, course: courseTitle, text, targetWPM, targetAccuracy, custom:true
-    };
+    const lesson = { id: uid('custom'), title, course: courseTitle, text, targetWPM, targetAccuracy, custom:true };
     this.customLessons.push(lesson);
     Storage.saveLessons(this.customLessons);
     this.closeModal();
@@ -2511,11 +2702,61 @@ const App = {
     this.loadLesson(lesson, courseTitle, { ready:true });
     this.bus.dispatchEvent(new CustomEvent('lessonAdded', { detail:{ lessonId:lesson.id } }));
   },
+  renameLesson(id){
+    const lesson = this.customLessons.find(l => l.id === id);
+    const found = this.findLesson(id);
+    const target = lesson || (found && found.lesson);
+    if(!target) return;
+    const title = window.prompt('Lesson name', target.title);
+    if(title === null) return;
+    const value = title.trim();
+    if(!value || value === target.title) return;
+    if(lesson) lesson.title = value;
+    else this.saveLessonMetadata(id, { title:value });
+    if(this.currentLesson && this.currentLesson.id === id){
+      this.dom.lessonTitle.textContent = value;
+      const refreshed = this.findLesson(id);
+      if(refreshed) this.currentLesson = refreshed.lesson;
+    }
+    if(lesson) Storage.saveLessons(this.customLessons);
+    this.renderSidebar();
+  },
+  assignLessonCourse(id){
+    const lesson = this.customLessons.find(l => l.id === id);
+    const found = this.findLesson(id);
+    const target = lesson || (found && found.lesson);
+    if(!target) return;
+    const course = window.prompt('Course name', target.course || found.courseTitle || 'My Lessons');
+    if(course === null) return;
+    const value = course.trim() || 'My Lessons';
+    if(value === target.course) return;
+    if(lesson) {
+      lesson.course = value;
+      Storage.saveLessons(this.customLessons);
+    } else this.saveLessonMetadata(id, { course:value });
+    if(this.currentLesson && this.currentLesson.id === id){
+      const refreshed = this.findLesson(id);
+      if(refreshed){
+        this.currentLesson = refreshed.lesson;
+        this.dom.courseTag.textContent = refreshed.courseTitle;
+      }
+    }
+    this.renderSidebar();
+  },
+  saveLessonMetadata(id, changes){
+    const existing = this.overrides[id];
+    const metadata = typeof existing === 'string'
+      ? { text:existing }
+      : existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {};
+    this.overrides[id] = { ...metadata, ...changes };
+    Storage.saveOverrides(this.overrides);
+  },
   deleteLesson(id){
     const found = this.findLesson(id);
     const lesson = found && found.lesson;
     if(!lesson) return;
     if(!window.confirm(`Delete "${lesson.title}"?`)) return;
+    this.exportSelection.delete(id);
     this.customLessons = this.customLessons.filter(l => l.id !== id);
     this.deletedLessons.add(id);
     Storage.saveDeletedLessons(Array.from(this.deletedLessons));
@@ -2527,48 +2768,88 @@ const App = {
     }
   },
 
-  /* ----- export / import of a visitor's own custom lessons -----
+  /* ----- export / import of a visitor's own lessons and their marks -----
      GitHub Pages has no backend, so a visitor's custom lessons live only
      in their own browser's localStorage — private to them, never seen by you or
      other visitors. This is the escape hatch: a visitor who wants to hand you a
      lesson they wrote can export it to a plain JSON file and send it to you
      however they like (email, a GitHub issue, a PR adding it to lessons/). You
-     decide whether to fold it into a static pack in a future commit. */
-  exportLessons(){
-    if(!this.customLessons.length && !this.marks.length && !Object.keys(this.overrides).length && !this.deletedLessons.size){ window.alert('Nothing to export yet — add a lesson, mark a passage, edit a lesson or delete a lesson first.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), lessons:this.customLessons, marks:this.marks, overrides:this.overrides, deletedLessons:Array.from(this.deletedLessons) }, null, 2);
+     decide whether to fold it into a static pack in a future commit.
+     Marks and masks are exported/imported through their own file and controls,
+     so a digest can move between browsers without carrying lesson content. */
+  downloadJson(payload, filename){
     const blob = new Blob([payload], { type:'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'type-studio-lessons.json';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  },
+  exportLessons(){
+    const selectedById = new Map();
+    this.getAllCourses().flatMap(course => course.lessons).forEach(lesson => {
+      if(this.exportSelection.has(lesson.id) && !selectedById.has(lesson.id)) selectedById.set(lesson.id, lesson);
+    });
+    const selected = Array.from(selectedById.values());
+    if(!selected.length){ window.alert('Select at least one lesson to export.'); return; }
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-lessons.v1', lessons:selected }, null, 2);
+    this.downloadJson(payload, `type-studio-lessons-${selected.length}.json`);
+  },
+  exportMarks(){
+    if(!this.marks.length){ window.alert('No marks or masks to export yet.'); return; }
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-marks.v1', marks:this.marks }, null, 2);
+    this.downloadJson(payload, `type-studio-marks-${this.marks.length}.json`);
+  },
+  importMarksFromFile(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(String(reader.result));
+        const list = Array.isArray(data) ? data : (data && Array.isArray(data.marks) ? data.marks : null);
+        if(!list || !list.length) throw new Error('That file does not contain a "marks" array.');
+        const added = this.importMarks(list);
+        this.renderMarks();
+        window.alert(added
+          ? `Imported ${added} mark${added === 1 ? '' : 's'}.`
+          : 'No new marks were added — they are already saved or missing required fields.');
+      }catch(err){
+        console.warn('TypeStudio: mark import failed', err);
+        window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio marks export.');
+      }
+    };
+    reader.readAsText(file);
   },
   importLessonsFromFile(file){
     const reader = new FileReader();
     reader.onload = () => {
       try{
         const data = JSON.parse(String(reader.result));
-        const list = Array.isArray(data) ? data : (Array.isArray(data.lessons) ? data.lessons : []);
-        const markList = Array.isArray(data.marks) ? data.marks : [];
-        const ovr = data.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides) ? data.overrides : {};
-        const deletedList = Array.isArray(data.deletedLessons) ? data.deletedLessons : [];
-        if(!list.length && !markList.length && !Object.keys(ovr).length && !deletedList.length) throw new Error('Expected "lessons", "marks", "overrides" and/or "deletedLessons"');
+        const list = Array.isArray(data) ? data : (data && Array.isArray(data.lessons) ? data.lessons : []);
+        const markList = data && Array.isArray(data.marks) ? data.marks : [];
+        const ovr = data && data.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides) ? data.overrides : {};
+        const deletedList = data && Array.isArray(data.deletedLessons) ? data.deletedLessons : [];
+        if(!list.length && !Object.keys(ovr).length && !deletedList.length){
+          throw new Error(markList.length
+            ? 'That file contains marks, not lessons. Use Import marks to add them.'
+            : 'That file did not look like a Type Studio lessons export.');
+        }
         list.forEach(l => { if(!l.id) l.id = uid('custom'); l.custom = true; });
         this.customLessons = this.customLessons.concat(list);
         deletedList.forEach(id => { if(typeof id === 'string' && id) this.deletedLessons.add(id); });
         Storage.saveDeletedLessons(Array.from(this.deletedLessons));
         Storage.saveLessons(this.customLessons);
-        const marksAdded = markList.length ? this.importMarks(markList) : 0;
         this.importOverrides(ovr);
         this.renderSidebar();
-        window.alert(`Imported ${list.length} lesson${list.length===1?'':'s'} and ${marksAdded} mark${marksAdded===1?'':'s'}.`);
+        const markNote = markList.length
+          ? ` This file also contains ${markList.length} mark${markList.length === 1 ? '' : 's'}; use Import marks to add ${markList.length === 1 ? 'it' : 'them'}.`
+          : '';
+        window.alert(`Imported ${list.length} lesson${list.length === 1 ? '' : 's'}.${markNote}`);
       }catch(err){
         console.warn('TypeStudio: import failed', err);
-        window.alert('That file did not look like a Type Studio lessons export.');
+        window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
       }
     };
     reader.readAsText(file);
@@ -2628,12 +2909,42 @@ const App = {
   wireEvents(){
     const d = this.dom;
 
+    window.addEventListener('storage', (e) => {
+      if(e.key === Storage.STATS_KEY) this.updateGlobalStats();
+    });
     d.menuBtn.addEventListener('click', () => this.openDrawer());
     d.escapeSwitch.addEventListener('click', () => this.toggleEscapeCommands());
     d.drawerCloseBtn.addEventListener('click', () => this.closeDrawer());
     d.drawerScrim.addEventListener('click', () => this.closeDrawer());
 
+    d.courseList.addEventListener('change', (e) => {
+      const box = e.target.closest('.lesson-export');
+      if(!box) return;
+      if(box.checked) this.exportSelection.add(box.dataset.exportId);
+      else this.exportSelection.delete(box.dataset.exportId);
+      this.updateExportButton();
+    });
     d.courseList.addEventListener('click', (e) => {
+      if(e.target.closest('.lesson-export')){ e.stopPropagation(); return; }
+      const courseAdd = e.target.closest('.course-add');
+      if(courseAdd){ e.stopPropagation(); this.openModal({ course:courseAdd.dataset.courseNew }); return; }
+      const menuAction = e.target.closest('.lesson-menu-action');
+      if(menuAction){
+        e.stopPropagation();
+        const menu = menuAction.closest('.lesson-menu');
+        menu.classList.remove('open');
+        if(menuAction.dataset.action === 'rename') this.renameLesson(menu.dataset.menuId);
+        else this.assignLessonCourse(menu.dataset.menuId);
+        return;
+      }
+      const menuTrigger = e.target.closest('.lesson-menu-trigger');
+      if(menuTrigger){
+        e.stopPropagation();
+        const menu = menuTrigger.closest('.lesson-menu');
+        this.dom.courseList.querySelectorAll('.lesson-menu.open').forEach(m => { if(m !== menu) m.classList.remove('open'); });
+        menu.classList.toggle('open');
+        return;
+      }
       const delBtn = e.target.closest('.lesson-delete');
       if(delBtn){ e.stopPropagation(); this.deleteLesson(delBtn.dataset.deleteId); return; }
       const rsBtn = e.target.closest('.lesson-restore');
@@ -2647,6 +2958,7 @@ const App = {
 
     d.newLessonBtn.addEventListener('click', () => this.openModal());
     d.exportLessonsBtn.addEventListener('click', () => this.exportLessons());
+    d.selectAllLessonsBtn.addEventListener('click', () => this.toggleAllLessonSelection());
     d.importLessonsBtn.addEventListener('click', () => d.importFileInput.click());
     d.importFileInput.addEventListener('change', () => {
       const file = d.importFileInput.files[0];
@@ -2669,6 +2981,13 @@ const App = {
     d.marksCloseBtn.addEventListener('click', () => this.closeMarks());
     d.marksScrim.addEventListener('click', (e) => { if(e.target === d.marksScrim) this.closeMarks(); });
     d.marksPracticeBtn.addEventListener('click', () => this.practiceMarks());
+    d.marksExportBtn.addEventListener('click', () => this.exportMarks());
+    d.marksImportBtn.addEventListener('click', () => d.marksImportFileInput.click());
+    d.marksImportFileInput.addEventListener('change', () => {
+      const file = d.marksImportFileInput.files[0];
+      if(file) this.importMarksFromFile(file);
+      d.marksImportFileInput.value = '';
+    });
     d.marksCopyBtn.addEventListener('click', async () => {
       const ok = await this.copyText(this.marks.map(m => m.text).join('\n'));
       d.marksCopyBtn.textContent = ok ? 'Copied' : 'Copy failed';
@@ -2700,8 +3019,16 @@ const App = {
 
     d.captureInput.addEventListener('blur', () => this.onBlurInput());
 
+    // Capture Escape before browser-level focus handling can consume it. Keep the
+    // field's own handler responsible for inline editing and command-mode input.
+    document.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape' || (e.target === d.captureInput && (this.editing || this.commandMode))) return;
+      this.onGlobalKeydown(e);
+    }, true);
     // "Press any key" works from anywhere on the page, not just once the field has focus.
-    document.addEventListener('keydown', (e) => this.onGlobalKeydown(e));
+    document.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape') this.onGlobalKeydown(e);
+    });
     // Auto-pause: anything that takes the typist's attention off the practice area.
     // Resuming is always explicit (see pauseTyping) — returning never restarts the clock by itself.
     document.addEventListener('visibilitychange', () => { if(document.hidden) this.pauseTyping('hidden'); });
@@ -2774,6 +3101,7 @@ document.addEventListener('DOMContentLoaded', () => App.init());
      TypingStudio.loadLesson(lessonId)
      TypingStudio.courses()                 // -> [{ title, lessons:[...] }]
      TypingStudio.getState()                // -> { lessonId, state, stats }
+     TypingStudio.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
      TypingStudio.on('checkpoint', fn)      // events: start, keystroke, error,
      TypingStudio.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
                                              //   lessonComplete, lessonAdded, lessonEdited,
@@ -2815,6 +3143,7 @@ window.TypingStudio = {
       stats: App.engine ? App.engine.getStats() : null
     };
   },
+  getGlobalStats(){ return collectGlobalStats(Storage.loadStats()); },
   on(evt, fn){ App.bus.addEventListener(evt, fn); },
   off(evt, fn){ App.bus.removeEventListener(evt, fn); },
   setSoundEnabled(v){
@@ -2836,6 +3165,7 @@ window.TypingStudio = {
       if(data.stats){
         const merged = Object.assign({}, Storage.loadStats(), data.stats);
         Storage.saveStats(merged);
+        App.updateGlobalStats();
       }
       if(Array.isArray(data.marks)) App.importMarks(data.marks);
       if(data.overrides) App.importOverrides(data.overrides);

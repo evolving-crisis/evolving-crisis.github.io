@@ -1,0 +1,42 @@
+{
+  "exportedAt": "2026-10-20T06:09:41.230Z",
+  "format": "type-studio-lessons.v1",
+  "lessons": [
+    {
+      "id": "custom-mvg5t9fh-yecg",
+      "title": "22-sep-trematoda",
+      "course": "raw-lab",
+      "text": "TREMATODA\nDuelas\nSubclase Aspidogastrea\nforma foliacea\nhuevo operculado\nmonogenea\nneodermata\nTegumento sincitial facilita\nsist. dig incompleto\nsist, reprod completo\n\nFasciola hepatica\nmiracidio\nesporoquiste\nmiracidio\nmetacercaria\nDicrocoelium dendriticum\nClonorchis sinensis\n\nParasitismo evento reciente\nseparación hígado-pancreas\npeces\nClase Monogenea\nduelas\nectoparásitos\nhospedadores peces\n1 ventosa\nhaptor estructura \nopis\nproto\nanzuelos queratinizados\npara adherirse\ntegumento sincitial\nmicrotricos -> ondulaciones dermis\nalta especificidad\nmono\nMonopisthocotylea\nPolyopisthocotylea\n\nlarva dipleurula diporpa\n\nCLASE CESTODA\nTenias\ncintas aplastadas\nparásitos estrictos\nCestoda",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "custom": true
+    },
+    {
+      "id": "custom-mvg7rynk-bkqq",
+      "title": "24-sep-cestoda",
+      "course": "raw-lab",
+      "text": "Cestoda Tenias\nel huevo sale ya embrionado.\nincluso a veces en las heces ya sale embrionado\nse dividen en 2 grupos\nCestodarias\ny verdaderas tenias\nPlatelmintos\nRouphozoa\nRhabditophora / Rhabdocoela\ningestión succión\ntriblásticos\nacelomados\nbilateria\nspiralia\nno son parásitos\nGastrotricha / Gàstruturos\n2 grupos\nvida libre\nMarinos\ndulceacuícolas",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "custom": true
+    },
+    {
+      "id": "custom-mvg8n65x-mc3i",
+      "title": "6-oct-annelida",
+      "course": "raw-lab",
+      "text": "Phylum Annelida\nHermafroditismo\ntal vez x ser terrestres\nciclo reprodución Oligoquetos\nirudimios\npolychaetos\nirudimios\ndiocos sin ovarios ni testicules\nlas celulas sexuales se producen en las paredes que rodean celoma euceloma se excretan por los gonoductos\nnefridios\nor ruptura de la pared corporal\nFecundacion externa\nLarva trocofora\n\nepitoquia -> proceso que asegura\nque los gametos se liberen hasta el ultimo momento\nproduce etx hormonales\nla luma\nAlternancia sexual & asexual\nen: fertilisation es: fecundación\n3 spincula\nculus dimintivo\nsifón pequeño\nintroverto\ndioicos\n\nesquizoceloma\nceloma\nintroverto\nvarios comportimientos\npelagica-mar abierto\nAuro\nEchiura\nranas\nespinos\nCola\nechinodermata\nespina\ntiene sistema circulatorio",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "custom": true
+    },
+    {
+      "id": "custom-mvg9cyim-zwok",
+      "title": "8-octubre-celomados",
+      "course": "raw-lab",
+      "text": "CELOMADOS\nHermanos anélidos y nemertinos\nMollusca: de cuerpo blando.\nAmphineura + ancestral\nescamas/dientecitos\nPolyplacophora\nAplacophora\nConchifera + diversif\nMonoplacophora\nScaphopoda\nBivalvia (Pelecypoda)\nReducción del celoma\n(llenar la caja de huecos)\ndesaparición del hepatop\nse desarrolló hemocoele\n(sist. circulatorio abierto).\nse desarrolló un manto\nespículas calcáreas\nPie muscular\ncámaras cardiacas con aurículas y ventrículo.\n(reunion)(muscular)\n(sist. circulatorio abierto)\nrádula lengua dentada para raspar\nen la base hermafrodita cambia dioico\nen los cephalopodos\ncuerpo dividido en\ncabeza, pie y saco visceral\n\nCabeza: boca, labios, palpos, pico, tentáculos, con sin ojos en el ext la base, bivalvos sin cabeza\nRádula: series de dientecillos de quitina que sirve para raspar el sustrato\nPie: estructura musculosa para desplazarse segrega el opérculo para cerrar la concha\nsist digest. completo\nrádula\nestómago con molleja para triturar alimentps \nSist. respiratorio\ncutaneo, branquias o pulmones\nbranquias \nSist. reproductivo\nEspermateca",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "custom": true
+    }
+  ]
+}

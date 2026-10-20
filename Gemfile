@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 group :jekyll_plugins do
   gem "jekyll", "~> 4.4"
+  gem "jekyll-sass-converter", "~> 3.0"
   gem "jekyll-feed", "~> 0.18"
   gem "jekyll-remote-theme", "~> 0.6"
   gem "jekyll-seo-tag", "~> 2.9"
@@ -23,3 +24,4 @@ gem "wdm", "~> 0.1", :platforms => [:mingw, :x64_mingw, :mswin]
 gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 # Add any additional gems below this line
+gem "bigdecimal"

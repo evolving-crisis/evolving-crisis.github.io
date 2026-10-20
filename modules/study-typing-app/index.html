@@ -16,15 +16,34 @@
 <div class="app" id="app">
 
   <header class="topbar">
-    <button class="icon-btn" id="menuBtn" aria-label="Open lesson menu">
-      <svg viewBox="0 0 20 20"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
-    </button>
-    <div class="brand">
-      <span class="brand-caret"></span>
-      <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Study Typing commands" title="Use Escape for Study Typing commands">
-        <span class="escape-switch-label">Esc commands</span>
-        <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+    <div class="topbar-left">
+      <button class="icon-btn" id="menuBtn" aria-label="Open lesson menu">
+        <svg viewBox="0 0 20 20"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
       </button>
+      <div class="brand">
+        <span class="brand-caret"></span>
+        <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Study Typing commands" title="Use Escape for Study Typing commands">
+          <span class="escape-switch-label">Esc commands</span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
+      </div>
+    </div>
+    <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global typing stats">
+      <span class="gs-label">Global</span>
+      <span class="gs-metric">
+        <span class="gs-value" id="gStatWpm">—</span>
+        <span class="gs-unit">avg wpm</span>
+      </span>
+      <span class="gs-sep" aria-hidden="true"></span>
+      <span class="gs-metric acc">
+        <span class="gs-value" id="gStatAcc">—</span>
+        <span class="gs-unit">avg acc</span>
+      </span>
+      <span class="gs-sep gs-sep-runs" aria-hidden="true"></span>
+      <span class="gs-metric runs">
+        <span class="gs-value" id="gStatRuns">0</span>
+        <span class="gs-unit">runs</span>
+      </span>
     </div>
     <div class="topbar-actions">
       <button class="icon-btn" id="soundBtn" aria-label="Toggle sound">
@@ -65,6 +84,7 @@
           <li><kbd>i</kbd> edit the lesson</li>
           <li><kbd>Backspace</kbd> delete the previous word</li>
           <li><kbd>dw</kbd> delete the current word</li>
+          <li><kbd>cw</kbd> change the current word</li>
           <li><kbd>u</kbd> undo · <kbd>r</kbd> redo</li>
           <li>type <kbd>restart</kbd> to reset</li>
         </ul>
@@ -76,7 +96,8 @@
         <div class="course-list" id="courseList"></div>
         <button class="new-lesson-btn" id="newLessonBtn">+ New custom lesson</button>
         <div class="drawer-tools">
-          <button class="text-btn" id="exportLessonsBtn">Export my lessons</button>
+          <button class="text-btn" id="exportLessonsBtn">Export selected</button>
+          <button class="text-btn" id="selectAllLessonsBtn">Select all</button>
           <button class="text-btn" id="importLessonsBtn">Import lessons</button>
           <input type="file" id="importFileInput" accept="application/json" hidden>
         </div>
@@ -183,9 +204,12 @@
         </button>
       </div>
       <ul class="marks-list" id="marksList"></ul>
-      <div class="modal-actions">
+      <div class="modal-actions marks-actions">
+        <button type="button" class="btn" id="marksImportBtn" title="Import marks and masks from a Type Studio marks JSON file">Import marks</button>
+        <button type="button" class="btn" id="marksExportBtn" title="Download all marks and masks as a Type Studio marks JSON file">Export marks</button>
         <button type="button" class="btn" id="marksCopyBtn">Copy all</button>
         <button type="button" class="btn primary" id="marksPracticeBtn">Practice these</button>
+        <input type="file" id="marksImportFileInput" accept="application/json" hidden>
       </div>
     </div>
   </div>

@@ -60,6 +60,22 @@ python3 -m http.server 8000      # run from modules/study-typing-app/
 npx serve .
 ```
 
+## Global stats in the top bar
+
+The centered top-bar widget summarizes the results saved in `localStorage`
+under `typingStudio.stats.v1`:
+
+- **avg wpm** — mean of each practiced lesson's best WPM,
+- **avg acc** — mean of each practiced lesson's best accuracy,
+- **runs** — total completed attempts across those lessons.
+
+Only values that actually exist are included. A lesson with no saved speed,
+accuracy, or timestamp is skipped rather than counted as zero, and the widget
+shows `—` when there is nothing to average. It refreshes when a run is saved,
+when stats are imported through `TypingStudio.importData()`, and when another
+tab changes the stats key. `TypingStudio.getGlobalStats()` returns the same
+aggregate as a plain object for custom UI or gamification.
+
 ## Where lessons come from (three tiers)
 
 **1. Built into `app.js` (`DEFAULT_COURSES`).** Always available, zero network
@@ -87,7 +103,8 @@ index), which is why the manifest (`index.json`) exists — it's the only way
 the client-side code can know what pack files are there to fetch.
 
 **3. `localStorage` — lessons a *visitor* adds themselves**, via the
-"+ New custom lesson" button. These are private to that one browser profile on
+"+ New custom lesson" button or the + beside a course title (which opens the
+same form with that course pre-filled). These are private to that one browser profile on
 that one device. They:
 
 - are **not** visible to you (the site owner) or to any other visitor,
@@ -97,7 +114,7 @@ that one device. They:
 Every lesson in the drawer can be deleted with its `×` control, including
 built-in and curated lesson-pack entries. Deletions are stored in
 `localStorage`, so they remain hidden on later visits and are included in
-lesson exports.
+`TypingStudio.exportData()`.
 
 This is a direct consequence of GitHub Pages being a static host: there's
 no server to write a shared lesson to, so "saving" can only ever mean "saving
@@ -127,19 +144,31 @@ Where the edit is stored depends on the tier:
   (`typingStudio.overrides.v1`): same id, so your best scores and marks stay
   attached, and a ↺ appears beside the lesson in the drawer to restore the original.
   (If you edit it back to the original text the override disappears by itself.) Overrides travel with
-  `TypingStudio.exportData()` and the drawer's Export / Import, like marks.
+  `TypingStudio.exportData()`; they are not part of the drawer's selected-lesson export.
 
 ## Getting a visitor's custom lesson back from them
 
 Since there's no backend, there's no automatic way for a visitor's custom
-lesson to reach you. Two buttons in the drawer give them (and you) a deliberate
-way to move it:
+lesson to reach you. Two drawer buttons give them (and you) a deliberate
+way to move lessons:
 
-- **Export my lessons** — downloads their `localStorage` lessons as a plain
-  `type-studio-lessons.json` file (client-side `Blob` + a temporary
+- **Export selected** — downloads the checked lessons as a plain
+  `type-studio-lessons-N.json` file (client-side `Blob` + a temporary
   `<a download>`, no server involved).
 - **Import lessons** — reads a `.json` file back in (via `FileReader`) and adds
   its lessons to `localStorage`.
+
+Marked passages are moved separately, through **Marks & masks** in the drawer:
+
+- **Export marks** — downloads all marks and masks as
+  `type-studio-marks-N.json`, with a distinct `"format": "type-studio-marks.v1"`
+  payload.
+- **Import marks** — reads that file back and merges its marks and masks into
+  the local store. It does not import lessons.
+
+Lesson exports no longer bundle marks. Lesson imports still accept older
+`{ lessons, marks }` files, but they only add the lessons and tell you to use
+**Import marks** for the marks in that same file.
 
 A visitor who wants to contribute a lesson can export it and send it to you
 however's easiest — email, paste into a GitHub issue, or open a PR
@@ -230,9 +259,10 @@ closes there.
 
 "Marks & masks" in the drawer is the digest: copy one or all of them, remove
 any, or **Practice these** (marks only) to turn them into a lesson ("My marked passages",
-updated in place each time rather than duplicated). Marks live under
-`typingStudio.marks.v1`, travel with `TypingStudio.exportData()` and the
-drawer's Export/Import, and fire `markAdded` / `markRemoved`
+updated in place each time rather than duplicated). **Export marks** and
+**Import marks** move the whole digest through its own JSON file, separately
+from lessons. Marks live under `typingStudio.marks.v1`, also travel with
+`TypingStudio.exportData()`, and fire `markAdded` / `markRemoved`
 (`TypingStudio.marks()` returns them). Plain `Enter` and `Tab` are available as
 lesson characters, so they are no longer marking shortcuts.
 
@@ -266,11 +296,24 @@ keeps their width, so you still know how long the word is.
 
 Marks and masks live in the same store (`typingStudio.marks.v1`, each with a
 `kind`; older marks with no `kind` count as marks) and travel together through
-export/import. `TypingStudio.marks()` returns both.
+**Export marks** / **Import marks**. `TypingStudio.marks()` returns both.
 
 Lesson text preserves internal newlines and tabs. While typing, plain `Enter`
 inserts a newline and plain `Tab` inserts a tab. Inline editing accepts both as
-well; only whitespace around the outside of a lesson is trimmed.
+well; only whitespace around the outside of a lesson is trimmed. In the
+practice display, each space has a small cornered underline and each tab has
+the same boundary plus its arrow marker, making consecutive spaces and tabs
+easy to count before typing.
+
+Every lesson has the same drawer controls: select it for export, open the
+three-dot menu to rename it or assign it to another course, and delete it.
+Each course heading also has a + button that opens the new-lesson form with
+that course pre-filled, so a custom lesson can be added in place.
+Lesson content remains editable in the typing area. Changes to built-in and
+static-pack lesson names/courses are saved as local metadata overrides; their
+source content remains unchanged. Select any lessons with their checkboxes and
+choose **Export selected** to download only those lessons. Marks and masks use
+their own **Export marks** / **Import marks** controls in "Marks & masks".
 
 ## Typing and command modes
 
@@ -284,6 +327,8 @@ The header includes an **Esc commands** switch, enabled by default. When it is
 on, `Esc` enters Command mode and handles the app's Escape actions. Turn it off
 to leave `Esc` to the browser and assistive technology; the switch itself is
 keyboard-operable and exposes its state as an accessible `switch` control.
+Escape is intercepted during key capture so supported browsers do not move focus
+away from the practice area before the app can enter Command mode.
 
 The app has two user-facing modes:
 
@@ -304,9 +349,10 @@ mode, or `i` to enter inline editing.
 | `b` | move to the beginning of the previous word |
 | `:1234` + `Enter` | jump to zero-based character position 1234 |
 | `dw` | delete the current word from the lesson template |
+| `cw` | change the current word: `dw`, then edit in its place |
 | `Backspace` | delete the previous word from the lesson template |
-| `u` | undo the last lesson-template edit, `dw`, or Backspace deletion |
-| `r` | redo a lesson-template edit, `dw`, or Backspace deletion |
+| `u` | undo the last lesson-template edit, `dw`/`cw`, or Backspace deletion |
+| `r` | redo a lesson-template edit, `dw`/`cw`, or Backspace deletion |
 | `restart` | reset the current typing session to the beginning |
 | `mw` | mark or unmark the current word |
 | `m` | start or finish a marked passage |
@@ -315,7 +361,7 @@ mode, or `i` to enter inline editing.
 | `t` | return to Typing mode |
 
 An open marked or masked passage remains active while using lesson-template
-editing commands such as `dw` or `Backspace`; the capture boundary follows the
+editing commands such as `dw`, `cw`, or `Backspace`; the capture boundary follows the
 updated text. Press `i` to edit the lesson without cancelling an open passage:
 the passage is hidden while editing, then typing can continue and `m` can close
 it when you return to Command mode.
