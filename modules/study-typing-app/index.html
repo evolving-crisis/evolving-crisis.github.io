@@ -69,22 +69,29 @@
       <section class="drawer-half shortcut-panel" aria-labelledby="shortcutTitle">
         <div class="drawer-head">
           <h2 id="shortcutTitle">Shortcuts</h2>
-          <button class="icon-btn" id="drawerCloseBtn" aria-label="Close menu">
-            <svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
-          </button>
+          <div class="drawer-head-actions">
+            <button class="icon-btn shortcut-toggle" id="shortcutToggle" type="button"
+                    aria-expanded="true" aria-controls="shortcutHint"
+                    aria-label="Collapse shortcuts" title="Collapse shortcuts">
+              <svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg>
+            </button>
+            <button class="icon-btn" id="drawerCloseBtn" aria-label="Close menu">
+              <svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
+            </button>
+          </div>
         </div>
-        <ul class="shortcut-hint">
+        <ul class="shortcut-hint" id="shortcutHint">
           <li><kbd>Esc</kbd> enter Command mode</li>
           <li><kbd>t</kbd> return to Typing mode</li>
           <li><kbd>n</kbd>/<kbd>b</kbd> next/previous word</li>
           <li><kbd>:1234</kbd> jump to position 1234, then <kbd>Enter</kbd></li>
+          <li><kbd>dw</kbd> delete the current word</li>
+          <li><kbd>cw</kbd> change the current word</li>
           <li><kbd>mw</kbd> mark or unmark the current word</li>
           <li><kbd>m</kbd>, then <kbd>t</kbd>, then <kbd>Esc</kbd> and <kbd>m</kbd> mark a passage</li>
           <li><kbd>M</kbd> mask or unmask the current word</li>
           <li><kbd>i</kbd> edit the lesson</li>
           <li><kbd>Backspace</kbd> delete the previous word</li>
-          <li><kbd>dw</kbd> delete the current word</li>
-          <li><kbd>cw</kbd> change the current word</li>
           <li><kbd>u</kbd> undo · <kbd>r</kbd> redo</li>
           <li>type <kbd>restart</kbd> to reset</li>
         </ul>
@@ -104,6 +111,7 @@
         <div class="drawer-prefs">
           <button class="text-btn" id="marksOpenBtn">Marks &amp; masks<span class="count-badge empty" id="marksCount">0</span></button>
           <button class="text-btn" id="maskToggleBtn" aria-pressed="true">Hide masked passages: on</button>
+          <button class="text-btn" id="figuresToggleBtn" aria-pressed="true">Figure deck: on</button>
         </div>
       </section>
     </nav>
@@ -138,7 +146,7 @@
         <textarea id="captureInput" class="capture-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true"></textarea>
       </section>
 
-      <section class="stats-row" aria-live="polite">
+      <section class="stats-row" id="statsRow" aria-live="polite">
         <div class="stat"><span class="stat-value" id="statWpm">0</span><span class="stat-label">speed · wpm</span></div>
         <div class="stat-divider"></div>
         <div class="stat"><span class="stat-value" id="statAcc">100%</span><span class="stat-label">accuracy</span></div>
@@ -159,6 +167,32 @@
       </section>
     </main>
   </div>
+
+  <aside class="media-deck" id="mediaDeck" aria-label="Figure deck" aria-live="polite" hidden>
+    <div class="media-deck-head">
+      <span class="media-deck-kicker">Figure <span class="media-deck-count" id="mediaDeckCount">1 / 1</span></span>
+      <div class="media-deck-actions">
+        <button type="button" class="media-deck-btn" id="mediaDeckPrev" aria-label="Previous figure" hidden>‹</button>
+        <button type="button" class="media-deck-btn" id="mediaDeckNext" aria-label="Next figure" hidden>›</button>
+        <button type="button" class="media-deck-btn media-deck-collapse" id="mediaDeckCollapse"
+                aria-expanded="true" aria-label="Collapse figure deck" title="Collapse figure deck">
+          <svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="media-deck-body" id="mediaDeckBody">
+      <figure class="media-deck-figure">
+        <img id="mediaDeckImage" alt="">
+        <div class="media-deck-fallback" id="mediaDeckFallback" hidden></div>
+        <figcaption id="mediaDeckCaption"></figcaption>
+      </figure>
+    </div>
+  </aside>
+
+  <aside class="stage-pip" id="stagePip" aria-label="Live typing view" hidden>
+    <div class="stage-pip-head">Typing view</div>
+    <div class="stage-pip-body" id="stagePipBody"></div>
+  </aside>
 
   <div class="modal-scrim" id="modalScrim">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -195,6 +229,25 @@
     </div>
   </div>
 
+  <div class="modal-scrim" id="importConflictScrim">
+    <div class="modal-card import-conflict-card" role="dialog" aria-modal="true" aria-labelledby="importConflictTitle" aria-describedby="importConflictIntro">
+      <div class="modal-head">
+        <h2 id="importConflictTitle">Lesson already exists</h2>
+      </div>
+      <p class="import-conflict-intro" id="importConflictIntro"></p>
+      <div class="import-conflict-body" id="importConflictBody"></div>
+      <label class="import-conflict-apply">
+        <input type="checkbox" id="importConflictApplyAll">
+        <span>Use this choice for the remaining conflicts in this file</span>
+      </label>
+      <div class="modal-actions import-conflict-actions">
+        <button type="button" class="btn" id="importConflictSkip" title="Leave the existing lesson unchanged and skip this imported lesson">Skip</button>
+        <button type="button" class="btn" id="importConflictNew" title="Add the imported lesson with a fresh id so both versions stay in the drawer">Keep both (new id)</button>
+        <button type="button" class="btn primary" id="importConflictUpdate" title="Replace the existing lesson's content with the imported version; its id, stats and marks stay attached">Update existing</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-scrim" id="marksScrim">
     <div class="modal-card marks-card" role="dialog" aria-modal="true" aria-labelledby="marksTitle">
       <div class="modal-head">
@@ -211,6 +264,40 @@
         <button type="button" class="btn primary" id="marksPracticeBtn">Practice these</button>
         <input type="file" id="marksImportFileInput" accept="application/json" hidden>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-scrim" id="mediaScrim">
+    <div class="modal-card media-card" role="dialog" aria-modal="true" aria-labelledby="mediaTitle">
+      <div class="modal-head">
+        <h2 id="mediaTitle">Figures for this mark</h2>
+        <button class="icon-btn" id="mediaCloseBtn" aria-label="Close">
+          <svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
+        </button>
+      </div>
+      <p class="media-mark-quote" id="mediaMarkText"></p>
+      <div class="media-list" id="mediaList"></div>
+      <form id="mediaForm">
+        <label class="field"><span>Image URL or data URL</span>
+          <input id="mediaUrl" type="text" placeholder="https://… or figures/plate-01.png" spellcheck="false">
+        </label>
+        <div class="field-row">
+          <label class="field"><span>Caption (optional)</span>
+            <input id="mediaCaption" type="text" maxlength="180" placeholder="e.g. Transverse section">
+          </label>
+          <label class="field"><span>Alt text (optional)</span>
+            <input id="mediaAlt" type="text" maxlength="180" placeholder="Describe the figure">
+          </label>
+        </div>
+        <label class="field"><span>Or upload an image</span>
+          <input id="mediaFile" type="file" accept="image/*">
+        </label>
+        <p class="media-hint" id="mediaHint">Figures appear in a floating deck while the caret is inside this marked passage.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="mediaDone">Done</button>
+          <button type="submit" class="btn primary">Add figure</button>
+        </div>
+      </form>
     </div>
   </div>
 

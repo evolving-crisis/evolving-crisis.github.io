@@ -111,7 +111,7 @@ that one device. They:
 - are **not** synced across the visitor's own devices or browsers,
 - persist until the visitor clears site data for your domain.
 
-Every lesson in the drawer can be deleted with its `×` control, including
+Every lesson in the drawer can be deleted from its three-dot menu, including
 built-in and curated lesson-pack entries. Deletions are stored in
 `localStorage`, so they remain hidden on later visits and are included in
 `TypingStudio.exportData()`.
@@ -121,6 +121,15 @@ no server to write a shared lesson to, so "saving" can only ever mean "saving
 in this browser." `getAllCourses()` in `app.js` merges all three tiers by
 course title for display, so from the visitor's point of view it's seamless —
 but only tier 3 is ever specific to them.
+
+`getAllCourses()` also treats lesson **id** as the identity of a lesson. If the
+same id appears more than once — two overlapping pack files (say, an export
+dropped into `lessons/` beside the pack it came from), or a repeated import
+already sitting in `localStorage` — the drawer renders it exactly once. The
+visitor's own custom copy wins over a static pack, a static pack wins over a
+built-in lesson, and within the same tier the later source wins (so a newly
+appended pack supersedes an older one). This is what keeps the side panel from
+showing the same lesson twice after moving exports around.
 
 **Editing a lesson in place (`Esc`, then `i`).** The lesson text becomes
 editable *where it is* — no panel, no focus change. Same font, same line breaks,
@@ -142,7 +151,8 @@ Where the edit is stored depends on the tier:
 - a **tier 1 or 2** (built-in or static-pack) lesson is never modified — those are
   code/git-managed. Your edit is stored as an *override* keyed by lesson id
   (`typingStudio.overrides.v1`): same id, so your best scores and marks stay
-  attached, and a ↺ appears beside the lesson in the drawer to restore the original.
+  attached, and a "Restore original" action appears in the lesson's three-dot
+  menu.
   (If you edit it back to the original text the override disappears by itself.) Overrides travel with
   `TypingStudio.exportData()`; they are not part of the drawer's selected-lesson export.
 
@@ -156,7 +166,27 @@ way to move lessons:
   `type-studio-lessons-N.json` file (client-side `Blob` + a temporary
   `<a download>`, no server involved).
 - **Import lessons** — reads a `.json` file back in (via `FileReader`) and adds
-  its lessons to `localStorage`.
+  its lessons through the conflict check below.
+
+Importing never silently creates a second row with the same id:
+
+- **Same id, same content** — the incoming lesson is skipped. Re-importing the
+  same export is safe.
+- **Same id, different content** — a dialog shows the char counts (before →
+  after and the delta), which fields changed (text, title, course, targets), and
+  a short removed/added excerpt around the first changed character. Choose
+  **Update existing** (same id, so stats and marks stay attached), **Keep both
+  (new id)** (a second version with a fresh custom id), or **Skip**. Tick
+  **Use this choice for the remaining conflicts** to apply it to the rest of
+  the file. `Esc` or clicking the scrim skips.
+- Built-in and static-pack ids are updated through the same override store as
+  an in-place edit, so the original stays restorable from the three-dot menu.
+
+The programmatic path has the same check but no dialog:
+`TypingStudio.importData(json, { conflicts: 'skip' | 'update' | 'new' })`.
+The default is `'skip'`; identical lessons are always skipped. Lesson packs in
+`lessons/` are static and do not go through this dialog — overlapping ids there
+are deduplicated at render time as described above.
 
 Marked passages are moved separately, through **Marks & masks** in the drawer:
 
@@ -266,6 +296,52 @@ from lessons. Marks live under `typingStudio.marks.v1`, also travel with
 (`TypingStudio.marks()` returns them). Plain `Enter` and `Tab` are available as
 lesson characters, so they are no longer marking shortcuts.
 
+## Figures attached to marked passages (floating deck)
+
+A mark can carry one or more figures, so a passage like "en la figura se
+muestra la anatomía de un platelminto en un corte transversal" can show its
+plate while you type it.
+
+1. Mark the passage in Command mode (`m … m`) and open **Marks & masks**.
+2. Use **Add figure** on that mark.
+3. Paste an image URL (absolute, or relative to the module such as
+   `figures/plate-01.png`) or choose an image file. Captions and alt text are
+   optional. Uploads become `data:image/…` URLs in this browser (1.5 MB limit).
+4. Add more figures to the same mark to make a little deck.
+
+While typing, the figure **interchanges places with the typing stage** for as
+long as the caret is inside the marked range. The figure (with previous/next
+buttons, counter and caption) fills the main view; the live typing stage moves
+into a picture-in-picture card in the bottom-right corner. That thumbnail keeps
+the lesson title, text, goal and progress bar — stats and the on-screen keyboard
+make way for the figure. Leaving the marked range swaps everything back
+immediately. **Figure deck: on/off** in the drawer turns the whole feature off
+without deleting anything; the choice is remembered.
+
+Figures are stored on the mark itself, as a `media` array:
+
+```json
+{
+  "src": "figures/plate-01.png",
+  "alt": "Transverse section of a flatworm",
+  "caption": "Corte transversal"
+}
+```
+
+That means they travel with **Export marks** / **Import marks** and with
+`TypingStudio.exportData()`, follow the mark when the lesson text is edited, and
+are returned by `TypingStudio.marks()`. Masks do not show figures (that would
+leak the text you are trying to recall); only `kind: "mark"` entries are used.
+The deck is hidden while the lesson is idle, during inline editing, and after a
+lesson is completed.
+
+A mark with at least one figure is a **figure anchor**, not a digest mark: it is
+not drawn with the orchid underline and it is excluded from **Practice these**.
+It still appears in **Marks & masks** with a `figure` chip so you can edit,
+remove, or add more figures. Removing every figure turns it back into a normal
+highlighted/digest mark. Marks without figures keep their underline and are the
+ones used for the reinforcement-learning digest.
+
 ## Masks: type it from memory (and using both shortcuts together)
 
 Marks keep a passage; **masks hide it**, so next time you have to produce it
@@ -305,8 +381,12 @@ practice display, each space has a small cornered underline and each tab has
 the same boundary plus its arrow marker, making consecutive spaces and tabs
 easy to count before typing.
 
-Every lesson has the same drawer controls: select it for export, open the
-three-dot menu to rename it or assign it to another course, and delete it.
+Every lesson has the same drawer controls: select it for export and open the
+three-dot menu to rename it, assign it to another course, restore an overridden
+copy, or delete it. Lesson names wrap onto multiple lines instead of being
+elided, so long titles stay distinguishable. The **Shortcuts** section can be
+collapsed from its chevron (the choice is remembered), which hands the whole
+drawer height to the course list.
 Each course heading also has a + button that opens the new-lesson form with
 that course pre-filled, so a custom lesson can be added in place.
 Lesson content remains editable in the typing area. Changes to built-in and

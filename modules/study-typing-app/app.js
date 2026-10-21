@@ -110,6 +110,146 @@ function commonPrefix(a, b){
   while(i < n && a[i] === b[i]) i++;
   return i;
 }
+// Length of the shared end of two strings, used with commonPrefix to isolate a change.
+function commonSuffix(a, b){
+  const n = Math.min(a.length, b.length);
+  let i = 0;
+  while(i < n && a[a.length - 1 - i] === b[b.length - 1 - i]) i++;
+  return i;
+}
+function optionalInt(value, min, max){
+  if(value === undefined || value === null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? clamp(Math.round(n), min, max) : null;
+}
+function countWords(str){
+  return (str.match(/\S+/g) || []).length;
+}
+function countLines(str){
+  return str ? str.split('\n').length : 0;
+}
+function clampExcerpt(str, max = 240){
+  const value = String(str || '');
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}
+function signed(n){
+  return n > 0 ? `+${n}` : String(n);
+}
+function plural(n, one, many){
+  return `${n} ${n === 1 ? one : (many || `${one}s`)}`;
+}
+
+// Imported JSON is untrusted and may be a hand-written file. Keep only the fields a
+// lesson actually uses, fill in defaults, and require the two things a lesson cannot
+// work without: a title and some text.
+function normalizeImportedLesson(raw){
+  if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const title = typeof raw.title === 'string' ? raw.title.trim() : '';
+  const text = typeof raw.text === 'string' ? normalizeLessonText(raw.text) : '';
+  if(!title || !text) return null;
+  return {
+    id: typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : uid('custom'),
+    title,
+    text,
+    // `course` / targets are optional in an export: null means "leave the existing
+    // value alone" when this lesson conflicts with one already in the app.
+    course: typeof raw.course === 'string' && raw.course.trim() ? raw.course.trim() : null,
+    targetWPM: optionalInt(raw.targetWPM, 5, 200),
+    targetAccuracy: optionalInt(raw.targetAccuracy, 50, 100),
+    objectives: Array.isArray(raw.objectives) ? raw.objectives : null,
+    topics: Array.isArray(raw.topics) ? raw.topics : null
+  };
+}
+
+// A compact, human-readable summary of one text change: size delta, the first
+// changed character, and the removed / added chunks around it. This is deliberately
+// not a full line diff — it is what the import dialog needs to show quickly.
+function summarizeTextChange(before, after){
+  const a = normalizeLessonText(String(before || ''));
+  const b = normalizeLessonText(String(after || ''));
+  const prefix = commonPrefix(a, b);
+  const suffix = commonSuffix(a, b);
+  const removed = a.slice(prefix, Math.max(prefix, a.length - suffix));
+  const added = b.slice(prefix, Math.max(prefix, b.length - suffix));
+  return {
+    beforeChars: a.length,
+    afterChars: b.length,
+    deltaChars: b.length - a.length,
+    beforeWords: countWords(a),
+    afterWords: countWords(b),
+    beforeLines: countLines(a),
+    afterLines: countLines(b),
+    firstChange: prefix,
+    removed,
+    added,
+    removedWords: countWords(removed),
+    addedWords: countWords(added),
+    removedLines: countLines(removed),
+    addedLines: countLines(added)
+  };
+}
+
+// What differs between the saved copy and the incoming one. Text, title and (when
+// the file specifies it) course/targets are compared; the app-level `custom` flag,
+// export bookkeeping, and id are not content.
+function compareImportedLesson(existing, existingCourseTitle, incoming){
+  const changes = [];
+  const oldText = normalizeLessonText(String(existing.text || ''));
+  if(oldText !== incoming.text){
+    changes.push({ field:'Text', kind:'text', ...summarizeTextChange(oldText, incoming.text) });
+  }
+  if((existing.title || '') !== incoming.title){
+    changes.push({ field:'Title', kind:'value', before:existing.title || '', after:incoming.title });
+  }
+  const existingCourse = existing.course || existingCourseTitle || 'My Lessons';
+  if(incoming.course && incoming.course !== existingCourse){
+    changes.push({ field:'Course', kind:'value', before:existingCourse, after:incoming.course });
+  }
+  const existingWpm = existing.targetWPM != null ? existing.targetWPM : 30;
+  if(incoming.targetWPM !== null && incoming.targetWPM !== existingWpm){
+    changes.push({ field:'Target WPM', kind:'value', before:String(existingWpm), after:String(incoming.targetWPM) });
+  }
+  const existingAcc = existing.targetAccuracy != null ? existing.targetAccuracy : 95;
+  if(incoming.targetAccuracy !== null && incoming.targetAccuracy !== existingAcc){
+    changes.push({ field:'Target accuracy', kind:'value', before:`${existingAcc}%`, after:`${incoming.targetAccuracy}%` });
+  }
+  return { same: changes.length === 0, changes };
+}
+
+// Figures attached to a mark. Remote or relative image URLs and data:image URLs
+// are allowed (data URLs are what file uploads become); other schemes such as
+// javascript: or blob: are rejected before they reach an <img src>.
+function normalizeMediaSrc(src){
+  const s = String(src || '').trim();
+  if(!s) return '';
+  if(/^data:image\//i.test(s)) return s;
+  if(/^https?:\/\//i.test(s)) return s;
+  if(/^[a-z][a-z0-9+.-]*:/i.test(s)) return ''; // any other explicit scheme
+  return s; // relative path, e.g. figures/plate-01.png
+}
+function normalizeMediaItem(raw, fallbackAlt = ''){
+  if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const src = normalizeMediaSrc(raw.src || raw.url || '');
+  if(!src) return null;
+  const caption = typeof raw.caption === 'string' ? raw.caption.trim().slice(0, 240) : '';
+  const altText = typeof raw.alt === 'string' ? raw.alt.trim() : '';
+  const alt = (altText || caption || fallbackAlt || '').slice(0, 240);
+  return {
+    id: typeof raw.id === 'string' && raw.id ? raw.id : uid('fig'),
+    src, alt, caption
+  };
+}
+function normalizeMediaList(list, fallbackAlt = ''){
+  return (Array.isArray(list) ? list : [])
+    .map(item => normalizeMediaItem(item, fallbackAlt))
+    .filter(Boolean);
+}
+// A mark with figures is a media anchor, not a highlighted/digest mark. It
+// still participates in figure positioning, but it is not painted and is not
+// included when turning marks into a practice digest.
+function markHasFigures(mark){
+  return !!(mark && Array.isArray(mark.media) && mark.media.length);
+}
 
 /* ---------------------------- tunables ---------------------------- */
 // Auto-pause after this many ms without a keystroke while the clock is running
@@ -952,6 +1092,8 @@ const App = {
   marks: [],         // saved annotations: { id, kind:'mark'|'mask', lessonId, lessonTitle, course, text, start, end, createdAt, attempts?, clean? }
   deletedLessons: new Set(),
   exportSelection: new Set(),
+  importConflict: null, // pending { info, resolve, previousFocus } while the import dialog is open
+  importing: false,     // one file import at a time (each conflict waits for a click)
   markRanges: [],    // the current lesson's marks, resolved to { id, s, e }
   maskRanges: [],    // masks that are ACTIVE this run (hidden behind tape)
   soonRanges: [],    // masks created during this run: already typed, they take effect next run
@@ -961,6 +1103,17 @@ const App = {
   maskMiss: new Map(),  // masked index -> wrong guesses so far
   hinted: new Set(),    // masked indexes showing a faint hint
   masksOn: true,        // pref: actually hide masked passages
+  figuresOn: true,      // pref: show the floating figure deck
+  mediaDeckSlides: [],  // figures active at the current caret position
+  mediaDeckIndex: 0,
+  mediaDeckKey: '',
+  mediaDeckHideTimer: null,
+  mediaDeckCollapsed: false,
+  figureFocusActive: false, // stage moved to the PiP and figure deck moved to the main stage
+  figureTransitioning: false, // a view transition is currently morphing the swap
+  mediaMarkId: null,    // mark currently open in the figure editor
+  mediaPendingSrc: '',  // data URL chosen from a file but not added yet
+  mediaReturnToMarks: false,
   captures: { mark:null, mask:null }, // one open span per shortcut family: { start }. Both can be open at once.
   pillTimers: { mark:null, mask:null, edit:null },
   editing: false,    // template editing mode is active
@@ -978,6 +1131,7 @@ const App = {
   _drag: null,       // mouse selection in progress
   composing: false,  // a dead key / IME composition is open in the typing field
   escapeCommands: true, // when enabled, Escape enters command mode and handles app Escape actions
+  shortcutsCollapsed: false, // pref: hide the Shortcuts list so Courses gets the full drawer height
   currentLesson: null,
   currentCourseTitle: '',
   timerHandle: null,
@@ -986,7 +1140,14 @@ const App = {
   async init(){
     this.customLessons = Storage.loadLessons();
     const prefs = Storage.loadPrefs();
-    this.marks = Storage.loadMarks();
+    this.marks = Storage.loadMarks().map(m => {
+      if(!m || typeof m !== 'object') return m;
+      if(!Array.isArray(m.media)) return m;
+      const media = normalizeMediaList(m.media, m.text);
+      const next = { ...m };
+      if(media.length) next.media = media; else delete next.media;
+      return next;
+    });
     this.deletedLessons = new Set(Storage.loadDeletedLessons());
     this.overrides = Storage.loadOverrides();
     this.positions = Storage.loadPositions();
@@ -995,10 +1156,14 @@ const App = {
       if(Array.isArray(visits)) this.sessionLessonVisits = new Set(visits);
     }catch(e){ /* sessionStorage may be unavailable in private or embedded contexts */ }
     this.masksOn = prefs.masksOn !== false;
+    this.figuresOn = prefs.figuresOn !== false;
+    this.mediaDeckCollapsed = prefs.mediaDeckCollapsed === true;
     this.escapeCommands = prefs.escapeCommands !== false;
+    this.shortcutsCollapsed = prefs.shortcutsCollapsed === true;
 
     this.dom = {
       menuBtn: qs('#menuBtn'), drawer: qs('#drawer'), drawerScrim: qs('#drawerScrim'), drawerCloseBtn: qs('#drawerCloseBtn'),
+      shortcutPanel: qs('.shortcut-panel'), shortcutToggle: qs('#shortcutToggle'), shortcutHint: qs('#shortcutHint'),
       courseList: qs('#courseList'), newLessonBtn: qs('#newLessonBtn'),
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
@@ -1008,11 +1173,22 @@ const App = {
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
       progressFill: qs('#progressFill'), captureInput: qs('#captureInput'),
       textShell: qs('#textShell'), readyPill: qs('#readyPill'), startCueSub: qs('#startCueSub'),
+      stageWrap: qs('.stage-wrap'), stage: qs('#stage'), statsRow: qs('#statsRow'),
+      stagePip: qs('#stagePip'), stagePipBody: qs('#stagePipBody'),
       markPill: qs('#markPill'), marksScrim: qs('#marksScrim'), marksCloseBtn: qs('#marksCloseBtn'),
-      maskPill: qs('#maskPill'), maskToggleBtn: qs('#maskToggleBtn'),
+      maskPill: qs('#maskPill'), maskToggleBtn: qs('#maskToggleBtn'), figuresToggleBtn: qs('#figuresToggleBtn'),
       marksList: qs('#marksList'), marksCopyBtn: qs('#marksCopyBtn'), marksPracticeBtn: qs('#marksPracticeBtn'),
       marksExportBtn: qs('#marksExportBtn'), marksImportBtn: qs('#marksImportBtn'), marksImportFileInput: qs('#marksImportFileInput'),
       marksOpenBtn: qs('#marksOpenBtn'), marksCount: qs('#marksCount'),
+      mediaDeck: qs('#mediaDeck'), mediaDeckCount: qs('#mediaDeckCount'),
+      mediaDeckPrev: qs('#mediaDeckPrev'), mediaDeckNext: qs('#mediaDeckNext'),
+      mediaDeckCollapse: qs('#mediaDeckCollapse'), mediaDeckBody: qs('#mediaDeckBody'),
+      mediaDeckImage: qs('#mediaDeckImage'), mediaDeckCaption: qs('#mediaDeckCaption'),
+      mediaDeckFallback: qs('#mediaDeckFallback'),
+      mediaScrim: qs('#mediaScrim'), mediaCloseBtn: qs('#mediaCloseBtn'), mediaDone: qs('#mediaDone'),
+      mediaMarkText: qs('#mediaMarkText'), mediaList: qs('#mediaList'), mediaForm: qs('#mediaForm'),
+      mediaUrl: qs('#mediaUrl'), mediaCaption: qs('#mediaCaption'), mediaAlt: qs('#mediaAlt'),
+      mediaFile: qs('#mediaFile'), mediaHint: qs('#mediaHint'),
       editPill: qs('#editPill'),
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
@@ -1025,8 +1201,19 @@ const App = {
       confettiLayer: qs('#confettiLayer'),
       exportLessonsBtn: qs('#exportLessonsBtn'), selectAllLessonsBtn: qs('#selectAllLessonsBtn'),
       importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput'),
+      importConflictScrim: qs('#importConflictScrim'), importConflictIntro: qs('#importConflictIntro'),
+      importConflictBody: qs('#importConflictBody'), importConflictApplyAll: qs('#importConflictApplyAll'),
+      importConflictSkip: qs('#importConflictSkip'), importConflictNew: qs('#importConflictNew'),
+      importConflictUpdate: qs('#importConflictUpdate'),
     };
 
+    this.mediaDeckHome = this.dom.mediaDeck
+      ? { parent: this.dom.mediaDeck.parentNode, nextSibling: this.dom.mediaDeck.nextSibling }
+      : null;
+    // Keep the invisible typing field outside .stage: the stage is reparented
+    // into the PiP when a figure appears, and moving a focused field would blur
+    // it (and auto-pause the clock).
+    if(this.dom.captureInput && this.dom.stageWrap) this.dom.stageWrap.appendChild(this.dom.captureInput);
     this.textView = new TextView(this.dom.textDisplay, this.dom.caret);
     this.keyboardView = new KeyboardView(this.dom.keyboard);
     this.statsView = new StatsView({ wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors, position:this.dom.statPosition });
@@ -1041,8 +1228,11 @@ const App = {
 
     this.wireEvents();
     this.updateMaskToggleBtn();
+    this.updateFiguresToggleBtn();
+    this.applyMediaDeckCollapsed();
     this.updateMarksCount();
     this.updateEscapeSwitch();
+    this.applyShortcutCollapsed();
     this.updateGlobalStats();
 
     // Load the manifest before rendering or selecting the first lesson. The
@@ -1114,36 +1304,60 @@ const App = {
       ...(typeof ov.text === 'string' ? { text:ov.text, edited:true, originalText:l.text } : {}),
       ...(typeof ov.title === 'string' ? { title:ov.title } : {}),
       ...(typeof ov.course === 'string' ? { course:ov.course } : {}),
-      metadataEdited: typeof ov.title === 'string' || typeof ov.course === 'string'
+      ...(Number.isFinite(ov.targetWPM) ? { targetWPM:ov.targetWPM } : {}),
+      ...(Number.isFinite(ov.targetAccuracy) ? { targetAccuracy:ov.targetAccuracy } : {}),
+      metadataEdited: typeof ov.title === 'string' || typeof ov.course === 'string' ||
+        Number.isFinite(ov.targetWPM) || Number.isFinite(ov.targetAccuracy)
     };
+  },
+  // One canonical entry per lesson id. Sources overlap on purpose — an export can be
+  // dropped into lessons/ next to the pack it came from, and older imports are still
+  // in localStorage — so the same id must never be rendered twice. Priority is
+  // custom > static pack > built-in (the visitor's own copy wins), and within the
+  // same tier the later source wins (a newly appended pack supersedes an older one).
+  getCanonicalLessons(){
+    const chosen = new Map();
+    let order = 0;
+    const consider = (kind, priority, raw, sourceCourseTitle) => {
+      const lesson = this.withOverride(raw);
+      if(!lesson || !lesson.id) return;
+      const entry = {
+        kind, priority, raw, lesson, sourceCourseTitle,
+        courseTitle: lesson.course || sourceCourseTitle || 'My Lessons',
+        order: order++
+      };
+      const previous = chosen.get(lesson.id);
+      if(!previous || priority > previous.priority ||
+         (priority === previous.priority && entry.order > previous.order)){
+        chosen.set(lesson.id, entry);
+      }
+    };
+    DEFAULT_COURSES.forEach(course => course.lessons.forEach(l => consider('builtin', 1, l, course.title)));
+    this.staticPackCourses.forEach(course => course.lessons.forEach(l => consider('static', 2, l, course.title)));
+    this.customLessons.forEach(l => consider('custom', 3, l, l.course || 'My Lessons'));
+    return Array.from(chosen.values()).sort((a, b) => a.order - b.order);
   },
   getAllCourses(){
     const map = new Map();
-    const addCourseLessons = (courseTitle, lessons) => {
-      lessons.map(l => this.withOverride(l)).forEach(lesson => {
-        const title = lesson.course || courseTitle || 'My Lessons';
-        const key = title.toLowerCase();
-        if(!map.has(key)) map.set(key, { title, lessons:[] });
-        map.get(key).lessons.push(lesson);
-      });
-    };
-    DEFAULT_COURSES.forEach(c => addCourseLessons(c.title, c.lessons));
-    this.staticPackCourses.forEach(c => {
-      addCourseLessons(c.title, c.lessons);
+    this.getCanonicalLessons().forEach(entry => {
+      const lesson = entry.lesson;
+      if(this.deletedLessons.has(lesson.id)) return;
+      const title = lesson.course || entry.courseTitle || 'My Lessons';
+      const key = title.toLowerCase();
+      if(!map.has(key)) map.set(key, { title, lessons:[] });
+      map.get(key).lessons.push(lesson);
     });
-    this.customLessons.forEach(l => {
-      addCourseLessons(l.course, [l]);
-    });
-    return Array.from(map.values())
-      .map(c => ({ title: c.title, lessons: c.lessons.filter(l => !this.deletedLessons.has(l.id)) }))
-      .filter(c => c.lessons.length);
+    return Array.from(map.values()).filter(c => c.lessons.length);
   },
   findLesson(id){
-    for(const course of this.getAllCourses()){
-      const lesson = course.lessons.find(l => l.id === id);
-      if(lesson) return { lesson, courseTitle:course.title };
-    }
-    return null;
+    const entry = this.getCanonicalLessons().find(e => e.lesson.id === id);
+    if(!entry || this.deletedLessons.has(entry.lesson.id)) return null;
+    return { lesson:entry.lesson, courseTitle:entry.courseTitle };
+  },
+  findLessonEntry(id){
+    // Unlike findLesson(), this also sees a deleted lesson and ignores the deletion:
+    // an import of that id should resolve the conflict and can restore it.
+    return this.getCanonicalLessons().find(e => e.lesson.id === id) || null;
   },
 
   /* ----- sidebar ----- */
@@ -1193,6 +1407,7 @@ const App = {
         const titleSpan = document.createElement('span');
         titleSpan.className = 'lt-title';
         titleSpan.textContent = lesson.title;
+        titleSpan.title = lesson.title;
         btn.appendChild(titleSpan);
         {
           const menu = document.createElement('span');
@@ -1216,6 +1431,21 @@ const App = {
           assign.dataset.action = 'assign-course';
           assign.textContent = 'Assign to course';
           menuList.append(rename, assign);
+          // Restore only exists when an override is actually stored. Pack exports
+          // can carry an `edited` flag of their own, but there is nothing to restore
+          // until this browser has saved an edit.
+          if(this.overrides[lesson.id] !== undefined){
+            const restore = document.createElement('span');
+            restore.className = 'lesson-menu-action';
+            restore.dataset.action = 'restore';
+            restore.textContent = 'Restore original';
+            menuList.appendChild(restore);
+          }
+          const del = document.createElement('span');
+          del.className = 'lesson-menu-action danger';
+          del.dataset.action = 'delete';
+          del.textContent = 'Delete lesson';
+          menuList.appendChild(del);
           menu.appendChild(menuList);
           btn.appendChild(menu);
         }
@@ -1226,20 +1456,6 @@ const App = {
           meta.textContent = `★ ${best.bestWpm}`;
           btn.appendChild(meta);
         }
-        const del = document.createElement('span');
-        del.className = 'lesson-delete';
-        del.dataset.deleteId = lesson.id;
-        del.title = 'Delete this lesson';
-        del.innerHTML = '<svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>';
-        btn.appendChild(del);
-        if(lesson.edited || lesson.metadataEdited){
-          const rs = document.createElement('span');
-          rs.className = 'lesson-restore';
-          rs.dataset.restoreId = lesson.id;
-          rs.title = 'Restore the original text';
-          rs.innerHTML = '<svg viewBox="0 0 20 20"><path d="M4.5 10a5.5 5.5 0 1 1 1.7 3.97"/><path d="M4.5 16v-3.6h3.6"/></svg>';
-          btn.appendChild(rs);
-        }
         li.appendChild(btn);
         ul.appendChild(li);
       });
@@ -1247,6 +1463,37 @@ const App = {
       this.dom.courseList.appendChild(group);
     });
     this.updateExportButton();
+  },
+  renderSidebarBest(id){
+    // Mirrors the ★ span renderSidebar() builds, without rebuilding the list.
+    // Updating in place keeps the drawer's scroll and focus exactly where they
+    // were when the lesson finished.
+    const stats = Storage.loadStats();
+    const best = stats[id];
+    const rows = Array.from(this.dom.courseList.querySelectorAll('.lesson-item'))
+      .filter(row => row.dataset.id === id);
+    rows.forEach(row => {
+      let meta = Array.from(row.children).find(el => el.classList && el.classList.contains('lesson-meta'));
+      if(best && best.bestWpm){
+        if(!meta){
+          meta = document.createElement('span');
+          meta.className = 'lesson-meta';
+          row.appendChild(meta);
+        }
+        meta.textContent = `★ ${best.bestWpm}`;
+      } else if(meta){
+        meta.remove();
+      }
+    });
+  },
+  renderSidebarActive(){
+    // Switching lessons only changes which row is highlighted. Rebuilding the
+    // whole drawer here reset its scroll position and made any duplicate rows
+    // visible all over again, so move the .active class instead.
+    const id = this.currentLesson ? this.currentLesson.id : null;
+    this.dom.courseList.querySelectorAll('.lesson-item').forEach(row => {
+      row.classList.toggle('active', row.dataset.id === id);
+    });
   },
   updateExportButton(){
     const lessons = this.getAllCourses().flatMap(course => course.lessons);
@@ -1300,8 +1547,8 @@ const App = {
     this.keyboardView.clearNext();
     this.keyboardView.highlightNext(lesson.text[0]);
     this.statsView.reset();
-    this.updateTypingPosition();
     this.state = 'idle';
+    this.updateTypingPosition();
     this.updateOverlay();
     this.hideCompletion();
     this.dom.lessonTitle.textContent = lesson.title;
@@ -1317,7 +1564,7 @@ const App = {
     this.updateProgress();
     this.stopTicker();
     this.savePref('lastLessonId', lesson.id);
-    this.renderSidebar();
+    this.renderSidebarActive();
     this.bus.dispatchEvent(new CustomEvent('lessonLoaded', { detail:{ lessonId:lesson.id } }));
     if(!this.lessonIntro && (opts.ready || savedPosition > 0)) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
   },
@@ -1698,6 +1945,7 @@ const App = {
   },
   updateTypingPosition(){
     if(this.engine) this.statsView.updatePosition(this.engine.pos, this.engine.text.length);
+    this.syncMediaDeck();
   },
   jumpToPosition(position){
     if(!this.engine || !Number.isInteger(position)) return;
@@ -1748,7 +1996,11 @@ const App = {
     const recall = this.recordRecall();
     this.showCompletion(e.detail);
     if(recall) this.appendRecallLine(recall);
-    this.renderSidebar();
+    // Update the completed row's ★ in place. Rebuilding the whole drawer here
+    // could not add a lesson, but it did reset scroll/focus and made any
+    // already-present duplicate rows look like they had just appeared.
+    this.renderSidebarBest(this.currentLesson.id);
+    this.syncMediaDeck();
     this.bus.dispatchEvent(new CustomEvent('lessonComplete', { detail:{ lessonId:this.currentLesson.id, stats:e.detail, recall } }));
   },
 
@@ -1830,6 +2082,7 @@ const App = {
     this.state = 'ready';
     this.updateOverlay();
     this.focusInput();
+    this.syncMediaDeck();
     this.bus.dispatchEvent(new CustomEvent('ready'));
   },
   pauseTyping(reason, at){
@@ -1868,6 +2121,8 @@ const App = {
     const inField = t !== d.captureInput && t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
     if(e.key === 'Escape' && !this.escapeCommands) return;
     if(e.key === 'Escape'){
+      if(d.importConflictScrim.classList.contains('open')){ this.finishImportConflict('skip'); return; }
+      if(d.mediaScrim.classList.contains('open')){ this.closeMediaEditor(); return; }
       if(d.marksScrim.classList.contains('open')){ this.closeMarks(); return; }
       if(d.modalScrim.classList.contains('open')){ this.closeModal(); return; }
       if(d.completeOverlay.classList.contains('open')){ this.hideCompletion(); return; }
@@ -1902,6 +2157,7 @@ const App = {
     if(this.state === 'finished') return;
     if(e.ctrlKey || e.metaKey || e.altKey) return;
     if(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
+       d.importConflictScrim.classList.contains('open') || d.mediaScrim.classList.contains('open') ||
        d.completeOverlay.classList.contains('open') || d.drawer.classList.contains('open')) return;
     if(t !== d.captureInput && t && t.closest){
       if(inField) return;
@@ -2077,6 +2333,7 @@ const App = {
     this.maskSet = new Set();
     if(this.masksOn && !this.editing) this.maskRanges.forEach(r => { for(let i = r.s; i < r.e; i++) this.maskSet.add(i); });
     this.refreshOverlays();
+    this.syncMediaDeck();
   },
   refreshOverlays(){
     const live = (kind) => {
@@ -2085,7 +2342,11 @@ const App = {
       return c ? [c.start, Math.max(c.start, this.engine.pos)] : null;
     };
     const masking = this.masksOn && !this.editing;
-    this.textView.setMarks(this.markRanges.map(r => [r.s, r.e]), live('mark'));
+    const visibleMarks = this.markRanges.filter(range => {
+      const mark = this.marks.find(m => m.id === range.id);
+      return mark && !markHasFigures(mark);
+    });
+    this.textView.setMarks(visibleMarks.map(r => [r.s, r.e]), live('mark'));
     this.textView.setMasks(masking ? this.maskRanges.map(r => [r.s, r.e]) : [], this.soonRanges.map(r => [r.s, r.e]), live('mask'), this.hinted);
   },
   hintNext(stage){
@@ -2218,6 +2479,8 @@ const App = {
         text:m.text, start, end:Number(m.end) || start + m.text.length, createdAt:Number(m.createdAt) || Date.now()
       };
       if(kind === 'mask'){ rec.attempts = Number(m.attempts) || 0; rec.clean = Number(m.clean) || 0; this.freshMasks.add(id); }
+      const media = normalizeMediaList(m.media, m.text);
+      if(media.length) rec.media = media;
       this.marks.push(rec);
       added++;
     });
@@ -2250,6 +2513,314 @@ const App = {
     c.textContent = String(this.marks.length);
     c.classList.toggle('empty', !this.marks.length);
   },
+  /* ----- floating figure deck (PiP for marked passages) -----
+     Images live on marks, not on the lesson, so they travel with the mark through
+     export/import and follow it when the lesson text is edited. The deck shows
+     every figure attached to a mark whose range contains the caret; leaving the
+     range fades it out. Multiple figures on one mark become a little deck. */
+  updateFiguresToggleBtn(){
+    const b = this.dom.figuresToggleBtn;
+    if(!b) return;
+    b.textContent = `Figure deck: ${this.figuresOn ? 'on' : 'off'}`;
+    b.setAttribute('aria-pressed', String(this.figuresOn));
+  },
+  toggleFigures(){
+    this.figuresOn = !this.figuresOn;
+    this.savePref('figuresOn', this.figuresOn);
+    this.updateFiguresToggleBtn();
+    this.syncMediaDeck();
+  },
+  mediaDeckCanShow(){
+    return this.figuresOn && this.currentLesson && this.engine && !this.editing &&
+      (this.state === 'ready' || this.state === 'running' || this.state === 'paused');
+  },
+  syncMediaDeck(){
+    const d = this.dom;
+    if(!d.mediaDeck) return;
+    const slides = [];
+    if(this.mediaDeckCanShow()){
+      const pos = this.engine.pos;
+      const seen = new Set();
+      this.markRanges.forEach(range => {
+        // Inclusive end: the figure stays up while you type the last character
+        // of the marked sentence, then disappears on the next keystroke.
+        if(pos < range.s || pos > range.e) return;
+        const mark = this.marks.find(m => m.id === range.id);
+        if(!mark || (mark.kind || 'mark') === 'mask' || !Array.isArray(mark.media)) return;
+        mark.media.forEach(media => {
+          if(!media || !media.src || seen.has(media.id)) return;
+          seen.add(media.id);
+          slides.push({
+            id:String(media.id || media.src), src:media.src,
+            alt:media.alt || '', caption:media.caption || '',
+            markId:mark.id, markText:mark.text || ''
+          });
+        });
+      });
+    }
+    if(!slides.length){ this.hideMediaDeck(); return; }
+    const key = slides.map(s => `${s.id}\u0000${s.caption}\u0000${s.alt}`).join('\u0001');
+    const changed = key !== this.mediaDeckKey;
+    this.mediaDeckSlides = slides;
+    this.mediaDeckKey = key;
+    if(changed) this.mediaDeckIndex = 0;
+    if(this.mediaDeckIndex >= slides.length) this.mediaDeckIndex = 0;
+    // Render the figure before snapshotting the new state so the incoming
+    // card is not blank during the transition.
+    if(changed) this.renderMediaDeck();
+    this.showMediaDeck();
+  },
+  figureTransition(update){
+    // A ~0.56s view transition morphs the stage between the main area and the
+    // PiP while the figure card fades in. Browsers without the API get a short
+    // fade-out/swap/fade-in instead; reduced-motion users get an instant swap.
+    if(prefersReducedMotion()){
+      update();
+      return;
+    }
+    if(this.figureTransitioning){
+      update();
+      return;
+    }
+    const wrap = this.dom.stageWrap;
+    if(typeof document.startViewTransition !== 'function'){
+      this.figureTransitioning = true;
+      wrap.classList.add('figure-swapping');
+      setTimeout(() => {
+        update();
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          wrap.classList.remove('figure-swapping');
+          this.figureTransitioning = false;
+          this.syncMediaDeck();
+        }));
+      }, 170);
+      return;
+    }
+    this.figureTransitioning = true;
+    let transition;
+    try{
+      transition = document.startViewTransition(update);
+    }catch(e){
+      this.figureTransitioning = false;
+      update();
+      return;
+    }
+    const settle = () => {
+      this.figureTransitioning = false;
+      // The caret may have moved while the snapshot was playing.
+      this.syncMediaDeck();
+    };
+    transition.finished.then(settle, settle);
+  },
+  enterFigureFocus(){
+    if(this.figureFocusActive) return;
+    const d = this.dom;
+    if(!d.stagePip || !d.stagePipBody || !d.stage || !d.statsRow) return;
+    // Interchange: the real typing stage becomes the PiP thumbnail (stats live
+    // outside .stage, so they stay hidden there), and the figure card takes the
+    // main stage slot.
+    d.stagePipBody.appendChild(d.stage);
+    d.stageWrap.insertBefore(d.mediaDeck, d.statsRow);
+    d.stageWrap.classList.add('figure-focus');
+    d.mediaDeck.classList.add('is-main');
+    d.stagePip.hidden = false;
+    this.figureFocusActive = true;
+    if(this.textView && this.engine) this.textView.moveCaret(this.engine.pos);
+  },
+  exitFigureFocus(){
+    if(!this.figureFocusActive) return;
+    const d = this.dom;
+    d.stagePip.hidden = true;
+    if(d.stage && d.statsRow) d.stageWrap.insertBefore(d.stage, d.statsRow);
+    if(this.mediaDeckHome && this.mediaDeckHome.parent){
+      const next = this.mediaDeckHome.nextSibling;
+      if(next && next.parentNode === this.mediaDeckHome.parent) this.mediaDeckHome.parent.insertBefore(d.mediaDeck, next);
+      else this.mediaDeckHome.parent.appendChild(d.mediaDeck);
+    }
+    d.mediaDeck.classList.remove('is-main');
+    d.stageWrap.classList.remove('figure-focus');
+    this.figureFocusActive = false;
+    if(this.textView && this.engine) this.textView.moveCaret(this.engine.pos);
+  },
+  showMediaDeck(){
+    const d = this.dom;
+    if(!d.mediaDeck) return;
+    clearTimeout(this.mediaDeckHideTimer);
+    this.mediaDeckHideTimer = null;
+    const entering = !this.figureFocusActive;
+    const reveal = () => {
+      this.enterFigureFocus();
+      d.mediaDeck.hidden = false;
+      d.mediaDeck.classList.add('show');
+    };
+    if(entering) this.figureTransition(reveal);
+    else reveal();
+  },
+  hideMediaDeck(){
+    const d = this.dom;
+    if(!d.mediaDeck) return;
+    const wasFocused = this.figureFocusActive;
+    this.mediaDeckSlides = [];
+    this.mediaDeckIndex = 0;
+    this.mediaDeckKey = '';
+    clearTimeout(this.mediaDeckHideTimer);
+    this.mediaDeckHideTimer = null;
+    const conceal = () => {
+      this.exitFigureFocus();
+      d.mediaDeck.classList.remove('show');
+      d.mediaDeck.hidden = true;
+    };
+    if(wasFocused) this.figureTransition(conceal);
+    else conceal();
+  },
+  renderMediaDeck(){
+    const d = this.dom, slides = this.mediaDeckSlides;
+    const slide = slides[this.mediaDeckIndex];
+    if(!slide) return;
+    d.mediaDeckCount.textContent = `${this.mediaDeckIndex + 1} / ${slides.length}`;
+    const many = slides.length > 1;
+    d.mediaDeckPrev.hidden = !many;
+    d.mediaDeckNext.hidden = !many;
+    const different = d.mediaDeckImage.getAttribute('src') !== slide.src;
+    if(different){
+      d.mediaDeckImage.hidden = false;
+      d.mediaDeckFallback.hidden = true;
+      d.mediaDeckImage.src = slide.src;
+      if(!prefersReducedMotion()){
+        d.mediaDeckImage.animate(
+          [{ opacity:0, transform:'scale(.985)' }, { opacity:1, transform:'none' }],
+          { duration:200, easing:'ease-out' }
+        );
+      }
+    }
+    d.mediaDeckImage.alt = slide.alt || slide.caption || 'Figure for the marked passage';
+    d.mediaDeckCaption.textContent = slide.caption || '';
+    d.mediaDeckCaption.hidden = !slide.caption;
+    d.mediaDeck.title = slide.caption || slide.markText || 'Figure';
+  },
+  stepMediaSlide(delta){
+    const count = this.mediaDeckSlides.length;
+    if(count < 2) return;
+    this.mediaDeckIndex = (this.mediaDeckIndex + delta + count) % count;
+    this.renderMediaDeck();
+  },
+  toggleMediaDeckCollapsed(){
+    this.mediaDeckCollapsed = !this.mediaDeckCollapsed;
+    this.savePref('mediaDeckCollapsed', this.mediaDeckCollapsed);
+    this.applyMediaDeckCollapsed();
+  },
+  applyMediaDeckCollapsed(){
+    const d = this.dom;
+    if(!d.mediaDeck) return;
+    d.mediaDeck.classList.toggle('is-collapsed', this.mediaDeckCollapsed);
+    d.mediaDeckCollapse.setAttribute('aria-expanded', String(!this.mediaDeckCollapsed));
+    d.mediaDeckCollapse.setAttribute('aria-label', this.mediaDeckCollapsed ? 'Expand figure deck' : 'Collapse figure deck');
+    d.mediaDeckCollapse.title = this.mediaDeckCollapsed ? 'Expand figure deck' : 'Collapse figure deck';
+  },
+
+  /* ----- attach figures to a mark ----- */
+  mediaMark(){ return this.marks.find(m => m.id === this.mediaMarkId) || null; },
+  openMediaEditor(markId){
+    const mark = this.marks.find(m => m.id === markId);
+    if(!mark) return;
+    this.mediaMarkId = markId;
+    this.mediaPendingSrc = '';
+    this.mediaReturnToMarks = this.dom.marksScrim.classList.contains('open');
+    this.closeMarks();
+    this.dom.mediaForm.reset();
+    this.dom.mediaFile.value = '';
+    this.dom.mediaHint.textContent = 'Figures appear in a floating deck while the caret is inside this marked passage.';
+    this.renderMediaEditor();
+    this.dom.mediaScrim.classList.add('open');
+    setTimeout(() => { if(this.dom.mediaScrim.classList.contains('open')) this.dom.mediaUrl.focus(); }, 50);
+  },
+  closeMediaEditor(){
+    if(!this.dom.mediaScrim.classList.contains('open')) return;
+    this.dom.mediaScrim.classList.remove('open');
+    this.mediaMarkId = null;
+    this.mediaPendingSrc = '';
+    this.dom.mediaForm.reset();
+    this.dom.mediaFile.value = '';
+    if(this.mediaReturnToMarks){
+      this.mediaReturnToMarks = false;
+      this.openMarks();
+    } else {
+      this.syncMediaDeck();
+    }
+  },
+  renderMediaEditor(){
+    const d = this.dom, mark = this.mediaMark();
+    if(!mark){ this.closeMediaEditor(); return; }
+    d.mediaMarkText.textContent = mark.text;
+    d.mediaMarkText.title = mark.text;
+    const list = d.mediaList;
+    list.innerHTML = '';
+    const media = Array.isArray(mark.media) ? mark.media : [];
+    if(!media.length){
+      const empty = document.createElement('p');
+      empty.className = 'media-empty';
+      empty.textContent = 'No figures attached to this mark yet. Paste an image URL or choose a file below.';
+      list.appendChild(empty);
+      return;
+    }
+    media.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'media-edit-item';
+      row.dataset.mediaId = item.id;
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = item.alt || '';
+      img.loading = 'lazy';
+      const fields = document.createElement('div');
+      fields.className = 'media-edit-fields';
+      const caption = document.createElement('input');
+      caption.type = 'text';
+      caption.maxLength = 240;
+      caption.placeholder = 'Caption';
+      caption.dataset.field = 'caption';
+      caption.value = item.caption || '';
+      const alt = document.createElement('input');
+      alt.type = 'text';
+      alt.maxLength = 240;
+      alt.placeholder = 'Alt text';
+      alt.dataset.field = 'alt';
+      alt.value = item.alt || '';
+      fields.append(caption, alt);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'media-edit-remove';
+      remove.dataset.mediaRemove = item.id;
+      remove.textContent = 'Remove';
+      row.append(img, fields, remove);
+      list.appendChild(row);
+    });
+  },
+  saveMediaChanges(){
+    Storage.saveMarks(this.marks);
+    this.applyAnnotations(); // re-paint: adding/removing figures changes whether the mark is underlined
+    this.renderMarks();
+  },
+  submitMediaForm(e){
+    e.preventDefault();
+    const mark = this.mediaMark();
+    if(!mark) return;
+    const src = this.mediaPendingSrc || normalizeMediaSrc(this.dom.mediaUrl.value);
+    if(!src){
+      this.dom.mediaHint.textContent = 'Paste an image URL or choose an image file first.';
+      this.dom.mediaUrl.focus();
+      return;
+    }
+    const caption = this.dom.mediaCaption.value.trim().slice(0, 240);
+    const alt = (this.dom.mediaAlt.value.trim() || caption || mark.text || 'Figure').slice(0, 240);
+    if(!Array.isArray(mark.media)) mark.media = [];
+    mark.media.push({ id:uid('fig'), src, alt, caption });
+    this.mediaPendingSrc = '';
+    this.dom.mediaForm.reset();
+    this.dom.mediaFile.value = '';
+    this.dom.mediaHint.textContent = 'Figure added. It will appear while you type this marked passage.';
+    this.renderMediaEditor();
+    this.saveMediaChanges();
+  },
   toggleMasks(){
     this.masksOn = !this.masksOn;
     this.savePref('masksOn', this.masksOn);
@@ -2276,7 +2847,7 @@ const App = {
     const empty = !this.marks.length;
     d.marksCopyBtn.disabled = empty;
     d.marksExportBtn.disabled = empty;
-    d.marksPracticeBtn.disabled = !this.marks.some(m => m.kind !== 'mask');
+    d.marksPracticeBtn.disabled = !this.marks.some(m => m.kind !== 'mask' && !markHasFigures(m));
     if(empty){
       const li = document.createElement('li');
       li.className = 'marks-empty';
@@ -2298,12 +2869,23 @@ const App = {
       const chip = document.createElement('span');
       chip.className = 'kind-chip ' + kind;
       chip.textContent = kind;
+      const media = Array.isArray(m.media) ? m.media : [];
       let info = `${m.lessonTitle || 'Lesson'} · ${new Date(m.createdAt).toLocaleDateString()}`;
       if(kind === 'mask' && m.attempts) info += ` · recalled cleanly ${m.clean || 0} of ${m.attempts}`;
-      meta.append(chip, document.createTextNode(info));
+      meta.append(chip);
+      if(kind !== 'mask' && media.length){
+        const figureChip = document.createElement('span');
+        figureChip.className = 'kind-chip figure';
+        figureChip.textContent = 'figure';
+        meta.appendChild(figureChip);
+      }
+      meta.appendChild(document.createTextNode(info));
       const actions = document.createElement('div');
       actions.className = 'mark-actions';
-      [['copy', 'Copy'], ['del', 'Remove']].forEach(([act, label]) => {
+      const actionDefs = [['copy', 'Copy']];
+      if(kind !== 'mask') actionDefs.push(['media', media.length ? `Figures (${media.length})` : 'Add figure']);
+      actionDefs.push(['del', 'Remove']);
+      actionDefs.forEach(([act, label]) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'text-btn';
@@ -2311,7 +2893,27 @@ const App = {
         b.textContent = label;
         actions.appendChild(b);
       });
-      li.append(q, meta, actions);
+      li.append(q, meta);
+      if(kind !== 'mask' && media.length){
+        const strip = document.createElement('div');
+        strip.className = 'mark-media-strip';
+        media.slice(0, 3).forEach(item => {
+          const img = document.createElement('img');
+          img.src = item.src;
+          img.alt = item.alt || '';
+          img.title = item.caption || item.alt || 'Figure';
+          img.loading = 'lazy';
+          strip.appendChild(img);
+        });
+        if(media.length > 3){
+          const more = document.createElement('span');
+          more.className = 'mark-media-more';
+          more.textContent = `+${media.length - 3}`;
+          strip.appendChild(more);
+        }
+        li.appendChild(strip);
+      }
+      li.appendChild(actions);
       ul.appendChild(li);
     });
   },
@@ -2327,7 +2929,8 @@ const App = {
     }catch(e){ return false; }
   },
   practiceMarks(){
-    const src = this.marks.filter(m => m.kind !== 'mask'); // masks are practised in their own lesson, hidden
+    // Figure anchors are for the media deck, not the reinforcement digest.
+    const src = this.marks.filter(m => m.kind !== 'mask' && !markHasFigures(m));
     if(!src.length) return;
     let text = collapseWhitespace(src.map(m => m.text).join(' '));
     if(text.length > 1500) text = text.slice(0, 1500).replace(/\s+\S*$/, '');
@@ -2354,7 +2957,9 @@ const App = {
   canEdit(){
     const d = this.dom, s = this.state;
     if(!this.engine || s === 'finished' || (s === 'paused' && this.pauseReason !== 'command')) return false;
-    return !(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') || d.completeOverlay.classList.contains('open'));
+    return !(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
+      d.importConflictScrim.classList.contains('open') || d.mediaScrim.classList.contains('open') ||
+      d.completeOverlay.classList.contains('open'));
   },
   toggleInlineEdit(){
     if(this.editing) this.endInlineEdit(true);
@@ -2485,7 +3090,8 @@ const App = {
     if(touched) Storage.saveMarks(this.marks);
   },
   importOverrides(obj){
-    // edits to built-in / static-pack lessons, from an export file: only non-empty strings are accepted
+    // edits to built-in / static-pack lessons, from an export file: only known,
+    // non-empty fields are accepted (text and metadata, plus target goals).
     let n = 0;
     if(obj && typeof obj === 'object' && !Array.isArray(obj)){
       Object.entries(obj).forEach(([id, v]) => {
@@ -2495,6 +3101,10 @@ const App = {
           if(typeof v.text === 'string' && v.text.trim()) next.text = normalizeLessonText(v.text);
           if(typeof v.title === 'string' && v.title.trim()) next.title = v.title.trim();
           if(typeof v.course === 'string' && v.course.trim()) next.course = v.course.trim();
+          const wpm = optionalInt(v.targetWPM, 5, 200);
+          const acc = optionalInt(v.targetAccuracy, 50, 100);
+          if(wpm !== null) next.targetWPM = wpm;
+          if(acc !== null) next.targetAccuracy = acc;
           if(Object.keys(next).length){ this.overrides[id] = next; n++; }
         }
       });
@@ -2822,42 +3432,369 @@ const App = {
     };
     reader.readAsText(file);
   },
-  importLessonsFromFile(file){
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const data = JSON.parse(String(reader.result));
-        const list = Array.isArray(data) ? data : (data && Array.isArray(data.lessons) ? data.lessons : []);
-        const markList = data && Array.isArray(data.marks) ? data.marks : [];
-        const ovr = data && data.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides) ? data.overrides : {};
-        const deletedList = data && Array.isArray(data.deletedLessons) ? data.deletedLessons : [];
-        if(!list.length && !Object.keys(ovr).length && !deletedList.length){
-          throw new Error(markList.length
-            ? 'That file contains marks, not lessons. Use Import marks to add them.'
-            : 'That file did not look like a Type Studio lessons export.');
-        }
-        list.forEach(l => { if(!l.id) l.id = uid('custom'); l.custom = true; });
-        this.customLessons = this.customLessons.concat(list);
-        deletedList.forEach(id => { if(typeof id === 'string' && id) this.deletedLessons.add(id); });
-        Storage.saveDeletedLessons(Array.from(this.deletedLessons));
-        Storage.saveLessons(this.customLessons);
-        this.importOverrides(ovr);
-        this.renderSidebar();
-        const markNote = markList.length
-          ? ` This file also contains ${markList.length} mark${markList.length === 1 ? '' : 's'}; use Import marks to add ${markList.length === 1 ? 'it' : 'them'}.`
-          : '';
-        window.alert(`Imported ${list.length} lesson${list.length === 1 ? '' : 's'}.${markNote}`);
-      }catch(err){
-        console.warn('TypeStudio: import failed', err);
-        window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
+  async importLessonsFromFile(file){
+    if(this.importing){ window.alert('A lesson import is already in progress.'); return; }
+    this.importing = true;
+    try{
+      const data = JSON.parse(await this.readTextFile(file));
+      await this.importLessonData(data);
+    }catch(err){
+      if(this.importConflict) this.finishImportConflict('skip');
+      console.warn('TypeStudio: import failed', err);
+      window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
+    }finally{
+      this.importing = false;
+    }
+  },
+  readTextFile(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error || new Error('That file could not be read.'));
+      reader.readAsText(file);
+    });
+  },
+  async importLessonData(data){
+    const list = Array.isArray(data) ? data : (data && Array.isArray(data.lessons) ? data.lessons : []);
+    const markList = data && Array.isArray(data.marks) ? data.marks : [];
+    const ovr = data && data.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides) ? data.overrides : {};
+    const deletedList = data && Array.isArray(data.deletedLessons) ? data.deletedLessons : [];
+    if(!list.length && !Object.keys(ovr).length && !deletedList.length){
+      throw new Error(markList.length
+        ? 'That file contains marks, not lessons. Use Import marks to add them.'
+        : 'That file did not look like a Type Studio lessons export.');
+    }
+    // Restore deletions from the file before adding lessons, so a lesson in the
+    // same file is not hidden by an id that the export also lists as deleted.
+    deletedList.forEach(id => { if(typeof id === 'string' && id) this.deletedLessons.add(id); });
+    if(deletedList.length) Storage.saveDeletedLessons(Array.from(this.deletedLessons));
+
+    const result = await this.processImportedLessons(list, (info) => this.promptImportConflict(info));
+    const overrideCount = Object.keys(ovr).length ? this.importOverrides(ovr) : 0;
+    this.renderSidebar();
+
+    const markNote = markList.length
+      ? ` This file also contains ${plural(markList.length, 'mark')}; use Import marks to add ${markList.length === 1 ? 'it' : 'them'}.`
+      : '';
+    let message;
+    if(list.length){
+      message = this.describeImportResult(result);
+    } else if(overrideCount){
+      message = `Imported ${plural(overrideCount, 'lesson override')}.`;
+    } else {
+      message = 'No lesson changes were imported.';
+    }
+    window.alert(message + markNote);
+  },
+  describeImportResult(result){
+    const changed = result.added + result.updated + result.versions;
+    const details = [];
+    if(result.added) details.push(`${result.added} new`);
+    if(result.updated) details.push(`${result.updated} updated`);
+    if(result.versions) details.push(`${result.versions} kept as a new version`);
+    let message = changed
+      ? `Imported ${plural(changed, 'lesson')}: ${details.join(', ')}.`
+      : 'No lessons were changed.';
+    if(result.restored) message += ` ${plural(result.restored, 'lesson')} restored.`;
+    if(result.identical) message += ` ${plural(result.identical, 'lesson')} already had identical content and ${result.identical === 1 ? 'was' : 'were'} skipped.`;
+    if(result.skipped) message += ` ${plural(result.skipped, 'conflict')} skipped.`;
+    if(result.invalid) message += ` ${plural(result.invalid, 'entry', 'entries')} ${result.invalid === 1 ? 'was' : 'were'} not a valid lesson (title and text are required).`;
+    return message;
+  },
+  async processImportedLessons(list, decide){
+    const result = { added:0, updated:0, versions:0, identical:0, skipped:0, restored:0, invalid:0, conflicts:0 };
+    let applyAllAction = null;
+    let lessonsChanged = false, overridesChanged = false, deletedChanged = false;
+
+    for(const raw of list){
+      const incoming = normalizeImportedLesson(raw);
+      if(!incoming){ result.invalid++; continue; }
+      const existing = this.findLessonEntry(incoming.id);
+      if(!existing){
+        this.addImportedLesson(incoming, null, false);
+        result.added++;
+        lessonsChanged = true;
+        if(this.deletedLessons.delete(incoming.id)) deletedChanged = true;
+        continue;
       }
+      const comparison = compareImportedLesson(existing.lesson, existing.courseTitle, incoming);
+      if(comparison.same){
+        if(this.deletedLessons.delete(existing.lesson.id)){ result.restored++; deletedChanged = true; }
+        else result.identical++;
+        continue;
+      }
+      result.conflicts++;
+      let action = applyAllAction;
+      if(!action){
+        const answer = decide ? await decide({ incoming, existing, comparison }) : 'skip';
+        if(answer && typeof answer === 'object'){
+          action = answer.action;
+          if(answer.applyAll) applyAllAction = action;
+        } else {
+          action = answer || 'skip';
+        }
+      }
+      if(action === 'update'){
+        this.applyImportedUpdate(existing, incoming);
+        result.updated++;
+        lessonsChanged = overridesChanged = true;
+      } else if(action === 'new'){
+        this.addImportedLesson(incoming, existing, true);
+        result.versions++;
+        lessonsChanged = true;
+      } else {
+        result.skipped++;
+        continue;
+      }
+      if(this.deletedLessons.delete(incoming.id)) deletedChanged = true;
+    }
+
+    if(lessonsChanged) Storage.saveLessons(this.customLessons);
+    if(overridesChanged) Storage.saveOverrides(this.overrides);
+    if(deletedChanged) Storage.saveDeletedLessons(Array.from(this.deletedLessons));
+    this.renderSidebar();
+    return result;
+  },
+  importLessonsSync(list, conflictMode = 'skip'){
+    // Non-interactive path for TypingStudio.importData(): conflicts follow the
+    // caller's rule ('skip' by default) and identical ids are always skipped.
+    const mode = conflictMode === 'update' || conflictMode === 'new' ? conflictMode : 'skip';
+    const result = { added:0, updated:0, versions:0, identical:0, skipped:0, restored:0, invalid:0, conflicts:0 };
+    let lessonsChanged = false, overridesChanged = false, deletedChanged = false;
+    for(const raw of list){
+      const incoming = normalizeImportedLesson(raw);
+      if(!incoming){ result.invalid++; continue; }
+      const existing = this.findLessonEntry(incoming.id);
+      if(!existing){
+        this.addImportedLesson(incoming, null, false);
+        result.added++;
+        lessonsChanged = true;
+        if(this.deletedLessons.delete(incoming.id)) deletedChanged = true;
+        continue;
+      }
+      const comparison = compareImportedLesson(existing.lesson, existing.courseTitle, incoming);
+      if(comparison.same){
+        if(this.deletedLessons.delete(existing.lesson.id)){ result.restored++; deletedChanged = true; }
+        else result.identical++;
+        continue;
+      }
+      result.conflicts++;
+      if(mode === 'update'){
+        this.applyImportedUpdate(existing, incoming);
+        result.updated++;
+        lessonsChanged = overridesChanged = true;
+      } else if(mode === 'new'){
+        this.addImportedLesson(incoming, existing, true);
+        result.versions++;
+        lessonsChanged = true;
+      } else {
+        result.skipped++;
+        continue;
+      }
+      if(this.deletedLessons.delete(incoming.id)) deletedChanged = true;
+    }
+    if(lessonsChanged) Storage.saveLessons(this.customLessons);
+    if(overridesChanged) Storage.saveOverrides(this.overrides);
+    if(deletedChanged) Storage.saveDeletedLessons(Array.from(this.deletedLessons));
+    this.renderSidebar();
+    return result;
+  },
+  addImportedLesson(incoming, existing, asNewVersion){
+    const base = existing ? existing.lesson : null;
+    const lesson = {
+      id: asNewVersion ? uid('custom') : incoming.id,
+      title: incoming.title,
+      course: incoming.course || (base ? (base.course || existing.courseTitle) : 'My Lessons'),
+      text: incoming.text,
+      targetWPM: incoming.targetWPM !== null ? incoming.targetWPM
+        : (base && base.targetWPM != null ? base.targetWPM : 30),
+      targetAccuracy: incoming.targetAccuracy !== null ? incoming.targetAccuracy
+        : (base && base.targetAccuracy != null ? base.targetAccuracy : 95),
+      custom: true
     };
-    reader.readAsText(file);
+    if(incoming.objectives) lesson.objectives = incoming.objectives;
+    if(incoming.topics) lesson.topics = incoming.topics;
+    this.customLessons.push(lesson);
+    return lesson;
+  },
+  applyImportedUpdate(entry, incoming){
+    if(entry.kind === 'custom'){
+      // Update the copy the canonical list is actually showing (the last one with
+      // this id); any older duplicate stays in history but no longer renders.
+      const target = this.customLessons.slice().reverse().find(l => l.id === entry.lesson.id);
+      if(!target) return;
+      target.title = incoming.title;
+      target.text = incoming.text;
+      if(incoming.course) target.course = incoming.course;
+      if(incoming.targetWPM !== null) target.targetWPM = incoming.targetWPM;
+      if(incoming.targetAccuracy !== null) target.targetAccuracy = incoming.targetAccuracy;
+      if(incoming.objectives) target.objectives = incoming.objectives;
+      if(incoming.topics) target.topics = incoming.topics;
+      target.custom = true;
+      return;
+    }
+    // Built-in / static-pack lessons are code- or git-managed, so importing over
+    // them writes the same kind of override as an in-place edit: same id, stats
+    // and marks stay attached, and the original remains one click away.
+    const raw = entry.raw;
+    const id = raw.id;
+    const current = this.overrides[id];
+    const ov = current == null ? {} : (typeof current === 'string' ? { text:current } : { ...current });
+    const originalText = normalizeLessonText(String(raw.text || ''));
+    if(incoming.text !== originalText) ov.text = incoming.text; else delete ov.text;
+    if(incoming.title !== raw.title) ov.title = incoming.title; else delete ov.title;
+    const originalCourse = raw.course || entry.sourceCourseTitle || 'My Lessons';
+    if(incoming.course){
+      if(incoming.course !== originalCourse) ov.course = incoming.course; else delete ov.course;
+    } else if(ov.course === originalCourse){
+      delete ov.course;
+    }
+    const originalWpm = raw.targetWPM != null ? raw.targetWPM : 30;
+    if(incoming.targetWPM !== null){
+      if(incoming.targetWPM !== originalWpm) ov.targetWPM = incoming.targetWPM; else delete ov.targetWPM;
+    }
+    const originalAcc = raw.targetAccuracy != null ? raw.targetAccuracy : 95;
+    if(incoming.targetAccuracy !== null){
+      if(incoming.targetAccuracy !== originalAcc) ov.targetAccuracy = incoming.targetAccuracy; else delete ov.targetAccuracy;
+    }
+    if(Object.keys(ov).length) this.overrides[id] = ov; else delete this.overrides[id];
+  },
+
+  /* ----- import conflict dialog ----- */
+  promptImportConflict(info){
+    return new Promise(resolve => {
+      this.importConflict = { info, resolve, previousFocus: document.activeElement };
+      this.renderImportConflict(info);
+      this.dom.importConflictApplyAll.checked = false;
+      this.dom.importConflictScrim.classList.add('open');
+      setTimeout(() => {
+        if(this.importConflict) this.dom.importConflictUpdate.focus();
+      }, 40);
+    });
+  },
+  finishImportConflict(action){
+    const pending = this.importConflict;
+    if(!pending) return;
+    const applyAll = this.dom.importConflictApplyAll.checked;
+    const choice = action === 'update' || action === 'new' ? action : 'skip';
+    this.importConflict = null;
+    this.dom.importConflictScrim.classList.remove('open');
+    this.dom.importConflictBody.innerHTML = '';
+    if(pending.previousFocus && typeof pending.previousFocus.focus === 'function'){
+      try{ pending.previousFocus.focus(); }catch(e){ /* the element may be gone */ }
+    }
+    pending.resolve({ action:choice, applyAll });
+  },
+  renderImportConflict({ incoming, existing, comparison }){
+    const d = this.dom;
+    const existingChars = normalizeLessonText(String(existing.lesson.text || '')).length;
+    const incomingChars = incoming.text.length;
+    d.importConflictIntro.textContent =
+      `The file contains "${incoming.title}" (id: ${incoming.id}), but that id already belongs to ` +
+      `"${existing.lesson.title}" in ${existing.courseTitle}. Choose what to do with the incoming version.`;
+
+    const body = d.importConflictBody;
+    body.innerHTML = '';
+
+    const counts = document.createElement('div');
+    counts.className = 'conflict-counts';
+    const card = (label, title, chars, className) => {
+      const box = document.createElement('div');
+      box.className = `conflict-count ${className || ''}`.trim();
+      const l = document.createElement('span');
+      l.className = 'conflict-count-label';
+      l.textContent = label;
+      const t = document.createElement('span');
+      t.className = 'conflict-count-title';
+      t.textContent = title;
+      const m = document.createElement('span');
+      m.className = 'conflict-count-meta';
+      m.textContent = `${chars.toLocaleString()} chars`;
+      box.append(l, t, m);
+      return box;
+    };
+    counts.append(
+      card('Existing', existing.lesson.title, existingChars),
+      Object.assign(document.createElement('span'), { className:'conflict-arrow', textContent:'→' }),
+      card('Incoming', incoming.title, incomingChars, 'incoming')
+    );
+    body.appendChild(counts);
+
+    const fields = document.createElement('div');
+    fields.className = 'conflict-fields';
+    comparison.changes.forEach(change => {
+      const row = document.createElement('div');
+      row.className = 'conflict-field';
+      const label = document.createElement('span');
+      label.className = 'conflict-field-label';
+      label.textContent = change.field;
+      const values = document.createElement('span');
+      values.className = 'conflict-field-values';
+      if(change.kind === 'text'){
+        values.textContent =
+          `${change.beforeChars.toLocaleString()} → ${change.afterChars.toLocaleString()} chars ` +
+          `(${signed(change.deltaChars)}); ${signed(change.afterWords - change.beforeWords)} words; ` +
+          `first change at character ${change.firstChange + 1}`;
+      } else {
+        const before = document.createElement('b');
+        before.textContent = change.before || '(none)';
+        values.append(before, document.createTextNode(' → '));
+        const after = document.createElement('b');
+        after.textContent = change.after || '(none)';
+        values.append(after);
+      }
+      row.append(label, values);
+      fields.appendChild(row);
+    });
+    body.appendChild(fields);
+
+    const textChange = comparison.changes.find(c => c.kind === 'text');
+    if(textChange){
+      const diff = document.createElement('div');
+      diff.className = 'conflict-diff';
+      const head = document.createElement('div');
+      head.className = 'conflict-diff-head';
+      head.textContent = textChange.firstChange >= normalizeLessonText(String(existing.lesson.text || '')).length
+        ? 'Text is added at the end'
+        : textChange.firstChange === 0
+          ? 'Text changes from the start'
+          : `First change at character ${textChange.firstChange + 1}`;
+      diff.appendChild(head);
+      const chunk = (kind, labelText, text) => {
+        if(!text) return;
+        const row = document.createElement('div');
+        row.className = `conflict-chunk ${kind}`;
+        const label = document.createElement('span');
+        label.className = 'conflict-chunk-label';
+        label.textContent = labelText;
+        const code = document.createElement('code');
+        code.textContent = clampExcerpt(text, 320);
+        row.append(label, code);
+        diff.appendChild(row);
+      };
+      chunk('removed', 'Existing', textChange.removed);
+      chunk('added', 'Incoming', textChange.added);
+      body.appendChild(diff);
+    }
   },
 
   /* ----- drawer ----- */
   openDrawer(){ this.dom.drawer.classList.add('open'); this.dom.drawerScrim.classList.add('open'); },
   closeDrawer(){ this.dom.drawer.classList.remove('open'); this.dom.drawerScrim.classList.remove('open'); },
+  toggleShortcuts(){
+    this.shortcutsCollapsed = !this.shortcutsCollapsed;
+    this.savePref('shortcutsCollapsed', this.shortcutsCollapsed);
+    this.applyShortcutCollapsed();
+  },
+  applyShortcutCollapsed(){
+    const d = this.dom;
+    if(!d.drawer) return;
+    const collapsed = this.shortcutsCollapsed;
+    d.drawer.classList.toggle('shortcuts-collapsed', collapsed);
+    d.shortcutToggle.setAttribute('aria-expanded', String(!collapsed));
+    d.shortcutToggle.setAttribute('aria-label', collapsed ? 'Expand shortcuts' : 'Collapse shortcuts');
+    d.shortcutToggle.title = collapsed ? 'Expand shortcuts' : 'Collapse shortcuts';
+  },
 
   /* ----- theme / sound / keyboard toggle ----- */
   setTheme(theme, persist=true){
@@ -2914,6 +3851,7 @@ const App = {
     });
     d.menuBtn.addEventListener('click', () => this.openDrawer());
     d.escapeSwitch.addEventListener('click', () => this.toggleEscapeCommands());
+    d.shortcutToggle.addEventListener('click', () => this.toggleShortcuts());
     d.drawerCloseBtn.addEventListener('click', () => this.closeDrawer());
     d.drawerScrim.addEventListener('click', () => this.closeDrawer());
 
@@ -2932,9 +3870,12 @@ const App = {
       if(menuAction){
         e.stopPropagation();
         const menu = menuAction.closest('.lesson-menu');
+        const id = menu.dataset.menuId;
         menu.classList.remove('open');
-        if(menuAction.dataset.action === 'rename') this.renameLesson(menu.dataset.menuId);
-        else this.assignLessonCourse(menu.dataset.menuId);
+        if(menuAction.dataset.action === 'rename') this.renameLesson(id);
+        else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
+        else if(menuAction.dataset.action === 'restore') this.restoreLesson(id);
+        else if(menuAction.dataset.action === 'delete') this.deleteLesson(id);
         return;
       }
       const menuTrigger = e.target.closest('.lesson-menu-trigger');
@@ -2945,10 +3886,6 @@ const App = {
         menu.classList.toggle('open');
         return;
       }
-      const delBtn = e.target.closest('.lesson-delete');
-      if(delBtn){ e.stopPropagation(); this.deleteLesson(delBtn.dataset.deleteId); return; }
-      const rsBtn = e.target.closest('.lesson-restore');
-      if(rsBtn){ e.stopPropagation(); this.restoreLesson(rsBtn.dataset.restoreId); return; }
       const item = e.target.closest('.lesson-item');
       if(item){
         const found = this.findLesson(item.dataset.id);
@@ -2965,6 +3902,12 @@ const App = {
       if(file) this.importLessonsFromFile(file);
       d.importFileInput.value = '';
     });
+    d.importConflictSkip.addEventListener('click', () => this.finishImportConflict('skip'));
+    d.importConflictNew.addEventListener('click', () => this.finishImportConflict('new'));
+    d.importConflictUpdate.addEventListener('click', () => this.finishImportConflict('update'));
+    d.importConflictScrim.addEventListener('click', (e) => {
+      if(e.target === d.importConflictScrim) this.finishImportConflict('skip');
+    });
     d.modalCloseBtn.addEventListener('click', () => this.closeModal());
     d.lfCancel.addEventListener('click', () => this.closeModal());
     d.modalScrim.addEventListener('click', (e) => { if(e.target === d.modalScrim) this.closeModal(); });
@@ -2977,6 +3920,83 @@ const App = {
     d.soundBtn.addEventListener('click', () => this.toggleSound());
     d.themeBtn.addEventListener('click', () => this.toggleTheme());
     d.maskToggleBtn.addEventListener('click', () => this.toggleMasks());
+    d.figuresToggleBtn.addEventListener('click', () => this.toggleFigures());
+    d.mediaDeckPrev.addEventListener('mousedown', (e) => e.preventDefault());
+    d.mediaDeckNext.addEventListener('mousedown', (e) => e.preventDefault());
+    d.mediaDeckCollapse.addEventListener('mousedown', (e) => e.preventDefault());
+    d.mediaDeck.addEventListener('mousedown', (e) => {
+      if(!e.target.closest('button')) e.preventDefault(); // reading the figure must not steal typing focus
+    });
+    d.mediaDeckPrev.addEventListener('click', () => this.stepMediaSlide(-1));
+    d.mediaDeckNext.addEventListener('click', () => this.stepMediaSlide(1));
+    d.mediaDeckCollapse.addEventListener('click', () => this.toggleMediaDeckCollapsed());
+    d.mediaDeckImage.addEventListener('load', () => {
+      d.mediaDeckImage.hidden = false;
+      d.mediaDeckFallback.hidden = true;
+    });
+    d.mediaDeckImage.addEventListener('error', () => {
+      d.mediaDeckImage.hidden = true;
+      d.mediaDeckFallback.hidden = false;
+      d.mediaDeckFallback.textContent = 'This figure could not be loaded. Check its URL or replace it from Marks & masks.';
+    });
+    d.mediaCloseBtn.addEventListener('click', () => this.closeMediaEditor());
+    d.mediaDone.addEventListener('click', () => this.closeMediaEditor());
+    d.mediaScrim.addEventListener('click', (e) => { if(e.target === d.mediaScrim) this.closeMediaEditor(); });
+    d.mediaForm.addEventListener('submit', (e) => this.submitMediaForm(e));
+    d.mediaUrl.addEventListener('input', () => {
+      if(this.mediaPendingSrc){
+        this.mediaPendingSrc = '';
+        d.mediaFile.value = '';
+        d.mediaHint.textContent = 'Figures appear in a floating deck while the caret is inside this marked passage.';
+      }
+    });
+    d.mediaFile.addEventListener('change', () => {
+      const file = d.mediaFile.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')){
+        d.mediaHint.textContent = 'Choose an image file (PNG, JPEG, GIF, WebP, SVG…).';
+        d.mediaFile.value = '';
+        return;
+      }
+      if(file.size > 1.5 * 1024 * 1024){
+        d.mediaHint.textContent = 'That image is larger than 1.5 MB. Use a smaller file or paste an image URL.';
+        d.mediaFile.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.mediaPendingSrc = String(reader.result);
+        d.mediaUrl.value = '';
+        d.mediaHint.textContent = `${file.name} selected (${Math.round(file.size / 1024)} KB). Add figure to attach it.`;
+      };
+      reader.onerror = () => { d.mediaHint.textContent = 'That file could not be read.'; };
+      reader.readAsDataURL(file);
+    });
+    d.mediaList.addEventListener('input', (e) => {
+      const field = e.target.dataset.field;
+      if(!field) return;
+      const row = e.target.closest('.media-edit-item');
+      const mark = this.mediaMark();
+      if(!row || !mark) return;
+      const item = (mark.media || []).find(x => x.id === row.dataset.mediaId);
+      if(!item) return;
+      item[field] = e.target.value.slice(0, 240);
+      Storage.saveMarks(this.marks);
+      this.syncMediaDeck();
+    });
+    d.mediaList.addEventListener('change', (e) => {
+      if(e.target.dataset.field) this.renderMarks();
+    });
+    d.mediaList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-media-remove]');
+      const mark = this.mediaMark();
+      if(!btn || !mark || !Array.isArray(mark.media)) return;
+      mark.media = mark.media.filter(x => x.id !== btn.dataset.mediaRemove);
+      if(!mark.media.length) delete mark.media;
+      this.dom.mediaHint.textContent = 'Figure removed.';
+      this.renderMediaEditor();
+      this.saveMediaChanges();
+    });
     d.marksOpenBtn.addEventListener('click', () => this.openMarks());
     d.marksCloseBtn.addEventListener('click', () => this.closeMarks());
     d.marksScrim.addEventListener('click', (e) => { if(e.target === d.marksScrim) this.closeMarks(); });
@@ -3000,6 +4020,7 @@ const App = {
       const m = li && this.marks.find(x => x.id === li.dataset.id);
       if(!m) return;
       if(btn.dataset.act === 'del'){ this.removeMark(m.id); return; }
+      if(btn.dataset.act === 'media'){ this.openMediaEditor(m.id); return; }
       const ok = await this.copyText(m.text);
       btn.textContent = ok ? 'Copied' : 'Copy failed';
       setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
@@ -3108,19 +4129,34 @@ document.addEventListener('DOMContentLoaded', () => App.init());
                                              //   ready, paused, resumed, markAdded, markRemoved
      TypingStudio.setSoundEnabled(bool)
      TypingStudio.setTheme('light'|'dark'|'system')
-     TypingStudio.exportData() / importData(json)
+     TypingStudio.exportData() / importData(json, { conflicts:'skip'|'update'|'new' })
    ========================================================================= */
 window.TypingStudio = {
   addLesson(lesson){
+    const source = lesson && typeof lesson === 'object' ? lesson : {};
+    const title = String(source.title || '').trim();
+    const text = normalizeLessonText(String(source.text || ''));
+    if(!title || !text) throw new Error('addLesson requires a title and text');
+    let id = source.id || uid('custom');
+    const existing = App.findLessonEntry(id);
+    if(existing){
+      const incoming = normalizeImportedLesson({ ...source, id, title, text });
+      const comparison = compareImportedLesson(existing.lesson, existing.courseTitle, incoming);
+      if(comparison.same) return existing.lesson.id; // already saved: no duplicate row
+      id = uid('custom'); // same id, different content: keep both under a fresh id
+      console.info(`TypeStudio: lesson id "${source.id}" already exists with different content; adding the new lesson as "${id}".`);
+    }
+    const wpm = optionalInt(source.targetWPM, 5, 200);
+    const acc = optionalInt(source.targetAccuracy, 50, 100);
     const full = {
-      id: lesson.id || uid('custom'),
-      title: lesson.title,
-      course: lesson.course || 'My Lessons',
-      text: normalizeLessonText(lesson.text),
-      targetWPM: lesson.targetWPM || 30,
-      targetAccuracy: lesson.targetAccuracy || 95,
-      objectives: lesson.objectives,
-      topics: lesson.topics,
+      id,
+      title,
+      course: source.course || 'My Lessons',
+      text,
+      targetWPM: wpm !== null ? wpm : 30,
+      targetAccuracy: acc !== null ? acc : 95,
+      objectives: source.objectives,
+      topics: source.topics,
       custom: true
     };
     App.customLessons.push(full);
@@ -3134,7 +4170,12 @@ window.TypingStudio = {
     if(found) App.loadLesson(found.lesson, found.courseTitle);
   },
   courses(){ return App.getAllCourses(); },
-  marks(){ return App.marks.map(m => ({ ...m })); },
+  marks(){
+    return App.marks.map(m => ({
+      ...m,
+      ...(Array.isArray(m.media) ? { media:m.media.map(item => ({ ...item })) } : {})
+    }));
+  },
   getState(){
     return {
       lessonId: App.currentLesson ? App.currentLesson.id : null,
@@ -3155,12 +4196,21 @@ window.TypingStudio = {
   exportData(){
     return JSON.stringify({ lessons: App.customLessons, stats: Storage.loadStats(), marks: App.marks, overrides: App.overrides, deletedLessons:Array.from(App.deletedLessons) }, null, 2);
   },
-  importData(json){
+  importData(json, options = {}){
     try{
       const data = typeof json === 'string' ? JSON.parse(json) : json;
+      const conflictMode = options && typeof options === 'object' ? options.conflicts : undefined;
+      if(Array.isArray(data.deletedLessons)){
+        data.deletedLessons.forEach(id => { if(typeof id === 'string' && id) App.deletedLessons.add(id); });
+        Storage.saveDeletedLessons(Array.from(App.deletedLessons));
+      }
       if(Array.isArray(data.lessons)){
-        App.customLessons = App.customLessons.concat(data.lessons);
-        Storage.saveLessons(App.customLessons);
+        // Same id + identical content is always skipped. A differing id follows
+        // options.conflicts: 'skip' (default), 'update', or 'new' (second version).
+        const result = App.importLessonsSync(data.lessons, conflictMode);
+        if(result.conflicts){
+          console.info(`TypeStudio: importData resolved ${plural(result.conflicts, 'conflict')} using "${conflictMode || 'skip'}".`);
+        }
       }
       if(data.stats){
         const merged = Object.assign({}, Storage.loadStats(), data.stats);
@@ -3169,10 +4219,6 @@ window.TypingStudio = {
       }
       if(Array.isArray(data.marks)) App.importMarks(data.marks);
       if(data.overrides) App.importOverrides(data.overrides);
-      if(Array.isArray(data.deletedLessons)){
-        data.deletedLessons.forEach(id => { if(typeof id === 'string' && id) App.deletedLessons.add(id); });
-        Storage.saveDeletedLessons(Array.from(App.deletedLessons));
-      }
       App.renderSidebar();
       return true;
     }catch(e){
