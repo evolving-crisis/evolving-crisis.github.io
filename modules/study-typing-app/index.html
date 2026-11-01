@@ -6,9 +6,6 @@
 <title>Study Typing App — Evolving Crisis</title>
 <meta name="description" content="A hackable, keyboard-aware typing practice tool you can host yourself and feed your own lessons.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8C%A8%EF%B8%8F%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
 <script src="./app.js" defer></script>
 </head>
@@ -210,6 +207,14 @@
           <input id="lfCourse" type="text" list="courseNames" required maxlength="60" placeholder="e.g. My Drills">
           <datalist id="courseNames"></datalist>
         </label>
+        <div class="field-row">
+          <label class="field"><span>Course order <small>(optional)</small></span>
+            <input id="lfCourseOrder" type="number" step="1" placeholder="e.g. 10">
+          </label>
+          <label class="field"><span>Lesson order <small>(optional)</small></span>
+            <input id="lfOrder" type="number" step="1" placeholder="e.g. 20">
+          </label>
+        </div>
         <label class="field"><span>Text to type</span>
           <textarea id="lfText" required rows="5" placeholder="Paste or write the passage you want to practice…"></textarea>
         </label>
@@ -226,6 +231,25 @@
           <button type="submit" class="btn primary">Save lesson</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-scrim" id="actionModalScrim">
+    <div class="modal-card action-modal-card" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle">
+      <div class="modal-head">
+        <h2 id="actionModalTitle"></h2>
+        <button class="icon-btn" id="actionModalClose" aria-label="Close">
+          <svg viewBox="0 0 20 20"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
+        </button>
+      </div>
+      <p class="action-modal-message" id="actionModalMessage"></p>
+      <label class="field" id="actionModalField"><span id="actionModalLabel"></span>
+        <input id="actionModalInput" type="text">
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="actionModalCancel">Cancel</button>
+        <button type="button" class="btn primary" id="actionModalConfirm">OK</button>
+      </div>
     </div>
   </div>
 

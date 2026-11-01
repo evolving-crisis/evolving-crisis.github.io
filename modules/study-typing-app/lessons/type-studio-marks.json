@@ -1,0 +1,2151 @@
+{
+  "exportedAt": "2026-11-01T11:15:39.403Z",
+  "format": "type-studio-marks.v1",
+  "marks": [
+    {
+      "id": "mark-mvhd360f-pvib",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "entramos de lleno en la filogenia y la sistemática.",
+      "start": 2786,
+      "end": 2837,
+      "createdAt": 1792541770287
+    },
+    {
+      "id": "mark-mvhdjt2r-l6qp",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "entramos de lleno en la filogenia y la sistemática. La fig. 7 despliega el árbol filogenético de los Amniotas, destacando la dicotomía fundamental entre Sinápsidos —linaje del cual derivan los mamíferos, ilustrados aquí con roedores y primates— y Laurópsidos o Saurópsidos. Dentro de los Saurópsidos, la rama de los Arcosaurios hermana directamente a Crocodilianos y Aves.",
+      "start": 2786,
+      "end": 3158,
+      "createdAt": 1792542546677,
+      "media": [
+        {
+          "id": "fig-mvhg90io-9ox1",
+          "src": "figures/fig7.png",
+          "alt": "fig. 7",
+          "caption": "fig. 7"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhe93ir-yhgi",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "Las fig. 8",
+      "start": 3159,
+      "end": 3169,
+      "createdAt": 1792543726611,
+      "media": [
+        {
+          "id": "fig-mvhga14z-f2o8",
+          "src": "figures/fig8.png",
+          "alt": "fig. 8",
+          "caption": "fig. 8"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhea15k-zqz7",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "y 9 fo",
+      "start": 3170,
+      "end": 3176,
+      "createdAt": 1792543770200,
+      "media": [
+        {
+          "id": "fig-mvhgat6a-g3oz",
+          "src": "figures/fig9.png",
+          "alt": "fig. 9",
+          "caption": "fig. 9"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhemxbp-e5e5",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "El cladograma formal encierra en una elipse roja a Sauropsida y Archosauria, posicionando al clado Aves como el grupo hermano de Crocodylia.",
+      "start": 3336,
+      "end": 3476,
+      "createdAt": 1792544371765,
+      "media": [
+        {
+          "id": "fig-mvhgbihy-ld02",
+          "src": "figures/fig9.png",
+          "alt": "fig. 9",
+          "caption": "fig. 9"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhf1tnv-ksgk",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "el cráneo diápsido,",
+      "start": 3805,
+      "end": 3824,
+      "createdAt": 1792545066859,
+      "media": [
+        {
+          "id": "fig-mvhf51a8-no22",
+          "src": "figures/diapsido.png",
+          "alt": "cráneo diápsido",
+          "caption": "cráneo diápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhf7xki-9pby",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "la estructura de las escamas podotecas que recubren sus patas -una fotografía de garras de rapaz—",
+      "start": 3872,
+      "end": 3969,
+      "createdAt": 1792545351858,
+      "media": [
+        {
+          "id": "fig-mvhfaakp-wu0u",
+          "src": "figures/garrapodoteca.png",
+          "alt": "la estructura de las escamas podotecas que recubren sus patas -una fotografía de garras de rapaz—",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhfp8rg-x5zz",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "anápsida,",
+      "start": 4057,
+      "end": 4066,
+      "createdAt": 1792546159516,
+      "media": [
+        {
+          "id": "fig-mvhfvqlm-2l58",
+          "src": "figures/anapsido.png",
+          "alt": "anápsido",
+          "caption": "anápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhfpytt-sxhi",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "sinápsida",
+      "start": 4067,
+      "end": 4076,
+      "createdAt": 1792546193297,
+      "media": [
+        {
+          "id": "fig-mvhftiz2-uun6",
+          "src": "figures/sinapsido.png",
+          "alt": "sinápsido",
+          "caption": "sinápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvhfrpmm-kq17",
+      "kind": "mark",
+      "lessonId": "custom-mvhbusxh-q7y4",
+      "lessonTitle": "Acto I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "diápsida, esta caracterizada por las dos fosas temporales que definen a la estirpe arcosauriana.",
+      "start": 4079,
+      "end": 4175,
+      "createdAt": 1792546274686,
+      "media": [
+        {
+          "id": "fig-mvhfuonm-nnbr",
+          "src": "figures/diapsidoo.png",
+          "alt": "diápsida, esta caracterizada por las dos fosas temporales que definen a la estirpe arcosauriana.",
+          "caption": "diápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-mv8pio8x-s2ed",
+      "kind": "mark",
+      "lessonId": "custom-mv52ggom-cefi",
+      "lessonTitle": "Los cuatro jinetes de Platyhelminthes",
+      "course": "More Lessons",
+      "text": "protostomados",
+      "start": 137,
+      "end": 150,
+      "createdAt": 1792018453569
+    },
+    {
+      "id": "mark-mv8ppjwf-jkjd",
+      "kind": "mark",
+      "lessonId": "punct-sentence",
+      "lessonTitle": "Commas, Periods & Quotes",
+      "course": "Punctuation & Symbols",
+      "text": "about",
+      "start": 32,
+      "end": 37,
+      "createdAt": 1792018774527
+    },
+    {
+      "id": "mark-mv8ppwrx-jxns",
+      "kind": "mark",
+      "lessonId": "punct-sentence",
+      "lessonTitle": "Commas, Periods & Quotes",
+      "course": "Punctuation & Symbols",
+      "text": "this",
+      "start": 38,
+      "end": 42,
+      "createdAt": 1792018791213
+    },
+    {
+      "id": "mark-mv8qx142-ygbp",
+      "kind": "mark",
+      "lessonId": "custom-mv52ggom-cefi",
+      "lessonTitle": "Los cuatro jinetes de Platyhelminthes",
+      "course": "More Lessons",
+      "text": "segmentación",
+      "start": 155,
+      "end": 167,
+      "createdAt": 1792020803042
+    },
+    {
+      "id": "mask-mv8rfm3h-js6p",
+      "kind": "mask",
+      "lessonId": "prog-js-basics",
+      "lessonTitle": "JS Basics",
+      "course": "Programmer's Practice",
+      "text": "const",
+      "start": 0,
+      "end": 5,
+      "createdAt": 1792021670046,
+      "attempts": 3,
+      "clean": 3
+    },
+    {
+      "id": "mark-mv8rm1fr-nlz0",
+      "kind": "mark",
+      "lessonId": "prog-js-basics",
+      "lessonTitle": "JS Basics",
+      "course": "Programmer's Practice",
+      "text": "item.price",
+      "start": 50,
+      "end": 60,
+      "createdAt": 1792021969863
+    },
+    {
+      "id": "mark-mvfpsp99-ufzr",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "LABZOO",
+      "text": "Eumetazoa",
+      "start": 1401,
+      "end": 1410,
+      "createdAt": 1792442184669
+    },
+    {
+      "id": "mark-mv8sthuj-3rd5",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "miracidio",
+      "start": 272,
+      "end": 281,
+      "createdAt": 1792023997339
+    },
+    {
+      "id": "mark-mv8stt3t-bz11",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "meirakidion",
+      "start": 294,
+      "end": 305,
+      "createdAt": 1792024011929
+    },
+    {
+      "id": "mark-mv8sudzt-5mxw",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "esporocisto",
+      "start": 367,
+      "end": 378,
+      "createdAt": 1792024039001
+    },
+    {
+      "id": "mark-mv8sv6pj-t1k5",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "redias",
+      "start": 443,
+      "end": 449,
+      "createdAt": 1792024076215
+    },
+    {
+      "id": "mark-mv8svq53-xl40",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "cercarias",
+      "start": 499,
+      "end": 508,
+      "createdAt": 1792024101399
+    },
+    {
+      "id": "mark-mv8sx6vd-10xi",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "metacercarias",
+      "start": 692,
+      "end": 705,
+      "createdAt": 1792024169737
+    },
+    {
+      "id": "mark-mv8syb9q-9unb",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "Schistosoma",
+      "start": 823,
+      "end": 834,
+      "createdAt": 1792024222094
+    },
+    {
+      "id": "mark-mv8t01n2-98o0",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "Biomphalaria",
+      "start": 934,
+      "end": 946,
+      "createdAt": 1792024302926
+    },
+    {
+      "id": "mark-mv8t0hms-e9p3",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "mesentéricas",
+      "start": 979,
+      "end": 991,
+      "createdAt": 1792024323652
+    },
+    {
+      "id": "mark-mv8t17fm-9hl4",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "miracidio",
+      "start": 1098,
+      "end": 1107,
+      "createdAt": 1792024357090
+    },
+    {
+      "id": "mark-mv8t1k8a-o4xy",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "esporocisto",
+      "start": 1150,
+      "end": 1161,
+      "createdAt": 1792024373674
+    },
+    {
+      "id": "mark-mv8t2l2f-gbpe",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "esquistosomula",
+      "start": 1310,
+      "end": 1324,
+      "createdAt": 1792024421415
+    },
+    {
+      "id": "mark-mv8t7dgp-4tp9",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "cisticerco",
+      "start": 1888,
+      "end": 1898,
+      "createdAt": 1792024644841
+    },
+    {
+      "id": "mark-mv8t8c3y-t2z6",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "cisticercos",
+      "start": 2004,
+      "end": 2015,
+      "createdAt": 1792024689742
+    },
+    {
+      "id": "mark-mv8tdbpv-lhd7",
+      "kind": "mark",
+      "lessonId": "custom-mv5ii2qt-1yoh",
+      "lessonTitle": "Ciclos de vida: las odiseas del parasitismo",
+      "course": "More Lessons",
+      "text": "cistacanto",
+      "start": 2727,
+      "end": 2737,
+      "createdAt": 1792024922515
+    },
+    {
+      "id": "mark-mv7ebqy3-ep6q",
+      "kind": "mark",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "fall as a lad asks",
+      "start": 39,
+      "end": 57,
+      "createdAt": 1791939188523
+    },
+    {
+      "id": "mask-mv7ec80u-mmxn",
+      "kind": "mask",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "add",
+      "start": 63,
+      "end": 66,
+      "createdAt": 1791939210654,
+      "attempts": 0,
+      "clean": 0
+    },
+    {
+      "id": "mask-mv7ecikz-w3vp",
+      "kind": "mask",
+      "lessonId": "home-row",
+      "lessonTitle": "Home Row Warm-Up",
+      "course": "Foundations",
+      "text": "flag",
+      "start": 69,
+      "end": 73,
+      "createdAt": 1791939224339,
+      "attempts": 0,
+      "clean": 0
+    },
+    {
+      "id": "mask-mv7f9xrg-hjv4",
+      "kind": "mask",
+      "lessonId": "custom-mv7eilqb-7rpx",
+      "lessonTitle": "An Active Ciston Fragment - Champe and Benzer",
+      "course": "classical molecular genetics",
+      "text": "8",
+      "start": 4066,
+      "end": 4067,
+      "createdAt": 1791940783660,
+      "attempts": 0,
+      "clean": 0
+    },
+    {
+      "id": "mark-mva4lxm7-rnik",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "ostiolos",
+      "start": 853,
+      "end": 861,
+      "createdAt": 1792104266095
+    },
+    {
+      "id": "mark-mva4mxqz-1gio",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "coanocíticas",
+      "start": 890,
+      "end": 902,
+      "createdAt": 1792104312923
+    },
+    {
+      "id": "mark-mva4r47d-enag",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "pinacodermo",
+      "start": 1104,
+      "end": 1115,
+      "createdAt": 1792104507913
+    },
+    {
+      "id": "mark-mva4uemj-5esf",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "pinacocitos",
+      "start": 1255,
+      "end": 1266,
+      "createdAt": 1792104661387
+    },
+    {
+      "id": "mark-mva4vakp-tk04",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Ectopinacocitos",
+      "start": 1300,
+      "end": 1315,
+      "createdAt": 1792104702793
+    },
+    {
+      "id": "mark-mva4xkzo-941l",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Basipinacocitos",
+      "start": 1452,
+      "end": 1467,
+      "createdAt": 1792104809604
+    },
+    {
+      "id": "mark-mva4yn3w-875k",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Porocitos",
+      "start": 1541,
+      "end": 1550,
+      "createdAt": 1792104859004
+    },
+    {
+      "id": "mark-mva55198-goos",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "mesohilo",
+      "start": 1806,
+      "end": 1814,
+      "createdAt": 1792105157276
+    },
+    {
+      "id": "mark-mva57r88-2gwz",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "ameboides",
+      "start": 1912,
+      "end": 1921,
+      "createdAt": 1792105284248
+    },
+    {
+      "id": "mark-mva5aged-udr5",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "coanodermo",
+      "start": 2128,
+      "end": 2138,
+      "createdAt": 1792105410181
+    },
+    {
+      "id": "mark-mva5dn43-q6pz",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "mesoglea",
+      "start": 2386,
+      "end": 2394,
+      "createdAt": 1792105558851
+    },
+    {
+      "id": "mark-mva5u3qq-ygd3",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 3237,
+      "end": 3249,
+      "createdAt": 1792106326898
+    },
+    {
+      "id": "mark-mva5uqjf-1xrf",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Hexactinellida",
+      "start": 3251,
+      "end": 3265,
+      "createdAt": 1792106356443
+    },
+    {
+      "id": "mark-mva5vjs0-cz4h",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 3331,
+      "end": 3343,
+      "createdAt": 1792106394336
+    },
+    {
+      "id": "mark-mva5xz2c-z7kp",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "megascleras",
+      "start": 3460,
+      "end": 3471,
+      "createdAt": 1792106507460
+    },
+    {
+      "id": "mark-mva61hyb-0nnz",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "ascon",
+      "start": 3649,
+      "end": 3654,
+      "createdAt": 1792106671907
+    },
+    {
+      "id": "mark-mva61tzb-xh48",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "sicon",
+      "start": 3656,
+      "end": 3661,
+      "createdAt": 1792106687495
+    },
+    {
+      "id": "mark-mva64qko-gfj8",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "megascleras",
+      "start": 3802,
+      "end": 3813,
+      "createdAt": 1792106823048
+    },
+    {
+      "id": "mark-mva7tss8-lx2h",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 4270,
+      "end": 4282,
+      "createdAt": 1792109671928
+    },
+    {
+      "id": "mark-mva8024b-y81d",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "pinacodermo",
+      "start": 4638,
+      "end": 4649,
+      "createdAt": 1792109963963
+    },
+    {
+      "id": "mark-mva82hko-f1er",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "coanodermo",
+      "start": 4806,
+      "end": 4816,
+      "createdAt": 1792110077304
+    },
+    {
+      "id": "mark-mva8bvck-hko2",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "asconoides",
+      "start": 5177,
+      "end": 5187,
+      "createdAt": 1792110515060
+    },
+    {
+      "id": "mark-mva8gkla-jtui",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "espongocele",
+      "start": 5412,
+      "end": 5423,
+      "createdAt": 1792110734398
+    },
+    {
+      "id": "mark-mva8ime3-1875",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "coanodermo",
+      "start": 5460,
+      "end": 5470,
+      "createdAt": 1792110830043
+    },
+    {
+      "id": "mark-mva8ls06-h9w8",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "mesohilo",
+      "start": 5670,
+      "end": 5678,
+      "createdAt": 1792110977286
+    },
+    {
+      "id": "mark-mva8o24u-n4bz",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "pinacocitos",
+      "start": 5797,
+      "end": 5808,
+      "createdAt": 1792111083726
+    },
+    {
+      "id": "mark-mva8r9ht-oelb",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "prosopilos",
+      "start": 5890,
+      "end": 5900,
+      "createdAt": 1792111233233
+    },
+    {
+      "id": "mark-mva8sk63-28ns",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "asconoides",
+      "start": 5954,
+      "end": 5964,
+      "createdAt": 1792111293723
+    },
+    {
+      "id": "mark-mva8tlya-s5ml",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Leucon",
+      "start": 5974,
+      "end": 5980,
+      "createdAt": 1792111342690
+    },
+    {
+      "id": "mark-mva8tznq-8t6q",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Leuconoide",
+      "start": 5983,
+      "end": 5993,
+      "createdAt": 1792111360454
+    },
+    {
+      "id": "mark-mva90sty-06oy",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "coanocitos",
+      "start": 6105,
+      "end": 6115,
+      "createdAt": 1792111678198
+    },
+    {
+      "id": "mark-mva93eii-0ffx",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "vibrátiles",
+      "start": 6195,
+      "end": 6205,
+      "createdAt": 1792111799610
+    },
+    {
+      "id": "mark-mva9anxu-jsrs",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "apópilo",
+      "start": 6482,
+      "end": 6489,
+      "createdAt": 1792112138418
+    },
+    {
+      "id": "mark-mva9e3z0-utf4",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "pinacocitos",
+      "start": 6576,
+      "end": 6587,
+      "createdAt": 1792112299164
+    },
+    {
+      "id": "mark-mvaati7v-xweu",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "megascleras",
+      "start": 8632,
+      "end": 8643,
+      "createdAt": 1792114697083
+    },
+    {
+      "id": "mark-mvaatotu-t877",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "microescleras",
+      "start": 8646,
+      "end": 8659,
+      "createdAt": 1792114705650
+    },
+    {
+      "id": "mark-mvace47x-iem2",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "diactinas",
+      "start": 10385,
+      "end": 10394,
+      "createdAt": 1792117338333
+    },
+    {
+      "id": "mark-mvacfeba-hu2r",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "tetractinas",
+      "start": 10469,
+      "end": 10480,
+      "createdAt": 1792117398070
+    },
+    {
+      "id": "mark-mvacs1j1-htuw",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 10984,
+      "end": 10996,
+      "createdAt": 1792117988029
+    },
+    {
+      "id": "mark-mvacuxsy-ecaz",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 11084,
+      "end": 11096,
+      "createdAt": 1792118123170
+    },
+    {
+      "id": "mark-mvacxitx-zfer",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 11157,
+      "end": 11169,
+      "createdAt": 1792118243733
+    },
+    {
+      "id": "mark-mvad78r9-kgz8",
+      "kind": "mark",
+      "lessonId": "custom-mva3pab0-fptl",
+      "lessonTitle": "Práctica de Laboratorio 2. Parazoa: Phylum Porifera",
+      "course": "labzoo",
+      "text": "Demospongiae",
+      "start": 11548,
+      "end": 11560,
+      "createdAt": 1792118697237
+    },
+    {
+      "id": "mark-mvg1bzg6-50d3",
+      "kind": "mark",
+      "lessonId": "custom-mvfxljj0-q91q",
+      "lessonTitle": "15-sep-blastocelomados-m",
+      "course": "raw-lab",
+      "text": "protonefridios",
+      "start": 675,
+      "end": 689,
+      "createdAt": 1792461560118
+    },
+    {
+      "id": "mark-mvejtv6o-337y",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "cuenta la condición de protostomado/deuterostomado los ubican,",
+      "start": 1198,
+      "end": 1260,
+      "createdAt": 1792371695136
+    },
+    {
+      "id": "mark-mvelx21z-qon9",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "unas",
+      "start": 7018,
+      "end": 7022,
+      "createdAt": 1792375203239
+    },
+    {
+      "id": "mark-mvelzvkt-s459",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "actinias",
+      "start": 7171,
+      "end": 7179,
+      "createdAt": 1792375334813
+    },
+    {
+      "id": "mark-mvene583-yt43",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "Ceriantipatharia",
+      "start": 8340,
+      "end": 8356,
+      "createdAt": 1792377680115
+    },
+    {
+      "id": "mark-mvenfxsw-2b9h",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "sifonoglifos",
+      "start": 8482,
+      "end": 8494,
+      "createdAt": 1792377763808
+    },
+    {
+      "id": "mark-mvengge2-uiue",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "Antipatharia",
+      "start": 8528,
+      "end": 8540,
+      "createdAt": 1792377787898
+    },
+    {
+      "id": "mark-mvenihs3-lnp9",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "Alcyonaria",
+      "start": 8697,
+      "end": 8707,
+      "createdAt": 1792377883011
+    },
+    {
+      "id": "mark-mvenkega-5j0t",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "escleritos",
+      "start": 8868,
+      "end": 8878,
+      "createdAt": 1792377972010
+    },
+    {
+      "id": "mark-mvenl8rd-0k2u",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "estolones",
+      "start": 8931,
+      "end": 8940,
+      "createdAt": 1792378011289
+    },
+    {
+      "id": "mark-mvenli3i-i6wa",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "cenénquima",
+      "start": 8944,
+      "end": 8954,
+      "createdAt": 1792378023390
+    },
+    {
+      "id": "mark-mvenolya-hm7x",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "Gorgonacea",
+      "start": 9149,
+      "end": 9159,
+      "createdAt": 1792378168354
+    },
+    {
+      "id": "mark-mvenpofi-t6db",
+      "kind": "mark",
+      "lessonId": "custom-mvb9zrie-z68j",
+      "lessonTitle": "Lab3. Phylum Cnidaria",
+      "course": "More Lessons",
+      "text": "Pseudoplexaura",
+      "start": 9184,
+      "end": 9198,
+      "createdAt": 1792378218222
+    },
+    {
+      "id": "mark-mvk9mg4c-7ik3",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Anseriformes Anatidae Dendrocygna viduata White-faced Whistling Duck - del griego dendron (árbol) y Cygnus (cisne), y del latín viduata (viuda), por su cara blanca y su llamada silbante.",
+      "start": 0,
+      "end": 186,
+      "createdAt": 1792717349916,
+      "media": [
+        {
+          "id": "fig-mvka2rtb-bm19",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/87/DendrocygnaViduataDavies.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Anseriformes Anatidae Dendrocygna viduata White-faced Whistling Duck - del griego dendron (árbol) y Cygnus (cisne), y del latín viduata (viuda), por su cara blanca y su llamada silbante.",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-mvk9pp9h-y8cf",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Anseriformes Anhimidae Anhima cornuta Horned Screamer - Anhima proviene del tupí ña'un (ave negra) y cornuta del latín cornutus (con cuernos), por el apéndice córneo en su cabeza.",
+      "start": 189,
+      "end": 368,
+      "createdAt": 1792717501733,
+      "media": [
+        {
+          "id": "fig-mvk9ww1j-uwkj",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Palamedra_cornuta_white_background.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Anseriformes Anhimidae Anhima cornuta Horned Screamer - Anhima proviene del tupí ña'un (ave negra) y cornuta del latín cornutus (con cuernos), por el apéndice córneo en su cabeza.",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-mvka8yx4-5tka",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galliformes Cracidae Penelope purpurascens Crested Guan - Penelope hace referencia a la esposa de Ulises en la mitología griega, y purpurascens al latín purpurascens (que se vuelve púrpura).",
+      "start": 371,
+      "end": 561,
+      "createdAt": 1792718400712,
+      "media": [
+        {
+          "id": "fig-mvkaaejl-2xpe",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Central_Atlas_f%C3%BCr_zoologische_G%C3%A4rten_%28Taf._271b%29_%286436438553%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Galliformes Cracidae Penelope purpurascens Crested Guan - Penelope hace referencia a la esposa de Ulises en la mitología griega, y purpurascens al latín purpurascens (que se vuelve púrpura).",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkaeya9-7b4x",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galliformes Odontophoridae Colinus cristatus Crested Bobwhite - Colinus deriva del náhuatl zolin (codorniz) y cristatus del latín cristatus (crestado).",
+      "start": 564,
+      "end": 715,
+      "createdAt": 1792718679825,
+      "media": [
+        {
+          "id": "fig-mvkah6zf-51er",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Colinus_cristatus_mocquerysi_1894.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colinus cristatus",
+          "caption": "Colinus cristatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkam4vs-jqgp",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Podicipediformes Podicipedidae Podilymbus podiceps Pied-billed Grebe - Podilymbus es una contracción del latín podicipes (pies en las posaderas) y del griego kolymbos (zambullidor), y podiceps del latín podicis (posaderas) y pedis (pie).",
+      "start": 718,
+      "end": 955,
+      "createdAt": 1792719014968,
+      "media": [
+        {
+          "id": "fig-mvkar2i7-tdtx",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Podiceps_St._Thomae_-_1700-1880_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17800057.tif/lossy-page1-1280px-Podiceps_St._Thomae_-_1700-1880_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17800057.tif.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "alt": "Podilymbus podiceps",
+          "caption": "Podilymbus podiceps"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkax2bs-k95q",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Columbiformes Columbidae Zenaida auriculata Eared Dove - Zenaida honra a Zénaïde Bonaparte, y auriculata del latín auriculatus (con orejas pequeñas), por la mancha oscura tras el ojo.",
+      "start": 958,
+      "end": 1141,
+      "createdAt": 1792719524872,
+      "media": [
+        {
+          "id": "fig-mvkayjny-e50z",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/6/69/Zenaida_auriculata_Historia_fisica_y_politica_de_Chile.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Columbiformes Columbidae Zenaida auriculata Eared Dove - Zenaida honra a Zénaïde Bonaparte, y auriculata del latín auriculatus (con orejas pequeñas), por la mancha oscura tras el ojo.",
+          "caption": "Zenaida auriculata"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkb2a0v-bdh7",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Columbiformes Columbidae Columbina talpacoti Ruddy Ground Dove - Columbina es diminutivo de Columba (paloma) y talpacoti proviene del nombre indígena náhuatl tlapalcocotli.",
+      "start": 1144,
+      "end": 1316,
+      "createdAt": 1792719768127,
+      "media": [
+        {
+          "id": "fig-mvkb7yv9-2qpf",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Pigeons_%28Plate_22%29_%286976197569%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Columbiformes Columbidae Columbina talpacoti Ruddy Ground Dove - Columbina es diminutivo de Columba (paloma) y talpacoti proviene del nombre indígena náhuatl tlapalcocotli.",
+          "caption": "Columbina talpacoti"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkbccpo-bdj1",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cuculiformes Cuculidae Coccyzus americanus Yellow-billed Cuckoo - Coccyzus del griego kokkuzo (llamar como un cuco) y americanus (de América).",
+      "start": 1319,
+      "end": 1461,
+      "createdAt": 1792720238172,
+      "media": [
+        {
+          "id": "fig-mvkbeyqx-v4p1",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Coccyzus_Americanus_by_John_Gould.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Cuculiformes Cuculidae Coccyzus americanus Yellow-billed Cuckoo - Coccyzus del griego kokkuzo (llamar como un cuco) y americanus (de América).",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkbj531-4hvu",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cuculiformes Cuculidae Crotophaga ani Smooth-billed Ani - Crotophaga del griego krotōn (garrapata) y phagos (comedor), y ani del tupí anim (ave social).",
+      "start": 1464,
+      "end": 1616,
+      "createdAt": 1792720554877,
+      "media": [
+        {
+          "id": "fig-mvkbm76s-o9f3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Birds_of_the_Bahama_Islands_%28Cory_1880%29_Crotophaga_ani.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Crotophaga ani",
+          "caption": "Crotophaga ani"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkbq85l-3htx",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Steatornithiformes Steatornithidae Steatornis caripensis Oilbird - Steatornis del griego stear (grasa) y ornis (ave), y caripensis (de Caripe, Venezuela), por la grasa de los polluelos.",
+      "start": 1619,
+      "end": 1804,
+      "createdAt": 1792720885449,
+      "media": [
+        {
+          "id": "fig-mvkbscxn-92b1",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/88/Steatornis_caripensis_Pr%C3%AAtre.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Steatornis caripensis",
+          "caption": "Steatornis caripensis"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkbxabh-59gl",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Caprimulgiformes Caprimulgidae Nyctipolus nigrescens Blackish Nightjar - Nyctipolus del griego nuktipolos (que deambula de noche) y nigrescens del latín nigrescens (negruzco).",
+      "start": 1807,
+      "end": 1982,
+      "createdAt": 1792721214845,
+      "media": [
+        {
+          "id": "fig-mvkby22e-odcv",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c6/The_genera_of_birds_%28PL._XVII%29_%287439900524%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Nyctipolus nigrescens",
+          "caption": "Nyctipolus nigrescens"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvkc8y18-vjpu",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Caprimulgiformes Caprimulgidae Nyctidromus albicollis Pauraque - Nyctidromus del griego nukti- (noche) y -dromos (corredor), y albicollis del latín albus (blanco) y collis (cuello).",
+      "start": 1985,
+      "end": 2166,
+      "createdAt": 1792721758797,
+      "media": [
+        {
+          "id": "fig-mvkc9v8p-qlw5",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Nyctidromus_albicollisDF28N04B1.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Nyctidromus albicollis",
+          "caption": "Nyctidromus albicollis"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl0svlu-r41i",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Apodidae Streptoprocne rutila Chestnut-collared Swift - Streptoprocne del griego streptos (collar) y prokne (golondrina), y rutila del latín rutilus (rojizo, castaño).",
+      "start": 2169,
+      "end": 2348,
+      "createdAt": 1792762999554,
+      "media": [
+        {
+          "id": "fig-mvl1d35v-yq34",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/32/Streptoprocne_rutila_1860.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Streptoprocne rutila",
+          "caption": "Streptoprocne rutila"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl1gwl5-8k5a",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Apodidae Chaetura sp. Swift - Chaetura del griego khaitē (cabello largo) y oura (cola), por las plumas rígidas que sobresalen de la cola.",
+      "start": 2351,
+      "end": 2500,
+      "createdAt": 1792764120569,
+      "media": [
+        {
+          "id": "fig-mvl1hoca-o3yn",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Chaetura_cinereiventris_cinereiventris.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Chaetura sp.",
+          "caption": "Chaetura sp."
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl1m0bt-f53y",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Colibri coruscans Sparkling Violetear - Colibri es el nombre español del colibrí y coruscans del latín coruscans (brillante, centelleante).",
+      "start": 2503,
+      "end": 2666,
+      "createdAt": 1792764358697,
+      "media": [
+        {
+          "id": "fig-mvl1obb4-w7pb",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Sparkling_violetear_%28Colibri_coruscans%29_-_BioDivLibrary_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colibri coruscans",
+          "caption": "Colibri coruscans"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl1r991-njk9",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Ensifera ensifera Sword-billed Hummingbird - Ensifera del latín ensifer (portador de espada), por su pico largo y recto como una espada.",
+      "start": 2669,
+      "end": 2829,
+      "createdAt": 1792764603541,
+      "media": [
+        {
+          "id": "fig-mvl1tq9a-5ub4",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/6/63/Ensifera_ensifera.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Apodiformes Trochilidae Ensifera ensifera Sword-billed Hummingbird - Ensifera del latín ensifer (portador de espada), por su pico largo y recto como una espada.",
+          "caption": "Ensifera ensifera"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl1xg4k-nyo1",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Eutoxeres aquila White-tipped Sicklebill - Eutoxeres del griego eu (bueno) y toxērēs (arquero), y aquila del latín aquila (águila), por la forma de su pico curvo.",
+      "start": 2832,
+      "end": 3018,
+      "createdAt": 1792764892388,
+      "media": [
+        {
+          "id": "fig-mvl1zjgj-t0vs",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Histoirenaturell11874muls_0197.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Eutoxeres aquila",
+          "caption": "Eutoxeres aquila"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl21wx5-7dj7",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Amazilia tzacatl Rufous-tailed Hummingbird - Amazilia proviene de la heroína inca de una novela de Marmontel, y tzacatl de la mitología azteca, un jefe guerrero.",
+      "start": 3021,
+      "end": 3206,
+      "createdAt": 1792765100777,
+      "media": [
+        {
+          "id": "fig-mvl28gaa-1k84",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b6/MonographTrochi5Goul_0120.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Amazilia tzacatl",
+          "caption": "Amazilia tzacatl"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl2mkuf-5lni",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Florisuga fusca Black Jacobin - Florisuga del latín floris (flor) y sugere (chupar), y fusca del latín fuscus (oscuro, negro).",
+      "start": 3209,
+      "end": 3359,
+      "createdAt": 1792766064903,
+      "media": [
+        {
+          "id": "fig-mvl2p403-t6q4",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/95/Zoological_Illustrations_Volume_II_Plate_82.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Florisuga fusca",
+          "caption": "Florisuga fusca"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl2r432-bblw",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Rallidae Gallinula galeata Common Gallinule - Gallinula es diminutivo del latín gallina (gallina) y galeata del latín galeatus (con casco), por el escudo frontal.",
+      "start": 3362,
+      "end": 3535,
+      "createdAt": 1792766276462,
+      "media": [
+        {
+          "id": "fig-mvl2x3aq-ptd4",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Birds_and_nature_%281903%29_%2814754987412%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Gallinula galeata",
+          "caption": "Gallinula galeata"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl2z0ha-an2p",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Rallidae Porphyrio martinica Purple Gallinule - Porphyrio del griego porphyra (púrpura) y martinica (de Martinica).",
+      "start": 3538,
+      "end": 3664,
+      "createdAt": 1792766645038,
+      "media": [
+        {
+          "id": "fig-mvl32hf4-ukms",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/06/305_Purple_Gallinule_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Porphyrio martinica",
+          "caption": "Porphyrio martinica"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl34j58-19b4",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Psophiidae Psophia crepitans Grey-winged Trumpeter - Psophia del griego psophos (ruido) y crepitans del latín crepitans (que resuena), por su fuerte llamada.",
+      "start": 3667,
+      "end": 3835,
+      "createdAt": 1792766902508,
+      "media": [
+        {
+          "id": "fig-mvl38jj8-spjl",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Aloys_Z%C3%B6tl_Der_Agami_1877.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Psophia crepitans",
+          "caption": "Psophia crepitans"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl3aipc-9zsh",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Charadriiformes Jacanidae Jacana jacana Wattled Jacana - Jacana deriva del tupí ñaha'nã (ave muy ruidosa), y jacana es la misma palabra latinizada.",
+      "start": 3838,
+      "end": 3985,
+      "createdAt": 1792767181872,
+      "media": [
+        {
+          "id": "fig-mvl3ebmh-ie5m",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/96/Jacana_jacana_-_cropped_illustration.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Jacana jacana",
+          "caption": "Jacana jacana"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl3gzsz-hktu",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Charadriiformes Charadriidae Vanellus chilensis Southern Lapwing - Vanellus del latín vannus (aventar) y chilensis (de Chile).",
+      "start": 3988,
+      "end": 4114,
+      "createdAt": 1792767483971,
+      "media": [
+        {
+          "id": "fig-mvl3jfd9-u3ci",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/The_birds_of_South_America_%28Pl._29%29_%287822928214%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Vanellus chilensis",
+          "caption": "Vanellus chilensis"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl3m9d8-zfsb",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Suliformes Phalacrocoracidae Phalacrocorax brasilianus Neotropic Cormorant - Phalacrocorax del griego phalakros (calvo) y korax (cuervo), y brasilianus (de Brasil).",
+      "start": 4117,
+      "end": 4281,
+      "createdAt": 1792767729644,
+      "media": [
+        {
+          "id": "fig-mvl3pk0j-u2ef",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/3d/Phalacrocorax_brasilianus_%28GM%29_LCCN2003662380.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Phalacrocorax brasilianus",
+          "caption": "Phalacrocorax brasilianus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl3qw81-ge56",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Ardea alba Great Egret - Ardea del latín ardea (garza) y alba del latín alba (blanca).",
+      "start": 4284,
+      "end": 4394,
+      "createdAt": 1792767945889,
+      "media": [
+        {
+          "id": "fig-mvl3u5dl-4vdu",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a9/OrnithologiaNeerlandica01Pl26.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Ardea alba",
+          "caption": "Ardea alba"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl3wcsw-awxv",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Cochlearius cochlearius Boat-billed Heron - Cochlearius del latín cocleare (cuchara en forma de concha de caracol), por su pico ancho.",
+      "start": 4397,
+      "end": 4555,
+      "createdAt": 1792768200656,
+      "media": [
+        {
+          "id": "fig-mvl40hpw-xpjp",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Musei_Leveriani_explicatio%2C_anglica_et_latina_%281792%29_%2814747534424%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Cochlearius cochlearius",
+          "caption": "Cochlearius cochlearius"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl42iwc-dwdr",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Tigrisoma fasciatum Fasciated Tiger-Heron - Tigrisoma del griego tigris (tigre) y soma (cuerpo), y fasciatum del latín fasciatus (con bandas).",
+      "start": 4558,
+      "end": 4724,
+      "createdAt": 1792768488492,
+      "media": [
+        {
+          "id": "fig-mvl467h3-bh6c",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/fc/TigrisomaFasciatumSmit.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Tigrisoma fasciatum",
+          "caption": "Tigrisoma fasciatum"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl495cj-s5ma",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Threskiornithidae Platalea ajaja Roseate Spoonbill - Platalea del latín platalea (espátula) y ajaja del tupí aya'á (rosa), por su pico en forma de espátula y su color rosado.",
+      "start": 4727,
+      "end": 4916,
+      "createdAt": 1792768797523,
+      "media": [
+        {
+          "id": "fig-mvl4cl3k-j4ep",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Rawpixel_original_lithographs_by_rawpixel-com_00025_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Platalea ajaja",
+          "caption": "Platalea ajaja"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl4g3c8-fsm2",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Threskiornithidae Phimosus infuscatus Bare-faced Ibis - Phimosus del griego phimos (rienda) e infuscatus del latín infuscatus (oscurecido), por su cara desnuda y plumaje oscuro.",
+      "start": 4919,
+      "end": 5111,
+      "createdAt": 1792769121512,
+      "media": [
+        {
+          "id": "fig-mvl4ihvw-ixpe",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Avium_Species_Novae_%288422859343%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Phimosus infuscatus",
+          "caption": "Phimosus infuscatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl4kvdh-4b0g",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cathartiformes Cathartidae Vultur gryphus Andean Condor - Vultur del latín vultur (buitre) y gryphus del griego gryps (grifo), por su pico ganchudo y su gran tamaño.",
+      "start": 5114,
+      "end": 5279,
+      "createdAt": 1792769344469,
+      "media": [
+        {
+          "id": "fig-mvl4opn7-1493",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/NSRW_Vultur_gryphus.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Vultur gryphus",
+          "caption": "Vultur gryphus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl4r6m8-sjvf",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cathartiformes Cathartidae Sarcoramphus papa King Vulture - Sarcoramphus del griego sarx (carne) y rhamphos (pico), y papa del latín papa (obispo), por su plumaje que recuerda a la vestimenta episcopal.",
+      "start": 5282,
+      "end": 5484,
+      "createdAt": 1792769638976,
+      "media": [
+        {
+          "id": "fig-mvl4tgkq-8rcu",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Koningsgier_%28Sarcoramphus_papa%29%2C_RP-T-FM-139.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Sarcoramphus papa",
+          "caption": "Sarcoramphus papa"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl4vb2m-6mt3",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Rupornis magnirostris Roadside Hawk - Rupornis del griego rhupos (suciedad) y ornis (ave), y magnirostris del latín magnus (grande) y rostris (pico).",
+      "start": 5487,
+      "end": 5665,
+      "createdAt": 1792769831374,
+      "media": [
+        {
+          "id": "fig-mvl4zj0f-14jz",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Nouveau_recueil_de_planches_colori%C3%A9es_d%27oiseaux_%286285716147%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Rupornis magnirostris",
+          "caption": "Rupornis magnirostris"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl56gwq-ojhm",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Harpia harpyja Harpy Eagle - Harpia y harpyja provienen del griego harpyia, las arpías de la mitología griega, mitad mujer y mitad ave de presa.",
+      "start": 5668,
+      "end": 5841,
+      "createdAt": 1792770352154,
+      "media": [
+        {
+          "id": "fig-mvl59i07-e0wa",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Harpia_harpyja_1841.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Harpia harpyja",
+          "caption": "Harpia harpyja"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl5c6go-h7pp",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Buteo platypterus Broad-winged Hawk - Buteo del latín buteo (busardo) y platypterus del griego platys (ancho) y pteron (ala).",
+      "start": 5844,
+      "end": 5998,
+      "createdAt": 1792770618552,
+      "media": [
+        {
+          "id": "fig-mvl5ehwd-dh8z",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Buteo_platypterusAAP048B.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Buteo platypterus",
+          "caption": "Buteo platypterus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl5gjx8-0llm",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Strigiformes Strigidae Megascops choliba Tropical Screech-Owl - Megascops del griego megas (grande) y skops (búho), y choliba del nombre aragonés para el autillo.",
+      "start": 6001,
+      "end": 6163,
+      "createdAt": 1792770822620,
+      "media": [
+        {
+          "id": "fig-mvl5zib2-8l6f",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Megascops_choliba_cruciger_1849.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Megascops choliba",
+          "caption": "Megascops choliba"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl622da-ovnx",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Strigiformes Tytonidae Tyto alba Barn Owl - Tyto del griego tyto (búho) y alba del latín alba (blanca), literalmente “búho blanco”.",
+      "start": 6166,
+      "end": 6297,
+      "createdAt": 1792771826302,
+      "media": [
+        {
+          "id": "fig-mvl669ef-agk3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/75/Strix_Flammea.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Strigiformes Tytonidae Tyto alba Barn Owl - Tyto del griego tyto (búho) y alba del latín alba (blanca), literalmente “búho blanco”.",
+          "caption": "Tyto alba"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl6w25p-wlpt",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Trogoniformes Trogonidae Trogon violaceus Guianan Trogon - Trogon del griego trogon (roedor, por su pico) y violaceus del latín violaceus (violáceo).",
+      "start": 6300,
+      "end": 6449,
+      "createdAt": 1792773225709,
+      "media": [
+        {
+          "id": "fig-mvl6zah4-iril",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/7b/A_monograph_of_the_Trogonidae%2C_or_family_of_trogons_%2839675734755%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Trogon violaceus",
+          "caption": "Trogon violaceus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl71yfa-w2zu",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Baryphthengus martii Rufous Motmot - Baryphthengus del griego baruphthenktes (voz profunda) y martii en honor al botánico Carl Friedrich Philipp von Martius.",
+      "start": 6452,
+      "end": 6633,
+      "createdAt": 1792773500806,
+      "media": [
+        {
+          "id": "fig-mvl79djp-0kce",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Bulletin_-_United_States_National_Museum_%281914%29_%2820321962699%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Baryphthengus martii",
+          "caption": "Baryphthengus martii"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl7cjin-no1a",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Momotus momota Amazonian Motmot - Momotus deriva de la palabra azteca momot, nombre nativo para estas aves, y momota es la misma palabra repetida.",
+      "start": 6636,
+      "end": 6806,
+      "createdAt": 1792773994703,
+      "media": [
+        {
+          "id": "fig-mvl7f0xq-t9hf",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/86/Momotus_momotaAQBIP08CA.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Momotus momota",
+          "caption": "Momotus momota"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl7h0t3-l0y2",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Momotus aequatorialis Andean Motmot - Momotus del azteca momot y aequatorialis del latín (ecuatorial), por su distribución en los Andes.",
+      "start": 6809,
+      "end": 6969,
+      "createdAt": 1792774203735,
+      "media": [
+        {
+          "id": "fig-mvl7io7k-igl1",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/86/Momotus_momotaAQBIP08CA.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Momotus aequatorialis",
+          "caption": "Momotus aequatorialis"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl7miow-z1jd",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Alcedinidae Megaceryle torquata Ringed Kingfisher - Megaceryle del griego megas (grande) y Ceryle (un ave mítica), y torquata del latín torquatus (con collar).",
+      "start": 6972,
+      "end": 7145,
+      "createdAt": 1792774460192,
+      "media": [
+        {
+          "id": "fig-mvl7q76k-uvam",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Planches_enlumin%C3%A9es_d%27histoire_naturelle_%289932716675%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Megaceryle torquata",
+          "caption": "Megaceryle torquata"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl7tvmp-vqlx",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Cerylidae Chloroceryle amazona Amazon Kingfisher - Chloroceryle del griego khlōros (verde) y Ceryle (ave mítica), y amazona (de la Amazonía).",
+      "start": 7148,
+      "end": 7303,
+      "createdAt": 1792774803553,
+      "media": [
+        {
+          "id": "fig-mvl8352y-q6tp",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/25/Chloroceryle_amazona_Keulemans.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Chloroceryle amazona",
+          "caption": "Chloroceryle amazona"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl85tfr-4luf",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Bucerotidae Buceros bicornis Great Hornbill - Buceros del latín becerus (con cuernos como un buey) y bicornis del latín bicornis (de dos cuernos), por el casco córneo de su pico.",
+      "start": 7306,
+      "end": 7498,
+      "createdAt": 1792775360583,
+      "media": [
+        {
+          "id": "fig-mvl88w7q-msvq",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/37/Buceros_bicornis_Wytsman.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Buceros bicornis",
+          "caption": "Buceros bicornis"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl8ar4q-hlgz",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galbuliformes Galbulidae Galbula ruficauda Rufous-tailed Jacamar - Galbula del latín galbula (pájaro amarillo) y ruficauda del latín rufus (rojo) y cauda (cola).",
+      "start": 7501,
+      "end": 7662,
+      "createdAt": 1792775590874,
+      "media": [
+        {
+          "id": "fig-mvl8cmqt-jyg7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Galbula_ruficauda_-_Keulemans.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Gabula ruficauda",
+          "caption": "Gabula ruficauda"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl8ehwb-cofk",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Picidae Celeus loricatus Cinnamon Woodpecker - Celeus del griego keleos (pájaro carpintero verde) y loricatus del latín loricatus (con loriga o coraza), por su plumaje.",
+      "start": 7665,
+      "end": 7844,
+      "createdAt": 1792775765531,
+      "media": [
+        {
+          "id": "fig-mvl8hl1r-z4xd",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Cinnamon_Woodpecker_%28Celeus_loricatus%29_male.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Celeus loricatus",
+          "caption": "Celeus loricatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl8jw6b-0liv",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Picidae Colaptes punctigula Spot-breasted Woodpecker - Colaptes del griego kolaptēs (cincelador) y punctigula del latín punctum (punto) y gula (garganta).",
+      "start": 7847,
+      "end": 8012,
+      "createdAt": 1792776017315,
+      "media": [
+        {
+          "id": "fig-mvl8moay-qkq3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/28/Las_aves_de_Cali_-_Gloria_Sthefany_Muriel_Lorza.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colaptes punctigula & others",
+          "caption": "Colaptes punctigula & others"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl8on03-2beh",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Ramphastidae Pteroglossus torquatus Collared Aracari - Pteroglossus del griego pteron (ala) y glossa (lengua) y torquatus del latín torquatus (con collar).",
+      "start": 8015,
+      "end": 8181,
+      "createdAt": 1792776238708,
+      "media": [
+        {
+          "id": "fig-mvl8rmyi-kq39",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/92/The_zoology_of_the_voyage_of_H.M.S._Sulphur_%288328961203%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pteroglossus torquatus",
+          "caption": "Pteroglossus torquatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl8tzya-6ouc",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Ramphastidae Ramphastos tucanus White-throated Toucan - Ramphastos del griego rhamphēstēs (con pico) y tucanus del guaraní tucá (tucán).",
+      "start": 8184,
+      "end": 8331,
+      "createdAt": 1792776488770,
+      "media": [
+        {
+          "id": "fig-mvl8xy6p-x06v",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/77/Gemeinn%C3%BCzzige_Naturgeschichte_des_Thierreichs_%28Plate_67%29_%286009080930%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Ramphastos tucanus",
+          "caption": "Ramphastos tucanus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl907n6-h30c",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Semnornithidae Semnornis ramphastinus Toucan Barbet - Semnornis del griego semnos (majestuoso) y ornis (ave) y ramphastinus del griego rhamphos (pico), por su parecido con los tucanes.",
+      "start": 8334,
+      "end": 8529,
+      "createdAt": 1792776778674,
+      "media": [
+        {
+          "id": "fig-mvl91r8e-lxsg",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/24/Semnornis_ramphastinus_1861.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Semnornis ramphastinus",
+          "caption": "Semnornis ramphastinus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl93bv6-ll32",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Bucconidae Monasa morpheus White-fronted Nunbird - Monasa del griego monas (solitario) y morpheus de Morfeo, el dios griego del sueño, por su aspecto somnoliento.",
+      "start": 8532,
+      "end": 8705,
+      "createdAt": 1792776924114,
+      "media": [
+        {
+          "id": "fig-mvl982eu-pcc7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/73/The_animal_kingdom%2C_arranged_according_to_its_organization%2C_serving_as_a_foundation_for_the_natural_history_of_animals_-_and_an_introduction_to_comparative_anatomy_%28Vol._1%29_%281834%29_%2818193392402%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Piciformes Bucconidae Monasa morpheus White-fronted Nunbird - Monasa del griego monas (solitario) y morpheus de Morfeo, el dios griego del sueño, por su aspecto somnoliento.",
+          "caption": "Monasa"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl9amtm-fetr",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Falconiformes Falconidae Falco sparverius American Kestrel - Falco del latín falco (halcón) y sparverius del latín sparvarius (gorrión), por su tamaño pequeño y su dieta de gorriones.",
+      "start": 8708,
+      "end": 8891,
+      "createdAt": 1792777264906,
+      "media": [
+        {
+          "id": "fig-mvl9cyy1-8tz2",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/93/Falco_sparverius_Tarvies.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Falco sparverius",
+          "caption": "Falco sparverius"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl9eq20-x3e0",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Falconiformes Falconidae Caracara plancus Crested Caracara - Caracara del tupí karakará (onomatopeya de su grito) y plancus del latín plancus (águila).",
+      "start": 8894,
+      "end": 9045,
+      "createdAt": 1792777455720,
+      "media": [
+        {
+          "id": "fig-mvl9gtsk-pmr9",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Zoological_Illustrations_Volume_I_Series_2_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Caracara plancus",
+          "caption": "Caracara plancus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl9irxi-hplm",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Pionus menstruus Blue-headed Parrot - Pionus del griego pion (gordo, por su cuerpo robusto) y menstruus del latín menstruus (mensual), quizás por su ciclo reproductivo.",
+      "start": 9048,
+      "end": 9243,
+      "createdAt": 1792777644774,
+      "media": [
+        {
+          "id": "fig-mvl9k85p-25rm",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Levaillant_Parrot_114.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pionus menstruus",
+          "caption": "Pionus menstruus"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl9m460-xc5y",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Amazona ochrocephala Yellow-crowned Amazon - Amazona del nombre francés “Amazone” para los loros tropicales y ochrocephala del griego ochros (amarillo) y kephale (cabeza).",
+      "start": 9246,
+      "end": 9444,
+      "createdAt": 1792777800600,
+      "media": [
+        {
+          "id": "fig-mvl9nki1-um7v",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Levaillant_Parrot_86.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Amazona ochrocephala",
+          "caption": "Amazona ochrocephala"
+        }
+      ]
+    },
+    {
+      "id": "mark-mvl9p8x9-o2b8",
+      "kind": "mark",
+      "lessonId": "custom-mvk79ci8-mfaf",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Psittacara wagleri Scarlet-fronted Parakeet - Psittacara del griego psittakos (loro) y kara (cabeza) y wagleri en honor al naturalista Johann Georg Wagler.",
+      "start": 9447,
+      "end": 9629,
+      "createdAt": 1792777946733,
+      "media": [
+        {
+          "id": "fig-mvl9qk8j-uoy1",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f4/The_genera_of_birds_%2818988825860%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pisttacara wagleri",
+          "caption": "Pisttacara wagleri"
+        }
+      ]
+    }
+  ]
+}

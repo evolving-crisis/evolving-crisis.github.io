@@ -102,6 +102,43 @@ Static hosting can't list a folder's contents for you (there's no directory
 index), which is why the manifest (`index.json`) exists — it's the only way
 the client-side code can know what pack files are there to fetch.
 
+Static lesson directories may also include a marks JSON file. Any manifest
+entry whose object contains a `marks` array is loaded as default marks during
+startup, after the selected lesson is loaded. Existing browser marks win when
+an id is duplicated, so updating the site cannot overwrite a visitor's marks.
+
+### Ordering lessons and courses
+
+Pack files may define an explicit numeric `order` for the course and for each
+lesson:
+
+```json
+{
+  "course": "JavaScript Basics",
+  "order": 10,
+  "lessons": [
+    { "id": "variables", "title": "Variables", "order": 10, "text": "..." },
+    { "id": "functions", "title": "Functions", "order": 20, "text": "..." }
+  ]
+}
+```
+
+The sidebar and **Next lesson** action sort by these values, so a pack can
+define a sequential course. Lower values come first; omitted values retain the
+existing manifest/file order. The same lesson-level `order` field is supported
+by custom lessons and exports. `courseOrder` can be supplied for a lesson
+created through the JavaScript API when its course is not defined by a pack.
+
+For visitor-created or locally edited lessons, the course header's **order**
+button sets the course order, the lesson menu's **Set lesson order** action
+sets an individual lesson order, and the new-lesson form accepts both values.
+Leave a field blank to return it to automatic order. These UI changes are
+stored in this browser; for static lessons they are saved as local overrides.
+Courses and lessons can also be reordered directly by dragging them in the
+drawer. Dropping a lesson changes its order within its current course; dropping
+a course changes the course sequence. Dragging writes stable order values
+automatically.
+
 **3. `localStorage` — lessons a *visitor* adds themselves**, via the
 "+ New custom lesson" button or the + beside a course title (which opens the
 same form with that course pre-filled). These are private to that one browser profile on
@@ -309,14 +346,15 @@ plate while you type it.
    optional. Uploads become `data:image/…` URLs in this browser (1.5 MB limit).
 4. Add more figures to the same mark to make a little deck.
 
-While typing, the figure **interchanges places with the typing stage** for as
-long as the caret is inside the marked range. The figure (with previous/next
-buttons, counter and caption) fills the main view; the live typing stage moves
-into a picture-in-picture card in the bottom-right corner. That thumbnail keeps
-the lesson title, text, goal and progress bar — stats and the on-screen keyboard
-make way for the figure. Leaving the marked range swaps everything back
-immediately. **Figure deck: on/off** in the drawer turns the whole feature off
-without deleting anything; the choice is remembered.
+While typing, a sufficiently detailed figure **interchanges places with the
+typing stage** for as long as the caret is inside the marked range. The figure
+(with previous/next buttons, counter and caption) fills the main view; the live
+typing stage moves into a picture-in-picture card in the bottom-right corner.
+Small images stay in that floating card because enlarging them would not add
+detail. The main-stage swap is deliberately slow and smooth so the change is
+easy to follow. Leaving the marked range smoothly swaps everything back.
+**Figure deck: on/off** in the drawer turns the whole feature off without
+deleting anything; the choice is remembered.
 
 Figures are stored on the mark itself, as a `media` array:
 

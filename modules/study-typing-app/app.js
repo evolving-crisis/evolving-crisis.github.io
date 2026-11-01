@@ -122,6 +122,14 @@ function optionalInt(value, min, max){
   const n = Number(value);
   return Number.isFinite(n) ? clamp(Math.round(n), min, max) : null;
 }
+function optionalOrder(value){
+  return optionalInt(value, -1000000000, 1000000000);
+}
+function compareOrdered(a, b){
+  const aOrder = a.order === null || a.order === undefined ? Infinity : a.order;
+  const bOrder = b.order === null || b.order === undefined ? Infinity : b.order;
+  return aOrder - bOrder || a.sourceOrder - b.sourceOrder;
+}
 function countWords(str){
   return (str.match(/\S+/g) || []).length;
 }
@@ -154,6 +162,8 @@ function normalizeImportedLesson(raw){
     // `course` / targets are optional in an export: null means "leave the existing
     // value alone" when this lesson conflicts with one already in the app.
     course: typeof raw.course === 'string' && raw.course.trim() ? raw.course.trim() : null,
+    order: optionalOrder(raw.order),
+    courseOrder: optionalOrder(raw.courseOrder),
     targetWPM: optionalInt(raw.targetWPM, 5, 200),
     targetAccuracy: optionalInt(raw.targetAccuracy, 50, 100),
     objectives: Array.isArray(raw.objectives) ? raw.objectives : null,
@@ -205,6 +215,9 @@ function compareImportedLesson(existing, existingCourseTitle, incoming){
   if(incoming.course && incoming.course !== existingCourse){
     changes.push({ field:'Course', kind:'value', before:existingCourse, after:incoming.course });
   }
+  if(incoming.courseOrder !== null && incoming.courseOrder !== (existing.courseOrder ?? null)){
+    changes.push({ field:'Course order', kind:'value', before:String(existing.courseOrder ?? 'automatic'), after:String(incoming.courseOrder) });
+  }
   const existingWpm = existing.targetWPM != null ? existing.targetWPM : 30;
   if(incoming.targetWPM !== null && incoming.targetWPM !== existingWpm){
     changes.push({ field:'Target WPM', kind:'value', before:String(existingWpm), after:String(incoming.targetWPM) });
@@ -212,6 +225,9 @@ function compareImportedLesson(existing, existingCourseTitle, incoming){
   const existingAcc = existing.targetAccuracy != null ? existing.targetAccuracy : 95;
   if(incoming.targetAccuracy !== null && incoming.targetAccuracy !== existingAcc){
     changes.push({ field:'Target accuracy', kind:'value', before:`${existingAcc}%`, after:`${incoming.targetAccuracy}%` });
+  }
+  if(incoming.order !== null && incoming.order !== (existing.order ?? null)){
+    changes.push({ field:'Lesson order', kind:'value', before:String(existing.order ?? 'automatic'), after:String(incoming.order) });
   }
   return { same: changes.length === 0, changes };
 }
@@ -1082,6 +1098,7 @@ const App = {
   statsView: null,
   customLessons: [],
   staticPackCourses: [], // courses fetched from ./lessons/*.json — see fetchStaticPacks()
+  staticPackMarks: [],   // default marks fetched from the same static lesson directory
   state: 'idle', // idle | ready | running | paused | finished
   pauseReason: null, // 'command' | 'edit' | 'blur' | 'window' | 'hidden' | 'idle'
   commandMode: false,
@@ -1193,7 +1210,10 @@ const App = {
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
       modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), modalTitle: qs('#modalTitle'), lessonForm: qs('#lessonForm'),
-      lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
+      actionModalScrim: qs('#actionModalScrim'), actionModalTitle: qs('#actionModalTitle'), actionModalMessage: qs('#actionModalMessage'),
+      actionModalField: qs('#actionModalField'), actionModalLabel: qs('#actionModalLabel'), actionModalInput: qs('#actionModalInput'),
+      actionModalClose: qs('#actionModalClose'), actionModalCancel: qs('#actionModalCancel'), actionModalConfirm: qs('#actionModalConfirm'),
+      lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfCourseOrder: qs('#lfCourseOrder'), lfOrder: qs('#lfOrder'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
       courseNames: qs('#courseNames'),
       completeOverlay: qs('#completeOverlay'), completeLessonTitle: qs('#completeLessonTitle'),
       completeWpm: qs('#completeWpm'), completeAcc: qs('#completeAcc'), completeTime: qs('#completeTime'),
@@ -1249,6 +1269,7 @@ const App = {
       .flatMap(course => course.lessons.map(lesson => ({ lesson, courseTitle:course.title })))[0];
     const toLoad = defaultPackLesson || startLesson || firstAvailable;
     if(toLoad) this.loadLesson(toLoad.lesson, toLoad.courseTitle);
+    if(this.staticPackMarks.length) this.importMarks(this.staticPackMarks, { fresh:false });
   },
 
   /* ----- static lesson packs (git-managed, same-origin JSON under ./lessons/) -----
@@ -1258,6 +1279,7 @@ const App = {
      or the page is opened as a local file:// instead of served over http), the app
      just falls back to the built-in DEFAULT_COURSES above; nothing breaks. */
   async fetchStaticPacks(){
+    this.staticPackMarks = [];
     try{
       const manifestUrl = new URL('lessons/index.json', document.baseURI);
       const res = await fetch(manifestUrl, { cache:'no-store' });
@@ -1270,20 +1292,26 @@ const App = {
           const r = await fetch(packUrl, { cache:'no-store' });
           if(!r.ok) return null;
           const pack = await r.json();
-          if(!pack || typeof pack !== 'object' || !Array.isArray(pack.lessons)) return null;
+          if(!pack || typeof pack !== 'object' ||
+             (!Array.isArray(pack.lessons) && !Array.isArray(pack.marks))) return null;
           return pack;
         }catch(e){ return null; }
       }));
-      this.staticPackCourses = packs.filter(Boolean).map(p => ({
+      this.staticPackCourses = packs.filter(p => p && Array.isArray(p.lessons)).map(p => ({
         title: p.course || 'More Lessons',
+        order: optionalOrder(p.order),
         lessons: p.lessons
           .filter(l => l && typeof l === 'object' && l.text && l.title)
           .map(l => ({
             ...l,
             id: l.id || uid('pack'),
-            course: l.course || p.course || 'More Lessons'
+            course: l.course || p.course || 'More Lessons',
+            order: optionalOrder(l.order)
           }))
       }));
+      this.staticPackMarks = packs
+        .filter(p => p && Array.isArray(p.marks))
+        .flatMap(p => p.marks);
     }catch(e){
       this.staticPackCourses = [];
       console.info('TypeStudio: no static lesson packs loaded —', e.message);
@@ -1306,8 +1334,11 @@ const App = {
       ...(typeof ov.course === 'string' ? { course:ov.course } : {}),
       ...(Number.isFinite(ov.targetWPM) ? { targetWPM:ov.targetWPM } : {}),
       ...(Number.isFinite(ov.targetAccuracy) ? { targetAccuracy:ov.targetAccuracy } : {}),
+      ...(Number.isFinite(ov.order) ? { order:ov.order } : {}),
+      ...(Number.isFinite(ov.courseOrder) ? { courseOrder:ov.courseOrder } : {}),
       metadataEdited: typeof ov.title === 'string' || typeof ov.course === 'string' ||
-        Number.isFinite(ov.targetWPM) || Number.isFinite(ov.targetAccuracy)
+        Number.isFinite(ov.targetWPM) || Number.isFinite(ov.targetAccuracy) ||
+        Number.isFinite(ov.order) || Number.isFinite(ov.courseOrder)
     };
   },
   // One canonical entry per lesson id. Sources overlap on purpose — an export can be
@@ -1318,12 +1349,13 @@ const App = {
   getCanonicalLessons(){
     const chosen = new Map();
     let order = 0;
-    const consider = (kind, priority, raw, sourceCourseTitle) => {
+    const consider = (kind, priority, raw, sourceCourseTitle, sourceCourseOrder = null) => {
       const lesson = this.withOverride(raw);
       if(!lesson || !lesson.id) return;
       const entry = {
         kind, priority, raw, lesson, sourceCourseTitle,
         courseTitle: lesson.course || sourceCourseTitle || 'My Lessons',
+        courseOrder: lesson.courseOrder ?? sourceCourseOrder,
         order: order++
       };
       const previous = chosen.get(lesson.id);
@@ -1332,9 +1364,9 @@ const App = {
         chosen.set(lesson.id, entry);
       }
     };
-    DEFAULT_COURSES.forEach(course => course.lessons.forEach(l => consider('builtin', 1, l, course.title)));
-    this.staticPackCourses.forEach(course => course.lessons.forEach(l => consider('static', 2, l, course.title)));
-    this.customLessons.forEach(l => consider('custom', 3, l, l.course || 'My Lessons'));
+    DEFAULT_COURSES.forEach(course => course.lessons.forEach(l => consider('builtin', 1, l, course.title, optionalOrder(course.order))));
+    this.staticPackCourses.forEach(course => course.lessons.forEach(l => consider('static', 2, l, course.title, course.order)));
+    this.customLessons.forEach(l => consider('custom', 3, l, l.course || 'My Lessons', optionalOrder(l.courseOrder)));
     return Array.from(chosen.values()).sort((a, b) => a.order - b.order);
   },
   getAllCourses(){
@@ -1344,10 +1376,20 @@ const App = {
       if(this.deletedLessons.has(lesson.id)) return;
       const title = lesson.course || entry.courseTitle || 'My Lessons';
       const key = title.toLowerCase();
-      if(!map.has(key)) map.set(key, { title, lessons:[] });
-      map.get(key).lessons.push(lesson);
+      if(!map.has(key)) map.set(key, { title, order:entry.courseOrder, sourceOrder:entry.order, lessons:[] });
+      const group = map.get(key);
+      if(group.order === null && entry.courseOrder !== null) group.order = entry.courseOrder;
+      group.lessons.push({ lesson, order:lesson.order ?? null, sourceOrder:entry.order });
     });
-    return Array.from(map.values()).filter(c => c.lessons.length);
+    return Array.from(map.values()).filter(c => c.lessons.length)
+      .sort((a, b) => compareOrdered(a, b))
+      .map(course => ({
+        title:course.title,
+        order:course.order,
+        lessons:course.lessons
+          .sort((a, b) => compareOrdered(a, b))
+          .map(item => item.lesson)
+      }));
   },
   findLesson(id){
     const entry = this.getCanonicalLessons().find(e => e.lesson.id === id);
@@ -1376,6 +1418,8 @@ const App = {
       }
       const group = document.createElement('div');
       group.className = 'course-group';
+      group.draggable = true;
+      group.dataset.courseDrag = course.title;
       const head = document.createElement('div');
       head.className = 'course-head';
       const h3 = document.createElement('h3');
@@ -1387,13 +1431,21 @@ const App = {
       add.title = `New lesson in ${course.title}`;
       add.setAttribute('aria-label', `New lesson in ${course.title}`);
       add.innerHTML = '<svg viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>';
-      head.append(h3, add);
+      const order = document.createElement('button');
+      order.type = 'button';
+      order.className = 'course-order';
+      order.dataset.courseOrder = course.title;
+      order.title = `Set order for ${course.title}`;
+      order.setAttribute('aria-label', `Set order for ${course.title}`);
+      order.textContent = course.order === null || course.order === undefined ? 'order' : `#${course.order}`;
+      head.append(h3, order, add);
       group.appendChild(head);
       const ul = document.createElement('ul');
       course.lessons.forEach(lesson => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.className = 'lesson-item';
+        btn.draggable = true;
         btn.dataset.id = lesson.id;
         if(this.currentLesson && this.currentLesson.id === lesson.id) btn.classList.add('active');
         const exportBox = document.createElement('input');
@@ -1430,7 +1482,11 @@ const App = {
           assign.className = 'lesson-menu-action';
           assign.dataset.action = 'assign-course';
           assign.textContent = 'Assign to course';
-          menuList.append(rename, assign);
+          const setOrder = document.createElement('span');
+          setOrder.className = 'lesson-menu-action';
+          setOrder.dataset.action = 'set-order';
+          setOrder.textContent = 'Set lesson order';
+          menuList.append(rename, assign, setOrder);
           // Restore only exists when an override is actually stored. Pack exports
           // can carry an `edited` flag of their own, but there is nothing to restore
           // until this browser has saved an edit.
@@ -1485,6 +1541,74 @@ const App = {
         meta.remove();
       }
     });
+  },
+  saveOrderedLessons(courseTitle, lessons){
+    lessons.forEach((lesson, index) => {
+      const order = (index + 1) * 10;
+      const entry = this.findLessonEntry(lesson.id);
+      if(!entry) return;
+      if(entry.kind === 'custom'){
+        const target = this.customLessons.slice().reverse().find(item => item.id === lesson.id);
+        if(target) target.order = order;
+      }else{
+        const current = this.overrides[lesson.id];
+        const override = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
+        override.order = order;
+        this.overrides[lesson.id] = override;
+      }
+    });
+    Storage.saveLessons(this.customLessons);
+    Storage.saveOverrides(this.overrides);
+    this.renderSidebar();
+  },
+  saveOrderedCourses(courseTitles){
+    courseTitles.forEach((title, index) => {
+      this.getCanonicalLessons().forEach(entry => {
+        const courseTitle = entry.lesson.course || entry.courseTitle || 'My Lessons';
+        if(courseTitle.toLowerCase() !== title.toLowerCase()) return;
+        if(entry.kind === 'custom'){
+          const target = this.customLessons.slice().reverse().find(item => item.id === entry.lesson.id);
+          if(target) target.courseOrder = (index + 1) * 10;
+        }else{
+          const current = this.overrides[entry.lesson.id];
+          const override = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
+          override.courseOrder = (index + 1) * 10;
+          this.overrides[entry.lesson.id] = override;
+        }
+      });
+    });
+    Storage.saveLessons(this.customLessons);
+    Storage.saveOverrides(this.overrides);
+    this.renderSidebar();
+  },
+  handleSidebarDrop(e){
+    e.preventDefault();
+    const drag = this._drag;
+    this._drag = null;
+    this.dom.courseList.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if(!drag) return;
+    const lessonTarget = e.target.closest('.lesson-item');
+    if(drag.type === 'lesson' && lessonTarget){
+      const source = this.getAllCourses().find(course => course.lessons.some(lesson => lesson.id === drag.id));
+      const target = this.getAllCourses().find(course => course.lessons.some(lesson => lesson.id === lessonTarget.dataset.id));
+      if(!source || !target || source.title.toLowerCase() !== target.title.toLowerCase()) return;
+      const lessons = source.lessons.filter(lesson => lesson.id !== drag.id);
+      const targetIndex = lessons.findIndex(lesson => lesson.id === lessonTarget.dataset.id);
+      lessons.splice(targetIndex < 0 ? lessons.length : targetIndex, 0, source.lessons.find(lesson => lesson.id === drag.id));
+      this.saveOrderedLessons(source.title, lessons);
+      return;
+    }
+    if(drag.type === 'course'){
+      const target = e.target.closest('.course-group');
+      if(!target) return;
+      const titles = Array.from(this.dom.courseList.querySelectorAll('.course-group')).map(group => group.dataset.courseDrag);
+      const from = titles.indexOf(drag.title);
+      const to = titles.indexOf(target.dataset.courseDrag);
+      if(from < 0 || to < 0 || from === to) return;
+      titles.splice(from, 1);
+      titles.splice(to, 0, drag.title);
+      this.saveOrderedCourses(titles);
+    }
   },
   renderSidebarActive(){
     // Switching lessons only changes which row is highlighted. Rebuilding the
@@ -2124,6 +2248,7 @@ const App = {
       if(d.importConflictScrim.classList.contains('open')){ this.finishImportConflict('skip'); return; }
       if(d.mediaScrim.classList.contains('open')){ this.closeMediaEditor(); return; }
       if(d.marksScrim.classList.contains('open')){ this.closeMarks(); return; }
+      if(d.actionModalScrim.classList.contains('open')){ d.actionModalCancel.click(); return; }
       if(d.modalScrim.classList.contains('open')){ this.closeModal(); return; }
       if(d.completeOverlay.classList.contains('open')){ this.hideCompletion(); return; }
       if(d.drawer.classList.contains('open')){ this.closeDrawer(); return; }
@@ -2156,7 +2281,7 @@ const App = {
     }
     if(this.state === 'finished') return;
     if(e.ctrlKey || e.metaKey || e.altKey) return;
-    if(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
+    if(d.modalScrim.classList.contains('open') || d.actionModalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
        d.importConflictScrim.classList.contains('open') || d.mediaScrim.classList.contains('open') ||
        d.completeOverlay.classList.contains('open') || d.drawer.classList.contains('open')) return;
     if(t !== d.captureInput && t && t.closest){
@@ -2464,7 +2589,7 @@ const App = {
     this.renderMarks();
     this.bus.dispatchEvent(new CustomEvent('markRemoved', { detail:m }));
   },
-  importMarks(list){
+  importMarks(list, options = {}){
     const have = new Set(this.marks.map(m => m.id));
     let added = 0;
     list.forEach(m => {
@@ -2478,7 +2603,11 @@ const App = {
         id, kind, lessonId:String(m.lessonId), lessonTitle:String(m.lessonTitle || ''), course:String(m.course || ''),
         text:m.text, start, end:Number(m.end) || start + m.text.length, createdAt:Number(m.createdAt) || Date.now()
       };
-      if(kind === 'mask'){ rec.attempts = Number(m.attempts) || 0; rec.clean = Number(m.clean) || 0; this.freshMasks.add(id); }
+      if(kind === 'mask'){
+        rec.attempts = Number(m.attempts) || 0;
+        rec.clean = Number(m.clean) || 0;
+        if(options.fresh !== false) this.freshMasks.add(id);
+      }
       const media = normalizeMediaList(m.media, m.text);
       if(media.length) rec.media = media;
       this.marks.push(rec);
@@ -2571,7 +2700,7 @@ const App = {
     this.showMediaDeck();
   },
   figureTransition(update){
-    // A ~0.56s view transition morphs the stage between the main area and the
+    // A slow view transition morphs the stage between the main area and the
     // PiP while the figure card fades in. Browsers without the API get a short
     // fade-out/swap/fade-in instead; reduced-motion users get an instant swap.
     if(prefersReducedMotion()){
@@ -2593,7 +2722,7 @@ const App = {
           this.figureTransitioning = false;
           this.syncMediaDeck();
         }));
-      }, 170);
+      }, 260);
       return;
     }
     this.figureTransitioning = true;
@@ -2957,7 +3086,7 @@ const App = {
   canEdit(){
     const d = this.dom, s = this.state;
     if(!this.engine || s === 'finished' || (s === 'paused' && this.pauseReason !== 'command')) return false;
-    return !(d.modalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
+    return !(d.modalScrim.classList.contains('open') || d.actionModalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
       d.importConflictScrim.classList.contains('open') || d.mediaScrim.classList.contains('open') ||
       d.completeOverlay.classList.contains('open'));
   },
@@ -3101,6 +3230,10 @@ const App = {
           if(typeof v.text === 'string' && v.text.trim()) next.text = normalizeLessonText(v.text);
           if(typeof v.title === 'string' && v.title.trim()) next.title = v.title.trim();
           if(typeof v.course === 'string' && v.course.trim()) next.course = v.course.trim();
+          const order = optionalOrder(v.order);
+          if(order !== null) next.order = order;
+          const courseOrder = optionalOrder(v.courseOrder);
+          if(courseOrder !== null) next.courseOrder = courseOrder;
           const wpm = optionalInt(v.targetWPM, 5, 200);
           const acc = optionalInt(v.targetAccuracy, 50, 100);
           if(wpm !== null) next.targetWPM = wpm;
@@ -3113,10 +3246,10 @@ const App = {
     this.renderSidebar();
     return n;
   },
-  restoreLesson(id){
+  async restoreLesson(id){
     if(this.overrides[id] === undefined) return;
     const found = this.findLesson(id);
-    if(!window.confirm(`Restore the original text of "${found ? found.lesson.title : 'this lesson'}"?`)) return;
+    if(!await this.showActionModal({ title:'Restore original?', message:`Restore the original text of "${found ? found.lesson.title : 'this lesson'}"?`, input:false, confirm:'Restore' })) return;
     delete this.overrides[id];
     Storage.saveOverrides(this.overrides);
     this.renderSidebar();
@@ -3290,8 +3423,42 @@ const App = {
     this.dom.lfAcc.value = '95';
     // Opened from a course's + button: pre-fill that course, still editable.
     this.dom.lfCourse.value = preset.course || '';
+    this.dom.lfCourseOrder.value = preset.courseOrder ?? '';
+    this.dom.lfOrder.value = preset.order ?? '';
     this.dom.modalScrim.classList.add('open');
     setTimeout(() => { if(this.dom.modalScrim.classList.contains('open')) this.dom.lfTitle.focus(); }, 50);
+  },
+  showActionModal({ title, message = '', label = '', value = '', input = true, confirm = 'OK', cancel = 'Cancel' }){
+    return new Promise(resolve => {
+      const d = this.dom;
+      d.actionModalTitle.textContent = title;
+      d.actionModalMessage.textContent = message;
+      d.actionModalField.hidden = !input;
+      d.actionModalLabel.textContent = label;
+      d.actionModalInput.value = value;
+      d.actionModalConfirm.textContent = confirm;
+      d.actionModalCancel.textContent = cancel;
+      d.actionModalScrim.classList.add('open');
+      const finish = result => {
+        d.actionModalScrim.classList.remove('open');
+        d.actionModalConfirm.removeEventListener('click', onConfirm);
+        d.actionModalCancel.removeEventListener('click', onCancel);
+        d.actionModalClose.removeEventListener('click', onCancel);
+        d.actionModalScrim.removeEventListener('click', onBackdrop);
+        resolve(result);
+      };
+      const onConfirm = () => finish(input ? d.actionModalInput.value : true);
+      const onCancel = () => finish(null);
+      const onBackdrop = e => { if(e.target === d.actionModalScrim) onCancel(); };
+      d.actionModalConfirm.addEventListener('click', onConfirm);
+      d.actionModalCancel.addEventListener('click', onCancel);
+      d.actionModalClose.addEventListener('click', onCancel);
+      d.actionModalScrim.addEventListener('click', onBackdrop);
+      setTimeout(() => (input ? d.actionModalInput : d.actionModalConfirm).focus(), 30);
+    });
+  },
+  showNotice(title, message){
+    return this.showActionModal({ title, message, input:false, cancel:'Close' });
   },
   closeModal(){
     this.dom.modalScrim.classList.remove('open');
@@ -3300,11 +3467,18 @@ const App = {
     e.preventDefault();
     const title = this.dom.lfTitle.value.trim();
     const courseTitle = this.dom.lfCourse.value.trim() || 'My Lessons';
+    const courseOrder = optionalOrder(this.dom.lfCourseOrder.value);
+    const order = optionalOrder(this.dom.lfOrder.value);
     const text = normalizeLessonText(this.dom.lfText.value);
     const targetWPM = clamp(parseInt(this.dom.lfWpm.value, 10) || 30, 5, 200);
     const targetAccuracy = clamp(parseInt(this.dom.lfAcc.value, 10) || 95, 50, 100);
     if(!title || !text) return;
-    const lesson = { id: uid('custom'), title, course: courseTitle, text, targetWPM, targetAccuracy, custom:true };
+    const lesson = {
+      id: uid('custom'), title, course: courseTitle, text, targetWPM, targetAccuracy,
+      ...(courseOrder !== null ? { courseOrder } : {}),
+      ...(order !== null ? { order } : {}),
+      custom:true
+    };
     this.customLessons.push(lesson);
     Storage.saveLessons(this.customLessons);
     this.closeModal();
@@ -3312,12 +3486,12 @@ const App = {
     this.loadLesson(lesson, courseTitle, { ready:true });
     this.bus.dispatchEvent(new CustomEvent('lessonAdded', { detail:{ lessonId:lesson.id } }));
   },
-  renameLesson(id){
+  async renameLesson(id){
     const lesson = this.customLessons.find(l => l.id === id);
     const found = this.findLesson(id);
     const target = lesson || (found && found.lesson);
     if(!target) return;
-    const title = window.prompt('Lesson name', target.title);
+    const title = await this.showActionModal({ title:'Rename lesson', label:'Lesson name', value:target.title });
     if(title === null) return;
     const value = title.trim();
     if(!value || value === target.title) return;
@@ -3331,12 +3505,12 @@ const App = {
     if(lesson) Storage.saveLessons(this.customLessons);
     this.renderSidebar();
   },
-  assignLessonCourse(id){
+  async assignLessonCourse(id){
     const lesson = this.customLessons.find(l => l.id === id);
     const found = this.findLesson(id);
     const target = lesson || (found && found.lesson);
     if(!target) return;
-    const course = window.prompt('Course name', target.course || found.courseTitle || 'My Lessons');
+    const course = await this.showActionModal({ title:'Assign to course', label:'Course name', value:target.course || found.courseTitle || 'My Lessons' });
     if(course === null) return;
     const value = course.trim() || 'My Lessons';
     if(value === target.course) return;
@@ -3353,6 +3527,68 @@ const App = {
     }
     this.renderSidebar();
   },
+  async setLessonOrder(id){
+    const found = this.findLessonEntry(id);
+    if(!found) return;
+    const value = await this.showActionModal({ title:'Set lesson order', message:'Lower numbers come first. Leave blank for automatic order.', label:'Order', value:found.lesson.order ?? '' });
+    if(value === null) return;
+    const order = value.trim() === '' ? null : optionalOrder(value);
+    if(value.trim() !== '' && order === null){
+      await this.showNotice('Invalid order', 'Please enter a valid whole number.');
+      return;
+    }
+    if(found.kind === 'custom'){
+      const target = this.customLessons.slice().reverse().find(lesson => lesson.id === id);
+      if(target){
+        if(order === null) delete target.order;
+        else target.order = order;
+        Storage.saveLessons(this.customLessons);
+      }
+    }else{
+      const current = this.overrides[id];
+      const override = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
+      if(order === null) delete override.order;
+      else override.order = order;
+      if(Object.keys(override).length) this.overrides[id] = override;
+      else delete this.overrides[id];
+      Storage.saveOverrides(this.overrides);
+    }
+    this.renderSidebar();
+  },
+  async setCourseOrder(title){
+    const current = this.getAllCourses().find(course => course.title === title);
+    if(!current) return;
+    const value = await this.showActionModal({ title:'Set course order', message:'Lower numbers come first. Leave blank for automatic order.', label:'Order', value:current.order ?? '' });
+    if(value === null) return;
+    const order = value.trim() === '' ? null : optionalOrder(value);
+    if(value.trim() !== '' && order === null){
+      await this.showNotice('Invalid order', 'Please enter a valid whole number.');
+      return;
+    }
+    this.getCanonicalLessons().forEach(entry => {
+      if(this.deletedLessons.has(entry.lesson.id)) return;
+      const courseTitle = entry.lesson.course || entry.courseTitle || 'My Lessons';
+      if(courseTitle.toLowerCase() !== title.toLowerCase()) return;
+      if(entry.kind === 'custom'){
+        const target = this.customLessons.slice().reverse().find(lesson => lesson.id === entry.lesson.id);
+        if(target){
+          if(order === null) delete target.courseOrder;
+          else target.courseOrder = order;
+        }
+        return;
+      }
+      const currentOverride = this.overrides[entry.lesson.id];
+      const override = currentOverride && typeof currentOverride === 'object' && !Array.isArray(currentOverride)
+        ? { ...currentOverride } : {};
+      if(order === null) delete override.courseOrder;
+      else override.courseOrder = order;
+      if(Object.keys(override).length) this.overrides[entry.lesson.id] = override;
+      else delete this.overrides[entry.lesson.id];
+    });
+    Storage.saveLessons(this.customLessons);
+    Storage.saveOverrides(this.overrides);
+    this.renderSidebar();
+  },
   saveLessonMetadata(id, changes){
     const existing = this.overrides[id];
     const metadata = typeof existing === 'string'
@@ -3361,11 +3597,11 @@ const App = {
     this.overrides[id] = { ...metadata, ...changes };
     Storage.saveOverrides(this.overrides);
   },
-  deleteLesson(id){
+  async deleteLesson(id){
     const found = this.findLesson(id);
     const lesson = found && found.lesson;
     if(!lesson) return;
-    if(!window.confirm(`Delete "${lesson.title}"?`)) return;
+    if(!await this.showActionModal({ title:'Delete lesson?', message:`Delete "${lesson.title}"? This cannot be undone.`, input:false, confirm:'Delete' })) return;
     this.exportSelection.delete(id);
     this.customLessons = this.customLessons.filter(l => l.id !== id);
     this.deletedLessons.add(id);
@@ -3398,42 +3634,42 @@ const App = {
     a.remove();
     URL.revokeObjectURL(url);
   },
-  exportLessons(){
+  async exportLessons(){
     const selectedById = new Map();
     this.getAllCourses().flatMap(course => course.lessons).forEach(lesson => {
       if(this.exportSelection.has(lesson.id) && !selectedById.has(lesson.id)) selectedById.set(lesson.id, lesson);
     });
     const selected = Array.from(selectedById.values());
-    if(!selected.length){ window.alert('Select at least one lesson to export.'); return; }
+    if(!selected.length){ await this.showNotice('Nothing selected', 'Select at least one lesson to export.'); return; }
     const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-lessons.v1', lessons:selected }, null, 2);
     this.downloadJson(payload, `type-studio-lessons-${selected.length}.json`);
   },
-  exportMarks(){
-    if(!this.marks.length){ window.alert('No marks or masks to export yet.'); return; }
+  async exportMarks(){
+    if(!this.marks.length){ await this.showNotice('Nothing to export', 'No marks or masks to export yet.'); return; }
     const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-marks.v1', marks:this.marks }, null, 2);
     this.downloadJson(payload, `type-studio-marks-${this.marks.length}.json`);
   },
-  importMarksFromFile(file){
+  async importMarksFromFile(file){
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try{
         const data = JSON.parse(String(reader.result));
         const list = Array.isArray(data) ? data : (data && Array.isArray(data.marks) ? data.marks : null);
         if(!list || !list.length) throw new Error('That file does not contain a "marks" array.');
         const added = this.importMarks(list);
         this.renderMarks();
-        window.alert(added
+        await this.showNotice('Import complete', added
           ? `Imported ${added} mark${added === 1 ? '' : 's'}.`
           : 'No new marks were added — they are already saved or missing required fields.');
       }catch(err){
         console.warn('TypeStudio: mark import failed', err);
-        window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio marks export.');
+        await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Type Studio marks export.');
       }
     };
     reader.readAsText(file);
   },
   async importLessonsFromFile(file){
-    if(this.importing){ window.alert('A lesson import is already in progress.'); return; }
+    if(this.importing){ await this.showNotice('Import in progress', 'A lesson import is already in progress.'); return; }
     this.importing = true;
     try{
       const data = JSON.parse(await this.readTextFile(file));
@@ -3441,7 +3677,7 @@ const App = {
     }catch(err){
       if(this.importConflict) this.finishImportConflict('skip');
       console.warn('TypeStudio: import failed', err);
-      window.alert(err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
+      await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
     }finally{
       this.importing = false;
     }
@@ -3484,7 +3720,7 @@ const App = {
     } else {
       message = 'No lesson changes were imported.';
     }
-    window.alert(message + markNote);
+    await this.showNotice('Import complete', message + markNote);
   },
   describeImportResult(result){
     const changed = result.added + result.updated + result.versions;
@@ -3610,6 +3846,8 @@ const App = {
         : (base && base.targetWPM != null ? base.targetWPM : 30),
       targetAccuracy: incoming.targetAccuracy !== null ? incoming.targetAccuracy
         : (base && base.targetAccuracy != null ? base.targetAccuracy : 95),
+      ...(incoming.order !== null ? { order:incoming.order } : {}),
+      ...(incoming.courseOrder !== null ? { courseOrder:incoming.courseOrder } : {}),
       custom: true
     };
     if(incoming.objectives) lesson.objectives = incoming.objectives;
@@ -3626,6 +3864,8 @@ const App = {
       target.title = incoming.title;
       target.text = incoming.text;
       if(incoming.course) target.course = incoming.course;
+      if(incoming.order !== null) target.order = incoming.order;
+      if(incoming.courseOrder !== null) target.courseOrder = incoming.courseOrder;
       if(incoming.targetWPM !== null) target.targetWPM = incoming.targetWPM;
       if(incoming.targetAccuracy !== null) target.targetAccuracy = incoming.targetAccuracy;
       if(incoming.objectives) target.objectives = incoming.objectives;
@@ -3656,6 +3896,13 @@ const App = {
     const originalAcc = raw.targetAccuracy != null ? raw.targetAccuracy : 95;
     if(incoming.targetAccuracy !== null){
       if(incoming.targetAccuracy !== originalAcc) ov.targetAccuracy = incoming.targetAccuracy; else delete ov.targetAccuracy;
+    }
+    if(incoming.order !== null){
+      if(incoming.order !== (raw.order ?? null)) ov.order = incoming.order; else delete ov.order;
+    }
+    if(incoming.courseOrder !== null){
+      if(incoming.courseOrder !== (raw.courseOrder ?? null)) ov.courseOrder = incoming.courseOrder;
+      else delete ov.courseOrder;
     }
     if(Object.keys(ov).length) this.overrides[id] = ov; else delete this.overrides[id];
   },
@@ -3862,10 +4109,42 @@ const App = {
       else this.exportSelection.delete(box.dataset.exportId);
       this.updateExportButton();
     });
+    d.courseList.addEventListener('dragstart', (e) => {
+      const lesson = e.target.closest('.lesson-item');
+      const course = e.target.closest('.course-group');
+      if(lesson){
+        this._drag = { type:'lesson', id:lesson.dataset.id };
+        lesson.classList.add('dragging');
+      }else if(course){
+        this._drag = { type:'course', title:course.dataset.courseDrag };
+        course.classList.add('dragging');
+      }
+      if(this._drag && e.dataTransfer){
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this._drag.id || this._drag.title);
+      }
+    });
+    d.courseList.addEventListener('dragover', (e) => {
+      if(!this._drag) return;
+      e.preventDefault();
+      const target = e.target.closest('.lesson-item, .course-group');
+      if(target) target.classList.add('drag-over');
+    });
+    d.courseList.addEventListener('dragleave', (e) => {
+      const target = e.target.closest('.lesson-item, .course-group');
+      if(target && !target.contains(e.relatedTarget)) target.classList.remove('drag-over');
+    });
+    d.courseList.addEventListener('drop', (e) => this.handleSidebarDrop(e));
+    d.courseList.addEventListener('dragend', () => {
+      this._drag = null;
+      d.courseList.querySelectorAll('.dragging,.drag-over').forEach(el => el.classList.remove('dragging', 'drag-over'));
+    });
     d.courseList.addEventListener('click', (e) => {
       if(e.target.closest('.lesson-export')){ e.stopPropagation(); return; }
       const courseAdd = e.target.closest('.course-add');
       if(courseAdd){ e.stopPropagation(); this.openModal({ course:courseAdd.dataset.courseNew }); return; }
+      const courseOrder = e.target.closest('.course-order');
+      if(courseOrder){ e.stopPropagation(); this.setCourseOrder(courseOrder.dataset.courseOrder); return; }
       const menuAction = e.target.closest('.lesson-menu-action');
       if(menuAction){
         e.stopPropagation();
@@ -3874,6 +4153,7 @@ const App = {
         menu.classList.remove('open');
         if(menuAction.dataset.action === 'rename') this.renameLesson(id);
         else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
+        else if(menuAction.dataset.action === 'set-order') this.setLessonOrder(id);
         else if(menuAction.dataset.action === 'restore') this.restoreLesson(id);
         else if(menuAction.dataset.action === 'delete') this.deleteLesson(id);
         return;
@@ -4157,6 +4437,8 @@ window.TypingStudio = {
       targetAccuracy: acc !== null ? acc : 95,
       objectives: source.objectives,
       topics: source.topics,
+      ...(optionalOrder(source.order) !== null ? { order:optionalOrder(source.order) } : {}),
+      ...(optionalOrder(source.courseOrder) !== null ? { courseOrder:optionalOrder(source.courseOrder) } : {}),
       custom: true
     };
     App.customLessons.push(full);
