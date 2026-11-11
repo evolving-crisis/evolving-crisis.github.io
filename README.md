@@ -2,7 +2,7 @@
 
 The source for the [Evolving Crisis](https://evolving-crisis.github.io) website. The site is built with Jekyll and published through GitHub Actions to GitHub Pages.
 
-The site currently includes the blog, an About page, and a **Study Typing** navigation tab at [`/study-typing/`](https://evolving-crisis.github.io/study-typing/). That tab displays the self-contained typing-study app from [`modules/study-typing-app/`](./modules/study-typing-app/).
+The site currently includes the blog, an About page, and a **Studyping** navigation tab at [`/studyping/`](https://evolving-crisis.github.io/studyping/). That tab displays the self-contained typing-study app from [`modules/studyping/`](./modules/studyping/). It also includes the standalone Radio Chaito player module from [`modules/radio-chaito/`](./modules/radio-chaito/), embedded in the site header on every Jekyll page.
 
 ## Tooling
 
@@ -14,7 +14,8 @@ The site currently includes the blog, an About page, and a **Study Typing** navi
 - **jekyll-feed**: generates the site's RSS/Atom feed.
 - **jekyll-remote-theme**: loads the Minima theme from GitHub.
 - **jekyll-seo-tag**: generates SEO metadata used by Minima.
-- **Study Typing App**: a static HTML/CSS/JavaScript learning module with JSON lesson packs and browser-local progress.
+- **Studyping App**: a static HTML/CSS/JavaScript learning module with JSON lesson packs and browser-local progress.
+- **Radio Chaito**: a static HTML/CSS/JavaScript radio player module with a synthesized demo stream.
 
 The [`Gemfile`](./Gemfile) declares Jekyll and its plugins individually, and [`Gemfile.lock`](./Gemfile.lock) records the resolved versions. GitHub Actions builds and deploys the site with the workflow in [`.github/workflows/pages.yml`](./.github/workflows/pages.yml).
 
@@ -111,7 +112,8 @@ bundle exec jekyll clean
 
 Generated directories such as `_site/`, `.jekyll-cache/`, and `.sass-cache/` are ignored by Git and should not be committed.
 
-The build includes the static files under `modules/study-typing-app/` unchanged. The module uses relative asset and lesson URLs so it works at its published subpath.
+The build includes the static files under `modules/studyping/` unchanged. The module uses relative asset and lesson URLs so it works at its published subpath.
+The Radio Chaito module under [`modules/radio-chaito/`](./modules/radio-chaito/) is also copied unchanged and is available at `/modules/radio-chaito/`.
 
 ## Adding content
 
@@ -150,14 +152,14 @@ Use descriptive alternative text for accessibility.
 
 - [`index.markdown`](./index.markdown) defines the home page.
 - [`about.markdown`](./about.markdown) defines the About page.
-- [`study-typing.markdown`](./study-typing.markdown) provides the Study Typing navigation tab.
+- [`studyping.markdown`](./studyping.markdown) provides the Studyping navigation tab.
 - [`404.html`](./404.html) defines the not-found page.
 - [`_config.yml`](./_config.yml) contains the site title, description, URL, theme, and plugins.
-- [`modules/study-typing-app/`](./modules/study-typing-app/) contains the standalone typing-study module.
+- [`modules/studyping/`](./modules/studyping/) contains the standalone typing-study module.
 
 Restart `bundle exec jekyll serve` after changing `_config.yml`; Jekyll does not reload configuration changes automatically.
 
-### Study Typing module
+### Studyping module
 
 The module is intentionally independent of Jekyll and has no additional build
 step or server dependency. It contains:
@@ -167,10 +169,10 @@ step or server dependency. It contains:
 - browser-local custom lessons, marks, masks, preferences, and scores stored in
   `localStorage`.
 
-The blog page at [`study-typing.markdown`](./study-typing.markdown) embeds the
+The blog page at [`studyping.markdown`](./studyping.markdown) embeds the
 module with an iframe, while the module remains directly available at
-`/modules/study-typing-app/`. See the module's
-[`README.md`](./modules/study-typing-app/README.md) for its behavior and local
+`/modules/studyping/`. See the module's
+[`README.md`](./modules/studyping/README.md) for its behavior and local
 development instructions.
 
 ## Deploy with GitHub Pages
@@ -227,9 +229,9 @@ Visit <http://localhost:4000> and check the home page, posts, images, About page
 ├── _includes/head-custom.html  # Shared favicon markup
 ├── _posts/              # Published posts
 ├── assets/images/       # Images used by posts and pages
-├── modules/study-typing-app/ # Standalone typing-study module
+├── modules/studyping/ # Standalone typing-study module
 ├── about.markdown       # About page
-├── study-typing.markdown # Blog page embedding the typing module
+├── studyping.markdown # Blog page embedding the typing module
 ├── index.markdown       # Home page
 ├── favicon.svg           # Site favicon
 ├── 404.html             # Custom not-found page

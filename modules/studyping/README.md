@@ -1,21 +1,20 @@
-# Study Typing App
+# Studyping App
 
 A small, hackable typing-practice tool. Pure static HTML/CSS/JS — no build step,
 no server, no dependencies to install. Clone it, push it, it's live.
 
 This is an Evolving Crisis module. It stays self-contained and is displayed by
-the blog's [Study Typing tab](../../study-typing.markdown) without coupling its
+the blog's [Studyping tab](../../studyping.markdown) without coupling its
 browser state or lesson content to Jekyll.
 
 ```
-modules/study-typing-app/
+modules/studyping/
 ├── index.html
 ├── styles.css
 ├── app.js
 └── lessons/
   index.json              <- manifest: which pack files to load
-  punctuation-symbols.json
-  programmers-practice.json
+  evolving-crisis-code-fr.json
 ```
 
 ## Use within Evolving Crisis
@@ -23,13 +22,19 @@ modules/study-typing-app/
 The module is served at:
 
 ```text
-https://evolving-crisis.github.io/modules/study-typing-app/
+https://evolving-crisis.github.io/modules/studyping/
 ```
 
 The blog's GitHub Actions workflow publishes it alongside the Jekyll-generated
-pages. The blog page at `/study-typing/` displays this module in an iframe.
+pages. The blog page at `/studyping/` displays this module in an iframe.
 Keep the module's asset and lesson URLs relative so it remains portable under
 this path.
+
+The module uses the same Solarized light and dark palette as the Evolving
+Crisis theme: `#fdf6e3` / `#002b36` for the main surfaces, with Solarized
+accent colors for controls, marks, and feedback. The theme button cycles
+through light, dark, and grayscale palettes; grayscale uses contrast and
+lightness differences to distinguish controls, marks, and typing feedback.
 
 ## Standalone hosting
 
@@ -44,7 +49,7 @@ Two gotchas are worth preserving:
 - **Base path.** The module is served under a subpath, at
   `https://username.github.io/repo-name/` — not at the domain root. Every path
   in this module is relative (`./styles.css`, `./lessons/index.json`, …), so it
-  works under the blog's `/modules/study-typing-app/` path. Don't
+  works under the blog's `/modules/studyping/` path. Don't
   introduce an absolute path like `/app.js` or it'll break under a subpath.
 
 ## Testing locally before you push
@@ -55,7 +60,7 @@ but `fetch()` calls are blocked under `file://` in most browsers, so the
 below). To see the real thing, serve the folder over HTTP:
 
 ```
-python3 -m http.server 8000      # run from modules/study-typing-app/
+python3 -m http.server 8000      # run from modules/studyping/
 # or
 npx serve .
 ```
@@ -63,7 +68,7 @@ npx serve .
 ## Global stats in the top bar
 
 The centered top-bar widget summarizes the results saved in `localStorage`
-under `typingStudio.stats.v1`:
+under `studyping.stats.v1`:
 
 - **avg wpm** — mean of each practiced lesson's best WPM,
 - **avg acc** — mean of each practiced lesson's best accuracy,
@@ -72,8 +77,8 @@ under `typingStudio.stats.v1`:
 Only values that actually exist are included. A lesson with no saved speed,
 accuracy, or timestamp is skipped rather than counted as zero, and the widget
 shows `—` when there is nothing to average. It refreshes when a run is saved,
-when stats are imported through `TypingStudio.importData()`, and when another
-tab changes the stats key. `TypingStudio.getGlobalStats()` returns the same
+when stats are imported through `Studyping.importData()`, and when another
+tab changes the stats key. `Studyping.getGlobalStats()` returns the same
 aggregate as a plain object for custom UI or gamification.
 
 ## Where lessons come from (three tiers)
@@ -83,11 +88,16 @@ dependency — this is what renders even under `file://` or if `lessons/` isn't
 deployed. Edit the array directly in `app.js` to change these.
 
 Which lesson opens by default is set separately, by `DEFAULT_LESSON_ID` near
-the top of `app.js` — currently `'prog-js-basics'`, the first lesson in the
-Programmer's Practice pack below. This folder lesson takes precedence over a
+the top of `app.js` — currently `'evolving-crisis-code-intro'`, the first
+lesson in the French course below. This folder lesson takes precedence over a
 remembered lesson, so existing browser storage cannot select an old built-in
 lesson instead. If the pack can't be reached it falls back to the remembered
 lesson and then the first built-in lesson.
+
+The current default is `evolving-crisis-code-intro`, the first lesson of the
+French `Comprendre Evolving Crisis` course. It explains the module's HTML, CSS,
+JavaScript, static JSON packs, persistence, and design trade-offs, with short
+code excerpts mixed into the typing practice.
 
 **2. Static packs under `lessons/*.json` — the ones *you* curate.** On load,
 `app.js` fetches `lessons/index.json` (an array of filenames) before the
@@ -126,18 +136,19 @@ lesson:
 The sidebar and **Next lesson** action sort by these values, so a pack can
 define a sequential course. Lower values come first; omitted values retain the
 existing manifest/file order. The same lesson-level `order` field is supported
-by custom lessons and exports. `courseOrder` can be supplied for a lesson
-created through the JavaScript API when its course is not defined by a pack.
+by custom lessons and exports. A legacy `courseOrder` value can still define
+the initial order supplied by a pack or JavaScript API.
 
-For visitor-created or locally edited lessons, the course header's **order**
-button sets the course order, the lesson menu's **Set lesson order** action
-sets an individual lesson order, and the new-lesson form accepts both values.
-Leave a field blank to return it to automatic order. These UI changes are
-stored in this browser; for static lessons they are saved as local overrides.
+Drag course headings to set their order in this browser. That order is saved
+as a sequence of course names and takes precedence over legacy numeric
+`courseOrder` values, so a course can be dropped between any two others
+without changing numbers manually. The course summary shows completed lessons
+out of the total, plus average per-lesson best speed and accuracy. The lesson
+menu's **Set lesson order** action continues to set an individual lesson order.
 Courses and lessons can also be reordered directly by dragging them in the
 drawer. Dropping a lesson changes its order within its current course; dropping
-a course changes the course sequence. Dragging writes stable order values
-automatically.
+a course changes the saved course sequence. Lesson drags continue to write
+stable lesson order values automatically.
 
 **3. `localStorage` — lessons a *visitor* adds themselves**, via the
 "+ New custom lesson" button or the + beside a course title (which opens the
@@ -151,7 +162,7 @@ that one device. They:
 Every lesson in the drawer can be deleted from its three-dot menu, including
 built-in and curated lesson-pack entries. Deletions are stored in
 `localStorage`, so they remain hidden on later visits and are included in
-`TypingStudio.exportData()`.
+`Studyping.exportData()`.
 
 This is a direct consequence of GitHub Pages being a static host: there's
 no server to write a shared lesson to, so "saving" can only ever mean "saving
@@ -187,11 +198,11 @@ Where the edit is stored depends on the tier:
 - a **tier 3** (custom) lesson is updated in place — same id, so scores stay attached;
 - a **tier 1 or 2** (built-in or static-pack) lesson is never modified — those are
   code/git-managed. Your edit is stored as an *override* keyed by lesson id
-  (`typingStudio.overrides.v1`): same id, so your best scores and marks stay
+  (`studyping.overrides.v1`): same id, so your best scores and marks stay
   attached, and a "Restore original" action appears in the lesson's three-dot
   menu.
   (If you edit it back to the original text the override disappears by itself.) Overrides travel with
-  `TypingStudio.exportData()`; they are not part of the drawer's selected-lesson export.
+  `Studyping.exportData()`; they are not part of the drawer's selected-lesson export.
 
 ## Getting a visitor's custom lesson back from them
 
@@ -200,7 +211,7 @@ lesson to reach you. Two drawer buttons give them (and you) a deliberate
 way to move lessons:
 
 - **Export selected** — downloads the checked lessons as a plain
-  `type-studio-lessons-N.json` file (client-side `Blob` + a temporary
+  `studyping-lessons-N.json` file (client-side `Blob` + a temporary
   `<a download>`, no server involved).
 - **Import lessons** — reads a `.json` file back in (via `FileReader`) and adds
   its lessons through the conflict check below.
@@ -220,7 +231,7 @@ Importing never silently creates a second row with the same id:
   an in-place edit, so the original stays restorable from the three-dot menu.
 
 The programmatic path has the same check but no dialog:
-`TypingStudio.importData(json, { conflicts: 'skip' | 'update' | 'new' })`.
+`Studyping.importData(json, { conflicts: 'skip' | 'update' | 'new' })`.
 The default is `'skip'`; identical lessons are always skipped. Lesson packs in
 `lessons/` are static and do not go through this dialog — overlapping ids there
 are deduplicated at render time as described above.
@@ -228,7 +239,7 @@ are deduplicated at render time as described above.
 Marked passages are moved separately, through **Marks & masks** in the drawer:
 
 - **Export marks** — downloads all marks and masks as
-  `type-studio-marks-N.json`, with a distinct `"format": "type-studio-marks.v1"`
+  `studyping-marks-N.json`, with a distinct `"format": "studyping-marks.v1"`
   payload.
 - **Import marks** — reads that file back and merges its marks and masks into
   the local store. It does not import lessons.
@@ -287,7 +298,7 @@ idle  --type / any key-->  ready  --first keystroke-->  running  <-->  paused
   during the same browser session does not show the first-visit veil again.
 
 **What pauses it automatically**, with the reason shown on the veil and sent in
-the `paused` event (`TypingStudio.on('paused', e => e.detail.reason)`):
+the `paused` event (`Studyping.on('paused', e => e.detail.reason)`):
 
 | reason   | trigger |
 |----------|---------|
@@ -328,9 +339,9 @@ closes there.
 any, or **Practice these** (marks only) to turn them into a lesson ("My marked passages",
 updated in place each time rather than duplicated). **Export marks** and
 **Import marks** move the whole digest through its own JSON file, separately
-from lessons. Marks live under `typingStudio.marks.v1`, also travel with
-`TypingStudio.exportData()`, and fire `markAdded` / `markRemoved`
-(`TypingStudio.marks()` returns them). Plain `Enter` and `Tab` are available as
+from lessons. Marks live under `studyping.marks.v1`, also travel with
+`Studyping.exportData()`, and fire `markAdded` / `markRemoved`
+(`Studyping.marks()` returns them). Plain `Enter` and `Tab` are available as
 lesson characters, so they are no longer marking shortcuts.
 
 ## Figures attached to marked passages (floating deck)
@@ -367,8 +378,8 @@ Figures are stored on the mark itself, as a `media` array:
 ```
 
 That means they travel with **Export marks** / **Import marks** and with
-`TypingStudio.exportData()`, follow the mark when the lesson text is edited, and
-are returned by `TypingStudio.marks()`. Masks do not show figures (that would
+`Studyping.exportData()`, follow the mark when the lesson text is edited, and
+are returned by `Studyping.marks()`. Masks do not show figures (that would
 leak the text you are trying to recall); only `kind: "mark"` entries are used.
 The deck is hidden while the lesson is idle, during inline editing, and after a
 lesson is completed.
@@ -408,9 +419,9 @@ keeps their width, so you still know how long the word is.
 - The mask icon can un-mask a masked passage once you know it. "Hide masked
   passages" in the drawer turns masking off without deleting anything.
 
-Marks and masks live in the same store (`typingStudio.marks.v1`, each with a
+Marks and masks live in the same store (`studyping.marks.v1`, each with a
 `kind`; older marks with no `kind` count as marks) and travel together through
-**Export marks** / **Import marks**. `TypingStudio.marks()` returns both.
+**Export marks** / **Import marks**. `Studyping.marks()` returns both.
 
 Lesson text preserves internal newlines and tabs. While typing, plain `Enter`
 inserts a newline and plain `Tab` inserts a tab. Inline editing accepts both as
@@ -426,12 +437,18 @@ elided, so long titles stay distinguishable. The **Shortcuts** section can be
 collapsed from its chevron (the choice is remembered), which hands the whole
 drawer height to the course list.
 Each course heading also has a + button that opens the new-lesson form with
-that course pre-filled, so a custom lesson can be added in place.
+that course pre-filled, so a custom lesson can be added in place. Course
+headings can also be collapsed with their chevron; collapsed courses are
+remembered in this browser. Courses start collapsed by default, while the
+course containing the resumed lesson opens automatically.
 Lesson content remains editable in the typing area. Changes to built-in and
 static-pack lesson names/courses are saved as local metadata overrides; their
 source content remains unchanged. Select any lessons with their checkboxes and
-choose **Export selected** to download only those lessons. Marks and masks use
-their own **Export marks** / **Import marks** controls in "Marks & masks".
+choose **Export selected** to download only those lessons, including the latest
+saved local edits (and any inline edit currently in progress). Hiding the
+on-screen keyboard smoothly collapses it to give the typing area more room.
+Marks and masks use their own **Export marks** / **Import marks** controls in
+"Marks & masks".
 
 ## Typing and command modes
 
@@ -445,18 +462,20 @@ The header includes an **Esc commands** switch, enabled by default. When it is
 on, `Esc` enters Command mode and handles the app's Escape actions. Turn it off
 to leave `Esc` to the browser and assistive technology; the switch itself is
 keyboard-operable and exposes its state as an accessible `switch` control.
-Escape is intercepted during key capture so supported browsers do not move focus
-away from the practice area before the app can enter Command mode.
+When enabled, Escape is intercepted during key capture, including when the
+switch itself has focus, so browser-native focus behavior cannot prevent the
+app from handling it. Other interactive controls retain their normal Escape
+behavior.
 
 The app has two user-facing modes:
 
 - **Typing mode** — type the lesson. `Enter` and `Tab` are lesson characters.
 - **Command mode** — navigate and change the lesson without browser shortcuts.
 
-Press `Esc` while typing, with focus in the practice area, to enter Command
-mode. It pauses the clock without hiding the lesson. The Type button has the
-same return behavior as `t`: it focuses Typing mode, or leaves Command mode
-and resumes the clock. Escape first dismisses an
+Press `Esc` while typing, with focus in the practice area or on the Esc
+commands switch, to enter Command mode. It pauses the clock without hiding the
+lesson. The Type button has the same return behavior as `t`: it focuses Typing
+mode, or leaves Command mode and resumes the clock. Escape first dismisses an
 open dialog, completion card, or lesson drawer, and does not enter Command mode
 when focus is on another interactive control. Press `t` to return to Typing
 mode, or `i` to enter inline editing.
@@ -465,12 +484,17 @@ mode, or `i` to enter inline editing.
 |------|------|
 | `n` | move to the beginning of the next word |
 | `b` | move to the beginning of the previous word |
+| `N` / `B` | skip the next/previous word and queue it for deletion, shown in red |
+| `dw` | immediately delete the current word from the lesson template |
+| `D` | delete all queued ranges from the lesson template |
+| `Esc` | same as `t`: return to Typing mode without changing queued ranges |
+| `q` | clear queued deletion ranges without deleting them |
 | `:1234` + `Enter` | jump to zero-based character position 1234 |
-| `dw` | delete the current word from the lesson template |
-| `cw` | change the current word: `dw`, then edit in its place |
+| `cw` | change the current word: immediately delete it, then edit in its place |
+| `x` | delete the character at the caret |
 | `Backspace` | delete the previous word from the lesson template |
-| `u` | undo the last lesson-template edit, `dw`/`cw`, or Backspace deletion |
-| `r` | redo a lesson-template edit, `dw`/`cw`, or Backspace deletion |
+| `u` | undo the last lesson-template edit or confirmed deletion |
+| `r` | redo a lesson-template edit or confirmed deletion |
 | `restart` | reset the current typing session to the beginning |
 | `mw` | mark or unmark the current word |
 | `m` | start or finish a marked passage |
@@ -478,9 +502,16 @@ mode, or `i` to enter inline editing.
 | `i` | enter full template editing |
 | `t` | return to Typing mode |
 
-An open marked or masked passage remains active while using lesson-template
-editing commands such as `dw`, `cw`, or `Backspace`; the capture boundary follows the
-updated text. Press `i` to edit the lesson without cancelling an open passage:
+Queued deletion ranges stay visibly marked while you return to Typing mode with
+`t` and continue elsewhere in the lesson. Re-enter Command mode to queue more
+words, press `D` to remove every marked range as one undoable edit, or press
+`q` to clear the queue. `Esc` behaves like `t`: it returns to Typing mode while
+keeping the queued ranges unchanged. Undoing a `D` commit restores both the text
+and its queued deletion marks.
+Other edits keep queued marks on unchanged text and drop only the portions
+directly changed by the edit. An open marked or masked passage remains active while
+using lesson-template editing commands such as `x`, `dw`, `cw`, or `Backspace`; the
+capture boundary follows the updated text. Press `i` to edit the lesson without cancelling an open passage:
 the passage is hidden while editing, then typing can continue and `m` can close
 it when you return to Command mode.
 
@@ -512,7 +543,7 @@ If you host several projects under the same GitHub username
 share the *same* origin (`https://username.github.io`) and therefore the same
 `localStorage` bucket. Two unrelated projects under the same username could in
 principle read each other's keys if they used overlapping key names. This
-project already namespaces everything (`typingStudio.customLessons.v1`, etc.),
+project already namespaces everything (`studyping.customLessons.v1`, etc.),
 which avoids collisions in practice — just worth knowing if you fork this
 into a second project under the same username.
 

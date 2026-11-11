@@ -1,0 +1,60 @@
+:root{--bg:#fdf6e3;--fg:#4e626a;--muted:#586e75;--line:#e8e3d4;--accent:#cb4b16;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#002b36;--fg:#91a0a1;--muted:#93a1a1;--line:#193843}}
+:root[data-theme="dark"]{--bg:#002b36;--fg:#91a0a1;--muted:#93a1a1;--line:#193843}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{padding:40px 24px 120px;max-width:640px;margin:0 auto;color:var(--muted)}
+main h1{color:var(--fg);font-size:20px;margin:0 0 8px}
+#bar{position:fixed;left:0;right:0;bottom:0;height:calc(60px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding-left:14px;padding-right:14px;z-index:10}
+#prog{position:absolute;top:-1px;left:0;height:2px;background:var(--accent);width:0;transition:width .5s linear}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:0 0 auto}
+.logo{width:30px;height:30px;border-radius:50%;border:2px solid var(--fg);display:grid;place-items:center;position:relative;flex:none}
+.logo i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+.on .logo::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--accent);animation:ring 2s ease-out infinite}
+@keyframes pulse{50%{transform:scale(1.5)}}
+@keyframes ring{from{transform:scale(.7);opacity:.9}to{transform:scale(1.25);opacity:0}}
+.name{font:700 13px/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.now{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;max-width:170px}
+.now span{display:inline-block}
+.now.scroll span{animation:mq 10s linear infinite;padding-right:30px}
+@keyframes mq{to{transform:translateX(-100%)}}
+.ctl{display:flex;align-items:center;gap:4px;flex:none}
+button{all:unset;cursor:pointer;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;color:var(--fg);transition:transform .15s,background .15s,color .15s}
+button:hover{background:var(--line)}button:active{transform:scale(.9)}
+button:focus-visible{outline:2px solid var(--accent)}
+button svg{width:18px;height:18px;fill:currentColor}
+#play{width:40px;height:40px;background:var(--fg);color:var(--bg)}
+#play:hover{background:var(--accent);color:#fdf6e3}
+#live{width:auto;padding:0 10px;border-radius:99px;font:700 10px ui-monospace,monospace;letter-spacing:.1em;border:1px solid var(--line);color:var(--muted);height:24px}
+#live.is{color:var(--accent);border-color:var(--accent)}
+#viz{flex:1;min-width:0;height:40px;display:block}
+.right{display:flex;align-items:center;gap:6px;flex:none}
+#vol{width:70px;accent-color:var(--accent)}
+#panel{position:fixed;right:12px;bottom:calc(70px + env(safe-area-inset-bottom,0px));background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;width:240px;display:none;gap:10px;flex-direction:column;z-index:11;box-shadow:0 8px 30px rgba(0,0,0,.2);animation:up .2s ease}
+#panel.open{display:flex}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+#panel label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+#panel input[type=range]{width:110px;accent-color:var(--accent)}
+#panel select,#panel input[type=color]{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+@media (max-width:720px){.now,#vol,.name small{display:none}.brand .name{display:none}#bar{gap:8px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+body.embed{overflow:hidden}
+body.embed main,body.embed #panel{display:none}
+body.embed #bar{position:relative;bottom:auto;height:54px;padding:0 8px;border:0;gap:6px}
+body.embed #prog{top:0}
+body.embed .brand{gap:6px}
+body.embed .logo{width:26px;height:26px}
+body.embed .name{font-size:11px}
+body.embed .now{font-size:10px;max-width:90px}
+body.embed .ctl{gap:0}
+body.embed #viz{height:32px}
+body.embed .right{gap:2px}
+body.embed #vol{width:44px}
+body.embed #gear{display:none}
+body.embed #live{padding:0 7px}
+@media (max-width:600px){
+  body.embed .now,body.embed #vol{display:none}
+  body.embed .brand .name{display:block}
+}

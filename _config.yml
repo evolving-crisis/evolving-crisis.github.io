@@ -61,7 +61,7 @@ minima:
   skin: solarized
 header_pages:
   - about.markdown
-  - study-typing.markdown
+  - studyping.markdown
 plugins:
   - jekyll-feed
   - jekyll-remote-theme

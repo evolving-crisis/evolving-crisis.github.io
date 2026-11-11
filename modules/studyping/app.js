@@ -1,13 +1,13 @@
-/*! Type Studio — hackable typing-practice engine. MIT-style: do whatever you like with it. */
+/*! Studyping — hackable typing-practice engine. MIT-style: do whatever you like with it. */
 (function(){
 'use strict';
 
 /* =========================================================================
-   TYPE STUDIO — a small, hackable typing-practice engine.
+   STUDYPING — a small, hackable typing-practice engine.
    ---------------------------------------------------------------------
    This file is intentionally organized so you can extend it:
-     - Add lessons/courses:  window.TypingStudio.addLesson(lesson)
-     - React to progress:    window.TypingStudio.on('checkpoint', fn)
+     - Add lessons/courses:  window.Studyping.addLesson(lesson)
+     - React to progress:    window.Studyping.on('checkpoint', fn)
      - Build gamification on top of the event bus below.
    See the "PUBLIC API" block at the very end for the full surface.
    ========================================================================= */
@@ -20,6 +20,7 @@ const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const collapseWhitespace = (str) => str.normalize('NFC').replace(/\s+/g, ' ').trim();
 const normalizeLessonText = (str) => str.normalize('NFC').replace(/\r\n?/g, '\n').trim();
 const slugify = (str) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'lesson';
+const courseKey = (title) => String(title || '').trim().toLowerCase();
 const uid = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`;
 function formatTime(ms){
   const s = Math.floor(ms/1000);
@@ -275,7 +276,8 @@ const IDLE_PAUSE_MS = 30000;
 
 // What a dead key (´ ` ¨ ^ ~) leaves in the typing field while it waits for its vowel.
 const ACCENT_ONLY = /^[´`¨^~˜¸¯˘˙˚˝ˇ'"\u0300-\u036F]+$/u;
-const SESSION_VISITS_KEY = 'typingStudio.lessonVisits.v1';
+const SESSION_VISITS_KEY = 'studyping.lessonVisits.v1';
+const LEGACY_SESSION_VISITS_KEY = 'typingStudio.lessonVisits.v1';
 const TEMPLATE_HISTORY_LIMIT = 20;
 const TEMPLATE_HISTORY_MAX_CHARS = 500000;
 
@@ -304,7 +306,7 @@ function evaluateObjective(spec, stats){
 // packed, to change what greets a new visitor. If the pack it points to can't
 // be fetched (offline, local file:// preview, or the id doesn't exist), init()
 // falls back to the first built-in lesson automatically.
-const DEFAULT_LESSON_ID = 'prog-js-basics';
+const DEFAULT_LESSON_ID = 'evolving-crisis-code-intro';
 
 const DEFAULT_COURSES = [
   {
@@ -346,27 +348,46 @@ const DEFAULT_COURSES = [
 
 /* ---------------------------- storage ---------------------------- */
 const Storage = {
-  LESSONS_KEY:'typingStudio.customLessons.v1',
-  STATS_KEY:'typingStudio.stats.v1',
-  PREFS_KEY:'typingStudio.prefs.v1',
-  MARKS_KEY:'typingStudio.marks.v1',
-  OVERRIDES_KEY:'typingStudio.overrides.v1',
-  DELETED_KEY:'typingStudio.deletedLessons.v1',
-  POSITIONS_KEY:'typingStudio.positions.v1',
-  loadLessons(){ try{ const raw = localStorage.getItem(this.LESSONS_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ console.warn('TypeStudio: could not read custom lessons', e); return []; } },
-  saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('TypeStudio: could not save custom lessons', e); } },
+  LESSONS_KEY:'studyping.customLessons.v1',
+  STATS_KEY:'studyping.stats.v1',
+  PREFS_KEY:'studyping.prefs.v1',
+  MARKS_KEY:'studyping.marks.v1',
+  OVERRIDES_KEY:'studyping.overrides.v1',
+  DELETED_KEY:'studyping.deletedLessons.v1',
+  POSITIONS_KEY:'studyping.positions.v1',
+  migrateLegacyData(){
+    try{
+      const keys = [this.LESSONS_KEY, this.STATS_KEY, this.PREFS_KEY, this.MARKS_KEY,
+        this.OVERRIDES_KEY, this.DELETED_KEY, this.POSITIONS_KEY];
+      keys.forEach(key => {
+        const legacyKey = key.replace(/^studyping\./, 'typingStudio.');
+        if(localStorage.getItem(key) === null){
+          const legacyValue = localStorage.getItem(legacyKey);
+          if(legacyValue !== null) localStorage.setItem(key, legacyValue);
+        }
+      });
+    }catch(e){ console.warn('Studyping: could not migrate saved data', e); }
+    try{
+      if(sessionStorage.getItem(SESSION_VISITS_KEY) === null){
+        const legacyVisits = sessionStorage.getItem(LEGACY_SESSION_VISITS_KEY);
+        if(legacyVisits !== null) sessionStorage.setItem(SESSION_VISITS_KEY, legacyVisits);
+      }
+    }catch(e){ /* sessionStorage may be unavailable in private or embedded contexts */ }
+  },
+  loadLessons(){ try{ const raw = localStorage.getItem(this.LESSONS_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ console.warn('Studyping: could not read custom lessons', e); return []; } },
+  saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save custom lessons', e); } },
   loadStats(){ try{ const raw = localStorage.getItem(this.STATS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
-  saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('TypeStudio: could not save stats', e); } },
+  saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Studyping: could not save stats', e); } },
   loadOverrides(){ try{ const raw = localStorage.getItem(this.OVERRIDES_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ return {}; } },
-  saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('TypeStudio: could not save edits', e); } },
+  saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('Studyping: could not save edits', e); } },
   loadMarks(){ try{ const raw = localStorage.getItem(this.MARKS_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ return []; } },
-  saveMarks(list){ try{ localStorage.setItem(this.MARKS_KEY, JSON.stringify(list)); }catch(e){ console.warn('TypeStudio: could not save marks', e); } },
+  saveMarks(list){ try{ localStorage.setItem(this.MARKS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save marks', e); } },
   loadPrefs(){ try{ const raw = localStorage.getItem(this.PREFS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
   savePrefs(prefs){ try{ localStorage.setItem(this.PREFS_KEY, JSON.stringify(prefs)); }catch(e){ /* ignore */ } },
-  loadDeletedLessons(){ try{ const raw = localStorage.getItem(this.DELETED_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ console.warn('TypeStudio: could not read deleted lessons', e); return []; } },
-  saveDeletedLessons(ids){ try{ localStorage.setItem(this.DELETED_KEY, JSON.stringify(ids)); }catch(e){ console.warn('TypeStudio: could not save deleted lessons', e); } },
-  loadPositions(){ try{ const raw = localStorage.getItem(this.POSITIONS_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ console.warn('TypeStudio: could not read lesson positions', e); return {}; } },
-  savePositions(positions){ try{ localStorage.setItem(this.POSITIONS_KEY, JSON.stringify(positions)); }catch(e){ console.warn('TypeStudio: could not save lesson positions', e); } }
+  loadDeletedLessons(){ try{ const raw = localStorage.getItem(this.DELETED_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ console.warn('Studyping: could not read deleted lessons', e); return []; } },
+  saveDeletedLessons(ids){ try{ localStorage.setItem(this.DELETED_KEY, JSON.stringify(ids)); }catch(e){ console.warn('Studyping: could not save deleted lessons', e); } },
+  loadPositions(){ try{ const raw = localStorage.getItem(this.POSITIONS_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ console.warn('Studyping: could not read lesson positions', e); return {}; } },
+  savePositions(positions){ try{ localStorage.setItem(this.POSITIONS_KEY, JSON.stringify(positions)); }catch(e){ console.warn('Studyping: could not save lesson positions', e); } }
 };
 
 /* ---------------------------- sound engine ---------------------------- */
@@ -585,6 +606,7 @@ class TextView{
     this.strikes = new Map(); // char index -> { ghost, anim, el } for in-flight stroke animations
     this.markedEls = [];      // chars currently carrying a mark class
     this.maskedEls = [];      // chars currently carrying a mask class
+    this.deletePreviewEls = [];
     this.badgeData = [];      // checkpoint badges as data, so an inline edit can redraw them
     this.selEls = [];         // chars inside the edit selection
     this.composingEl = null;  // the char showing the "dead key is down" preview
@@ -598,6 +620,7 @@ class TextView{
     this.selEls = [];
     this.markedEls = [];
     this.maskedEls = [];
+    this.deletePreviewEls = [];
     this.composingEl = null;
     this.charEls = new Array(text.length);
     this.wordIndexForChar = new Array(text.length).fill(-1);
@@ -658,6 +681,19 @@ class TextView{
     if(!el) return;
     el.classList.remove('correct','incorrect');
     if(state) el.classList.add(state);
+  }
+  setDeletePreviews(ranges){
+    this.clearDeletePreviews();
+    ranges.forEach(({ start, end }) => {
+      for(let i = start; i < end; i++){
+        const el = this.charEls[i];
+        if(el){ el.classList.add('delete-pending'); this.deletePreviewEls.push(el); }
+      }
+    });
+  }
+  clearDeletePreviews(){
+    this.deletePreviewEls.forEach(el => el.classList.remove('delete-pending'));
+    this.deletePreviewEls = [];
   }
   refreshWord(charIdx){
     // Feedback is per-character now (see .char.correct / .char.incorrect) —
@@ -1104,6 +1140,7 @@ const App = {
   commandMode: false,
   pendingCommand: '',
   commandTimer: null,
+  pendingDeletions: [],
   lastKeyAt: 0,      // performance.now() of the last keystroke, for the idle watchdog
   shadowValue: '',   // what the hidden input should currently contain
   marks: [],         // saved annotations: { id, kind:'mark'|'mask', lessonId, lessonTitle, course, text, start, end, createdAt, attempts?, clean? }
@@ -1149,12 +1186,16 @@ const App = {
   composing: false,  // a dead key / IME composition is open in the typing field
   escapeCommands: true, // when enabled, Escape enters command mode and handles app Escape actions
   shortcutsCollapsed: false, // pref: hide the Shortcuts list so Courses gets the full drawer height
+  collapsedCourses: new Set(),
+  courseSequence: [],
+  keyboardHidden: false,
   currentLesson: null,
   currentCourseTitle: '',
   timerHandle: null,
   dom: {},
 
   async init(){
+    Storage.migrateLegacyData();
     this.customLessons = Storage.loadLessons();
     const prefs = Storage.loadPrefs();
     this.marks = Storage.loadMarks().map(m => {
@@ -1177,6 +1218,12 @@ const App = {
     this.mediaDeckCollapsed = prefs.mediaDeckCollapsed === true;
     this.escapeCommands = prefs.escapeCommands !== false;
     this.shortcutsCollapsed = prefs.shortcutsCollapsed === true;
+    this.collapsedCourses = new Set(
+      Array.isArray(prefs.collapsedCourses) ? prefs.collapsedCourses.map(courseKey).filter(Boolean) : []
+    );
+    this.courseSequence = Array.isArray(prefs.courseSequence)
+      ? Array.from(new Set(prefs.courseSequence.map(courseKey).filter(Boolean)))
+      : [];
 
     this.dom = {
       menuBtn: qs('#menuBtn'), drawer: qs('#drawer'), drawerScrim: qs('#drawerScrim'), drawerCloseBtn: qs('#drawerCloseBtn'),
@@ -1213,7 +1260,7 @@ const App = {
       actionModalScrim: qs('#actionModalScrim'), actionModalTitle: qs('#actionModalTitle'), actionModalMessage: qs('#actionModalMessage'),
       actionModalField: qs('#actionModalField'), actionModalLabel: qs('#actionModalLabel'), actionModalInput: qs('#actionModalInput'),
       actionModalClose: qs('#actionModalClose'), actionModalCancel: qs('#actionModalCancel'), actionModalConfirm: qs('#actionModalConfirm'),
-      lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfCourseOrder: qs('#lfCourseOrder'), lfOrder: qs('#lfOrder'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
+      lfTitle: qs('#lfTitle'), lfCourse: qs('#lfCourse'), lfOrder: qs('#lfOrder'), lfText: qs('#lfText'), lfWpm: qs('#lfWpm'), lfAcc: qs('#lfAcc'), lfCancel: qs('#lfCancel'),
       courseNames: qs('#courseNames'),
       completeOverlay: qs('#completeOverlay'), completeLessonTitle: qs('#completeLessonTitle'),
       completeWpm: qs('#completeWpm'), completeAcc: qs('#completeAcc'), completeTime: qs('#completeTime'),
@@ -1239,12 +1286,15 @@ const App = {
     this.statsView = new StatsView({ wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors, position:this.dom.statPosition });
 
     // theme
-    if(prefs.theme === 'light' || prefs.theme === 'dark') this.setTheme(prefs.theme, false);
+    this.setTheme(
+      prefs.theme === 'light' || prefs.theme === 'dark' || prefs.theme === 'gray' ? prefs.theme : 'system',
+      false
+    );
     // sound
     if(prefs.sound === false) this.sound.enabled = false;
     this.dom.soundBtn.classList.toggle('is-muted', !this.sound.enabled);
-    // keyboard visibility
-    if(prefs.keyboardHidden){ this.dom.keyboardPanel.style.display = 'none'; this.dom.keyboardToggleBtn.textContent = 'Show keyboard'; }
+    this.keyboardHidden = prefs.keyboardHidden === true;
+    this.applyKeyboardCollapsed();
 
     this.wireEvents();
     this.updateMaskToggleBtn();
@@ -1260,14 +1310,25 @@ const App = {
     // leave Firefox showing the built-in courses if the network is a little
     // slower than the old startup timeout.
     await this.fetchStaticPacks();
-    this.renderSidebar();
 
     const defaultPackLesson = this.findLesson(DEFAULT_LESSON_ID);
     const startId = prefs.lastLessonId;
     const startLesson = startId ? this.findLesson(startId) : null;
     const firstAvailable = this.getAllCourses()
       .flatMap(course => course.lessons.map(lesson => ({ lesson, courseTitle:course.title })))[0];
-    const toLoad = defaultPackLesson || startLesson || firstAvailable;
+    const toLoad = startLesson || defaultPackLesson || firstAvailable;
+    // Apply the collapsed-by-default behavior once, preserving later user toggles.
+    if(prefs.courseCollapseVersion !== 1){
+      const activeCourse = toLoad ? courseKey(toLoad.courseTitle) : '';
+      this.collapsedCourses = new Set(
+        this.getAllCourses().map(course => courseKey(course.title)).filter(key => key && key !== activeCourse)
+      );
+      this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
+      this.savePref('courseCollapseVersion', 1);
+    }else if(toLoad && this.collapsedCourses.delete(courseKey(toLoad.courseTitle))){
+      this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
+    }
+    this.renderSidebar();
     if(toLoad) this.loadLesson(toLoad.lesson, toLoad.courseTitle);
     if(this.staticPackMarks.length) this.importMarks(this.staticPackMarks, { fresh:false });
   },
@@ -1314,7 +1375,7 @@ const App = {
         .flatMap(p => p.marks);
     }catch(e){
       this.staticPackCourses = [];
-      console.info('TypeStudio: no static lesson packs loaded —', e.message);
+      console.info('Studyping: no static lesson packs loaded —', e.message);
     }
   },
 
@@ -1382,7 +1443,14 @@ const App = {
       group.lessons.push({ lesson, order:lesson.order ?? null, sourceOrder:entry.order });
     });
     return Array.from(map.values()).filter(c => c.lessons.length)
-      .sort((a, b) => compareOrdered(a, b))
+      .sort((a, b) => {
+        const ai = this.courseSequence.indexOf(courseKey(a.title));
+        const bi = this.courseSequence.indexOf(courseKey(b.title));
+        if(ai >= 0 && bi >= 0) return ai - bi;
+        if(ai >= 0) return -1;
+        if(bi >= 0) return 1;
+        return compareOrdered(a, b);
+      })
       .map(course => ({
         title:course.title,
         order:course.order,
@@ -1403,13 +1471,44 @@ const App = {
   },
 
   /* ----- sidebar ----- */
+  closeLessonMenu(menu){
+    const menuList = Array.from(document.querySelectorAll('.lesson-menu-list'))
+      .find(list => list.dataset.menuId === menu.dataset.menuId);
+    if(menuList){
+      menuList.hidePopover?.();
+      menuList.classList.remove('open');
+      menu.appendChild(menuList);
+    }
+    menu.classList.remove('open');
+  },
+  closeOpenLessonMenus(){
+    this.dom.courseList.querySelectorAll('.lesson-menu.open').forEach(menu => this.closeLessonMenu(menu));
+  },
+  positionLessonMenu(menuList, trigger){
+    const anchor = trigger.getBoundingClientRect();
+    const gap = 4;
+    const edge = 8;
+    menuList.style.maxHeight = '';
+    const { width, height } = menuList.getBoundingClientRect();
+    const left = Math.max(edge, Math.min(anchor.right - width, window.innerWidth - width - edge));
+    const spaceAbove = Math.max(0, anchor.top - gap - edge);
+    const spaceBelow = Math.max(0, window.innerHeight - anchor.bottom - gap - edge);
+    const placeBelow = height <= spaceBelow || spaceBelow >= spaceAbove;
+    const availableHeight = placeBelow ? spaceBelow : spaceAbove;
+    menuList.style.maxHeight = `${availableHeight}px`;
+    const fittedHeight = menuList.getBoundingClientRect().height;
+    const top = placeBelow ? anchor.bottom + gap : anchor.top - fittedHeight - gap;
+    menuList.style.left = `${left}px`;
+    menuList.style.top = `${Math.max(edge, Math.min(top, window.innerHeight - fittedHeight - edge))}px`;
+  },
   renderSidebar(){
+    this.closeOpenLessonMenus();
     const courses = this.getAllCourses();
     const stats = Storage.loadStats();
     this.dom.courseList.innerHTML = '';
     this.dom.courseNames.innerHTML = '';
     const seenCourseNames = new Set();
-    courses.forEach(course => {
+    courses.forEach((course, courseIndex) => {
       if(!seenCourseNames.has(course.title)){
         seenCourseNames.add(course.title);
         const opt = document.createElement('option');
@@ -1420,10 +1519,35 @@ const App = {
       group.className = 'course-group';
       group.draggable = true;
       group.dataset.courseDrag = course.title;
+      const collapsed = this.collapsedCourses.has(courseKey(course.title));
       const head = document.createElement('div');
       head.className = 'course-head';
       const h3 = document.createElement('h3');
       h3.textContent = course.title;
+      const listId = `course-lessons-${slugify(course.title)}-${courseIndex}`;
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'course-toggle';
+      toggle.dataset.courseToggle = course.title;
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.setAttribute('aria-controls', listId);
+      toggle.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${course.title}`);
+      toggle.title = `${collapsed ? 'Expand' : 'Collapse'} ${course.title}`;
+      toggle.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>';
+      const summary = document.createElement('div');
+      summary.className = 'course-summary';
+      summary.dataset.courseSummary = course.title;
+      const summaryText = document.createElement('span');
+      summaryText.className = 'course-summary-text';
+      const progress = document.createElement('span');
+      progress.className = 'course-progress';
+      progress.setAttribute('role', 'progressbar');
+      progress.setAttribute('aria-valuemin', '0');
+      progress.setAttribute('aria-valuemax', String(course.lessons.length));
+      const progressFill = document.createElement('span');
+      progressFill.className = 'course-progress-fill';
+      progress.appendChild(progressFill);
+      summary.append(summaryText, progress);
       const add = document.createElement('button');
       add.type = 'button';
       add.className = 'course-add';
@@ -1431,16 +1555,16 @@ const App = {
       add.title = `New lesson in ${course.title}`;
       add.setAttribute('aria-label', `New lesson in ${course.title}`);
       add.innerHTML = '<svg viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>';
-      const order = document.createElement('button');
-      order.type = 'button';
-      order.className = 'course-order';
-      order.dataset.courseOrder = course.title;
-      order.title = `Set order for ${course.title}`;
-      order.setAttribute('aria-label', `Set order for ${course.title}`);
-      order.textContent = course.order === null || course.order === undefined ? 'order' : `#${course.order}`;
-      head.append(h3, order, add);
+      head.append(h3, toggle, summary, add);
+      this.updateCourseSummary(summary, course, stats);
       group.appendChild(head);
+      const lessonList = document.createElement('div');
+      lessonList.className = 'course-lessons';
+      lessonList.id = listId;
+      lessonList.setAttribute('aria-hidden', String(collapsed));
+      lessonList.inert = collapsed;
       const ul = document.createElement('ul');
+      group.classList.toggle('collapsed', collapsed);
       course.lessons.forEach(lesson => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
@@ -1474,6 +1598,8 @@ const App = {
           menu.appendChild(trigger);
           const menuList = document.createElement('span');
           menuList.className = 'lesson-menu-list';
+          menuList.setAttribute('popover', 'manual');
+          menuList.dataset.menuId = lesson.id;
           const rename = document.createElement('span');
           rename.className = 'lesson-menu-action';
           rename.dataset.action = 'rename';
@@ -1515,10 +1641,53 @@ const App = {
         li.appendChild(btn);
         ul.appendChild(li);
       });
-      group.appendChild(ul);
+      lessonList.appendChild(ul);
+      group.appendChild(lessonList);
       this.dom.courseList.appendChild(group);
     });
     this.updateExportButton();
+  },
+  updateCourseSummary(node, course, stats){
+    const results = course.lessons
+      .map(lesson => stats[lesson.id])
+      .filter(result => {
+        if(!result || typeof result !== 'object' || Array.isArray(result)) return false;
+        const attempts = finiteStat(result.attempts) || 0;
+        const wpm = finiteStat(result.bestWpm);
+        const accuracy = finiteStat(result.bestAccuracy);
+        const lastAt = finiteStat(result.lastAt);
+        return attempts > 0 || (wpm !== null && wpm > 0) ||
+          (accuracy !== null && accuracy >= 0 && accuracy <= 100) ||
+          (lastAt !== null && lastAt > 0);
+      });
+    const average = key => {
+      const values = results.map(result => finiteStat(result[key])).filter(value =>
+        value !== null && (key !== 'bestAccuracy' || (value >= 0 && value <= 100)) &&
+        (key !== 'bestWpm' || value > 0 || (finiteStat(result.attempts) || 0) > 0)
+      );
+      return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
+    };
+    const completed = results.length;
+    const avgWpm = average('bestWpm');
+    const avgAccuracy = average('bestAccuracy');
+    const total = course.lessons.length;
+    const text = node.querySelector('.course-summary-text');
+    const progress = node.querySelector('.course-progress');
+    const fill = node.querySelector('.course-progress-fill');
+    const label = `${completed}/${total} complete · Avg ${avgWpm === null ? '—' : `${avgWpm} WPM`} · ${avgAccuracy === null ? '—' : `${avgAccuracy}% acc`}`;
+    text.textContent = label;
+    progress.setAttribute('aria-valuenow', String(completed));
+    progress.setAttribute('aria-label', `${course.title}: ${completed} of ${total} lessons completed`);
+    fill.style.width = `${total ? completed / total * 100 : 0}%`;
+    node.title = `${course.title}: ${completed} of ${total} lessons completed. Average per-lesson best: ${avgWpm === null ? 'no speed yet' : `${avgWpm} WPM`}, ${avgAccuracy === null ? 'no accuracy yet' : `${avgAccuracy}% accuracy`}.`;
+  },
+  updateCourseSummaries(){
+    const stats = Storage.loadStats();
+    const courses = new Map(this.getAllCourses().map(course => [courseKey(course.title), course]));
+    this.dom.courseList.querySelectorAll('.course-summary').forEach(node => {
+      const course = courses.get(courseKey(node.dataset.courseSummary));
+      if(course) this.updateCourseSummary(node, course, stats);
+    });
   },
   renderSidebarBest(id){
     // Mirrors the ★ span renderSidebar() builds, without rebuilding the list.
@@ -1541,6 +1710,7 @@ const App = {
         meta.remove();
       }
     });
+    this.updateCourseSummaries();
   },
   saveOrderedLessons(courseTitle, lessons){
     lessons.forEach((lesson, index) => {
@@ -1562,23 +1732,8 @@ const App = {
     this.renderSidebar();
   },
   saveOrderedCourses(courseTitles){
-    courseTitles.forEach((title, index) => {
-      this.getCanonicalLessons().forEach(entry => {
-        const courseTitle = entry.lesson.course || entry.courseTitle || 'My Lessons';
-        if(courseTitle.toLowerCase() !== title.toLowerCase()) return;
-        if(entry.kind === 'custom'){
-          const target = this.customLessons.slice().reverse().find(item => item.id === entry.lesson.id);
-          if(target) target.courseOrder = (index + 1) * 10;
-        }else{
-          const current = this.overrides[entry.lesson.id];
-          const override = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
-          override.courseOrder = (index + 1) * 10;
-          this.overrides[entry.lesson.id] = override;
-        }
-      });
-    });
-    Storage.saveLessons(this.customLessons);
-    Storage.saveOverrides(this.overrides);
+    this.courseSequence = courseTitles.map(courseKey).filter(Boolean);
+    this.savePref('courseSequence', this.courseSequence);
     this.renderSidebar();
   },
   handleSidebarDrop(e){
@@ -1639,6 +1794,10 @@ const App = {
   /* ----- lesson lifecycle ----- */
   loadLesson(lesson, courseTitle, opts = {}){
     if(this.editing) this.endInlineEdit(true); // switching lessons keeps what you edited
+    this.clearPendingDeletions();
+    const nextCourseTitle = courseTitle || lesson.course || '';
+    const openedCourse = this.collapsedCourses.delete(courseKey(nextCourseTitle));
+    if(openedCourse) this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
     this.currentLesson = lesson;
     this.lessonIntro = !this.sessionLessonVisits.has(lesson.id);
     if(this.lessonIntro){
@@ -1649,7 +1808,7 @@ const App = {
     this.clearCommandBuffer();
     this.templateUndo = [];
     this.templateRedo = [];
-    this.currentCourseTitle = courseTitle || lesson.course || '';
+    this.currentCourseTitle = nextCourseTitle;
     this.engine = new TypingEngine(lesson);
     this.engine.addEventListener('start', () => this.onStart());
     this.engine.addEventListener('keystroke', (e) => this.onKeystroke(e));
@@ -1688,6 +1847,7 @@ const App = {
     this.updateProgress();
     this.stopTicker();
     this.savePref('lastLessonId', lesson.id);
+    this.syncCourseCollapse(this.currentCourseTitle);
     this.renderSidebarActive();
     this.bus.dispatchEvent(new CustomEvent('lessonLoaded', { detail:{ lessonId:lesson.id } }));
     if(!this.lessonIntro && (opts.ready || savedPosition > 0)) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
@@ -1696,6 +1856,7 @@ const App = {
   restart(){
     if(!this.engine) return;
     if(this.editing) this.endInlineEdit(true);
+    this.clearPendingDeletions();
     this.commandMode = false;
     this.clearCommandBuffer();
     this.templateUndo = [];
@@ -1779,6 +1940,154 @@ const App = {
     this.saveCursorPosition();
     this.hintNext();
   },
+  moveCaretTo(position){
+    const target = clamp(position, 0, this.engine.text.length);
+    this.engine.pos = target;
+    this.dom.captureInput.value = this.engine.text.slice(0, target);
+    this.shadowValue = this.dom.captureInput.value;
+    this.textView.moveCaret(target);
+    this.updateTypingPosition();
+    this.updateProgress();
+    this.saveCursorPosition();
+    this.hintNext();
+  },
+  countWordsInRange(start, end){
+    let words = 0, previousWord = -1;
+    for(let i = start; i < end; i++){
+      const word = this.textView.wordIndexForChar[i];
+      if(word >= 0 && word !== previousWord){ words++; previousWord = word; }
+    }
+    return words;
+  },
+  countPendingDeletionWords(){
+    return this.pendingDeletions.reduce((total, range) => total + this.countWordsInRange(range.start, range.end), 0);
+  },
+  remapPendingDeletions(before, after){
+    if(!this.pendingDeletions.length || before === after) return;
+    const prefix = commonPrefix(before, after);
+    const sharedLength = Math.min(before.length, after.length);
+    const suffix = Math.min(commonSuffix(before, after), sharedLength - prefix);
+    const oldChangedEnd = before.length - suffix;
+    const delta = after.length - before.length;
+    const remapped = [];
+    this.pendingDeletions.forEach(range => {
+      if(range.start < prefix){
+        const end = Math.min(range.end, prefix);
+        if(range.start < end) remapped.push({ start:range.start, end });
+      }
+      if(range.end > oldChangedEnd){
+        const start = Math.max(range.start, oldChangedEnd) + delta;
+        const end = range.end + delta;
+        if(start < end) remapped.push({ start, end });
+      }
+    });
+    this.pendingDeletions = [];
+    remapped.sort((a, b) => a.start - b.start).forEach(range => {
+      const previous = this.pendingDeletions[this.pendingDeletions.length - 1];
+      if(previous && range.start <= previous.end) previous.end = Math.max(previous.end, range.end);
+      else this.pendingDeletions.push(range);
+    });
+  },
+  renderPendingDeletions(){
+    if(this.textView && this.pendingDeletions.length) this.textView.setDeletePreviews(this.pendingDeletions);
+  },
+  addPendingDeletion(start, end){
+    if(start >= end) return;
+    const ranges = [...this.pendingDeletions, { start, end }]
+      .sort((a, b) => a.start - b.start);
+    this.pendingDeletions = [];
+    ranges.forEach(range => {
+      const previous = this.pendingDeletions[this.pendingDeletions.length - 1];
+      if(previous && range.start <= previous.end) previous.end = Math.max(previous.end, range.end);
+      else this.pendingDeletions.push({ ...range });
+    });
+    this.textView.setDeletePreviews(this.pendingDeletions);
+  },
+  stageWordDeletion(direction){
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
+    const text = this.engine.text;
+    const current = this.engine.pos;
+    let target = current;
+    if(direction === 'forward'){
+      while(target < text.length && /\s/.test(text[target])) target++;
+      while(target < text.length && !/\s/.test(text[target])) target++;
+      while(target < text.length && /\s/.test(text[target])) target++;
+    } else {
+      while(target > 0 && /\s/.test(text[target - 1])) target--;
+      while(target > 0 && !/\s/.test(text[target - 1])) target--;
+    }
+    if(target === current) return;
+    const start = direction === 'forward' ? current : target;
+    const end = direction === 'forward' ? target : current;
+    this.addPendingDeletion(start, end);
+    this.moveCaretTo(target);
+    this.showPendingDeletionStatus();
+  },
+  showPendingDeletionStatus(){
+    const words = this.countPendingDeletionWords();
+    if(words) this.showPill('edit', `${words} word${words === 1 ? '' : 's'} queued · D commits · q clears · Esc returns`);
+  },
+  clearPendingDeletions(){
+    if(!this.pendingDeletions.length) return;
+    this.pendingDeletions = [];
+    this.textView.clearDeletePreviews();
+  },
+  commitPendingDeletions(){
+    if(!this.pendingDeletions.length) return;
+    const ranges = this.pendingDeletions.map(range => ({ ...range }));
+    const words = this.countPendingDeletionWords();
+    const text = this.engine.text;
+    const snapshot = this.textView.snapshot(text.length);
+    const originalPosition = this.engine.pos;
+    const removedAt = (index) => ranges.some(range => index >= range.start && index < range.end);
+    const adjustedIndex = (index) => {
+      let removed = 0;
+      ranges.forEach(range => {
+        if(range.end <= index) removed += range.end - range.start;
+      });
+      return index - removed;
+    };
+    const states = [];
+    let position = originalPosition;
+    for(let i = 0; i < text.length; i++){
+      if(removedAt(i)){
+        if(i < originalPosition) position--;
+        continue;
+      }
+      states[adjustedIndex(i)] = snapshot.states[i];
+    }
+    const badges = snapshot.badges
+      .filter(badge => !removedAt(badge.charIndex))
+      .map(badge => ({ ...badge, charIndex:adjustedIndex(badge.charIndex) }));
+    let newText = text;
+    [...ranges].reverse().forEach(range => {
+      newText = newText.slice(0, range.start) + newText.slice(range.end);
+    });
+    newText = normalizeLessonText(newText);
+    if(!newText){
+      this.showPill('edit', 'Cannot delete the entire lesson', 1600);
+      return;
+    }
+    this.clearPendingDeletions();
+    this.recordTemplateUndo(text, originalPosition, { pendingDeletions:ranges });
+    ranges.slice().reverse().forEach(range => this.adjustCapturesForDeletion(range.start, range.end));
+    this.persistEdit(newText);
+    const nextPosition = clamp(position, 0, newText.length);
+    this.engine.replaceText(newText, nextPosition);
+    this.textView.build(newText, true);
+    this.textView.restore({ states, badges }, newText.length);
+    this.renderPendingDeletions();
+    this.dom.captureInput.value = newText.slice(0, nextPosition);
+    this.shadowValue = this.dom.captureInput.value;
+    this.textView.moveCaret(nextPosition);
+    this.updateTypingPosition();
+    this.updateProgress();
+    this.saveCursorPosition();
+    this.hintNext();
+    this.refreshOverlays();
+    this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+    this.showPill('edit', `${words} word${words === 1 ? '' : 's'} deleted`, 1200);
+  },
   previousWord(){
     if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     let target = this.engine.pos;
@@ -1795,8 +2104,13 @@ const App = {
     this.saveCursorPosition();
     this.hintNext();
   },
-  recordTemplateUndo(text, pos){
-    this.templateUndo.push({ lessonId:this.currentLesson.id, text, pos });
+  recordTemplateUndo(text, pos, options = {}){
+    this.templateUndo.push({
+      lessonId:this.currentLesson.id,
+      text,
+      pos,
+      pendingDeletions:(options.pendingDeletions || this.pendingDeletions).map(range => ({ ...range }))
+    });
     this.templateRedo = [];
     this.trimTemplateHistory(this.templateUndo);
   },
@@ -1812,6 +2126,8 @@ const App = {
     this.engine.replaceText(entry.text, pos);
     this.textView.build(this.engine.text, true);
     this.textView.restore(snapshot, Math.min(pos, snapshot.states.length));
+    if(entry.pendingDeletions) this.pendingDeletions = entry.pendingDeletions.map(range => ({ ...range }));
+    this.renderPendingDeletions();
     this.dom.captureInput.value = this.engine.text.slice(0, pos);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(pos);
@@ -1824,14 +2140,24 @@ const App = {
   undoTemplateEdit(){
     const entry = this.templateUndo.pop();
     if(!entry || entry.lessonId !== this.currentLesson.id) return;
-    this.templateRedo.push({ lessonId:this.currentLesson.id, text:this.engine.text, pos:this.engine.pos });
+    this.templateRedo.push({
+      lessonId:this.currentLesson.id,
+      text:this.engine.text,
+      pos:this.engine.pos,
+      pendingDeletions:this.pendingDeletions.map(range => ({ ...range }))
+    });
     this.trimTemplateHistory(this.templateRedo);
     this.applyTemplateHistoryEntry(entry);
   },
   redoTemplateEdit(){
     const entry = this.templateRedo.pop();
     if(!entry || entry.lessonId !== this.currentLesson.id) return;
-    this.templateUndo.push({ lessonId:this.currentLesson.id, text:this.engine.text, pos:this.engine.pos });
+    this.templateUndo.push({
+      lessonId:this.currentLesson.id,
+      text:this.engine.text,
+      pos:this.engine.pos,
+      pendingDeletions:this.pendingDeletions.map(range => ({ ...range }))
+    });
     this.trimTemplateHistory(this.templateUndo);
     this.applyTemplateHistoryEntry(entry);
   },
@@ -1851,19 +2177,29 @@ const App = {
       this.pendingCommand = '';
     }, 800);
   },
-  enterCommandMode(){
-    if(this.editing || this.commandMode || !this.engine || (this.state !== 'running' && this.state !== 'ready')) return;
+  enterCommandMode(fromEscapeSwitch = false){
+    if(this.editing || this.commandMode || !this.engine ||
+       (this.state !== 'running' && this.state !== 'ready' && this.state !== 'finished' &&
+        !(fromEscapeSwitch && this.state === 'paused' && this.pauseReason === 'blur'))) return;
     this.commandMode = true;
     this.clearCommandBuffer();
     if(this.state === 'running') this.pauseTyping('command');
     this.updateOverlay();
-    this.showPill('edit', 'COMMAND mode · t for typing mode · i to edit');
+    this.showPill('edit', this.pendingDeletions.length
+      ? `${this.countPendingDeletionWords()} word${this.countPendingDeletionWords() === 1 ? '' : 's'} queued · D commits · q clears · Esc returns`
+      : 'COMMAND mode · t for typing mode · i to edit');
+    this.focusInput();
   },
   leaveCommandMode(){
     if(!this.commandMode) return;
     this.commandMode = false;
     this.clearCommandBuffer();
-    this.hidePill('edit');
+    if(this.pendingDeletions.length){
+      const words = this.countPendingDeletionWords();
+      this.showPill('edit', `${words} word${words === 1 ? '' : 's'} queued · D commits · q clears`);
+    } else {
+      this.hidePill('edit');
+    }
     if(this.state === 'paused' && this.pauseReason === 'command') this.resumeTyping();
     else this.updateOverlay();
   },
@@ -1893,10 +2229,15 @@ const App = {
   },
   handleCommandKeydown(e){
     if(!this.commandMode) return false;
-    if(e.key === 'Escape' && !this.escapeCommands) return false;
+    if(e.key === 'Escape' && !this.escapeCommands && !this.pendingDeletions.length) return false;
     e.preventDefault();
     const key = e.key;
-    if(key === 'Escape'){ this.clearCommandBuffer(); return true; }
+    if(key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta') return true;
+    if(key === 'Escape'){
+      if(this.escapeCommands) this.leaveCommandMode();
+      else this.clearCommandBuffer();
+      return true;
+    }
     if(this.pendingCommand.startsWith(':')){
       if(/^\d$/.test(key)){
         this.pendingCommand += key;
@@ -1911,6 +2252,16 @@ const App = {
       } else {
         this.clearCommandBuffer();
       }
+      return true;
+    }
+    if(key === 'D' && this.pendingDeletions.length){
+      this.commitPendingDeletions();
+      return true;
+    }
+    if(key === 'q' && this.pendingDeletions.length){
+      this.clearPendingDeletions();
+      this.clearCommandBuffer();
+      this.showPill('edit', 'Queued deletions cleared', 1200);
       return true;
     }
     if(key === 'Backspace'){
@@ -1968,8 +2319,11 @@ const App = {
     }
     if(key === 'd'){ this.queueCommandBuffer('d'); return true; }
     if(key === 'c'){ this.queueCommandBuffer('c'); return true; }
+    if(key === 'x'){ this.deleteCharacterAtCaret(); return true; }
     if(key === 'n'){ this.skipWord(); return true; }
     if(key === 'b'){ this.previousWord(); return true; }
+    if(key === 'N'){ this.stageWordDeletion('forward'); return true; }
+    if(key === 'B'){ this.stageWordDeletion('backward'); return true; }
     if(key === 'u'){ this.undoTemplateEdit(); return true; }
     if(key === 'm'){
       this.clearCommandBuffer();
@@ -1992,6 +2346,34 @@ const App = {
     this.pendingCommand = '';
     return true;
   },
+  deleteCharacterAtCaret(){
+    if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
+    const eng = this.engine;
+    const text = eng.text;
+    const pos = eng.pos;
+    if(pos >= text.length) return;
+    const nextCharacter = text.codePointAt(pos);
+    const end = pos + (nextCharacter > 0xFFFF ? 2 : 1);
+    const newText = text.slice(0, pos) + text.slice(end);
+    if(!newText.trim()) return;
+    const snapshot = this.textView.snapshot(pos);
+    this.recordTemplateUndo(text, pos);
+    this.persistEdit(newText);
+    this.adjustCapturesForDeletion(pos, end);
+    eng.replaceText(newText, pos);
+    this.textView.build(eng.text, true);
+    this.textView.restore(snapshot, eng.pos);
+    this.renderPendingDeletions();
+    this.dom.captureInput.value = eng.text.slice(0, eng.pos);
+    this.shadowValue = this.dom.captureInput.value;
+    this.textView.moveCaret(eng.pos);
+    this.updateTypingPosition();
+    this.updateProgress();
+    this.saveCursorPosition();
+    this.hintNext();
+    this.refreshOverlays();
+    this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+  },
   deleteCurrentWord(){
     if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     const eng = this.engine;
@@ -2009,15 +2391,22 @@ const App = {
     } else if(end < text.length){
       while(end < text.length && /\s/.test(text[end])) end++;
     }
+    this.deleteTextRange(start, end, pos);
+  },
+  deleteTextRange(start, end, newPosition){
+    if(!this.engine || start >= end) return false;
+    const eng = this.engine;
+    const text = eng.text;
     const newText = normalizeLessonText(text.slice(0, start) + text.slice(end));
-    if(!newText || newText === text) return;
-    const snapshot = this.textView.snapshot(pos);
-    this.recordTemplateUndo(text, pos);
+    if(!newText || newText === text) return false;
+    const snapshot = this.textView.snapshot(eng.pos);
+    this.recordTemplateUndo(text, eng.pos);
     this.persistEdit(newText);
     this.adjustCapturesForDeletion(start, end);
-    eng.replaceText(newText, Math.min(pos, newText.length));
+    eng.replaceText(newText, Math.min(newPosition, newText.length));
     this.textView.build(eng.text, true);
     this.textView.restore(snapshot, eng.pos);
+    this.renderPendingDeletions();
     this.dom.captureInput.value = eng.text.slice(0, eng.pos);
     this.shadowValue = this.dom.captureInput.value;
     this.textView.moveCaret(eng.pos);
@@ -2027,35 +2416,18 @@ const App = {
     this.hintNext();
     this.refreshOverlays();
     this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+    return true;
   },
   deletePreviousWord(){
     if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
-    const eng = this.engine;
-    const text = eng.text;
-    const pos = eng.pos;
+    const text = this.engine.text;
+    const pos = this.engine.pos;
     let end = pos;
     while(end > 0 && /\s/.test(text[end - 1])) end--;
     let start = end;
     while(start > 0 && !/\s/.test(text[start - 1])) start--;
     if(start === pos) return;
-    const newText = normalizeLessonText(text.slice(0, start) + text.slice(pos));
-    if(!newText || newText === text) return;
-    const snapshot = this.textView.snapshot(pos);
-    this.recordTemplateUndo(text, pos);
-    this.persistEdit(newText);
-    this.adjustCapturesForDeletion(start, pos);
-    eng.replaceText(newText, Math.min(start, newText.length));
-    this.textView.build(eng.text, true);
-    this.textView.restore(snapshot, eng.pos);
-    this.dom.captureInput.value = eng.text.slice(0, eng.pos);
-    this.shadowValue = this.dom.captureInput.value;
-    this.textView.moveCaret(eng.pos);
-    this.updateTypingPosition();
-    this.updateProgress();
-    this.saveCursorPosition();
-    this.hintNext();
-    this.refreshOverlays();
-    this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
+    this.deleteTextRange(start, pos, start);
   },
   adjustCapturesForDeletion(start, end){
     const removed = end - start;
@@ -2146,7 +2518,7 @@ const App = {
     // First lesson visits and typing pauses show the veil. Editing and Command
     // mode remain visible so the lesson can be worked with.
     const veiled = (s === 'idle' && this.lessonIntro) ||
-      (s === 'paused' && this.pauseReason !== 'edit' && this.pauseReason !== 'command');
+      (s === 'paused' && !this.commandMode && this.pauseReason !== 'edit' && this.pauseReason !== 'command');
     d.startCue.classList.toggle('hidden', !veiled);
     d.readyPill.classList.toggle('show', !this.editing && (s === 'ready' || s === 'idle'));
     d.readyPill.textContent = s === 'ready' ? 'Start typing' : 'Type to begin';
@@ -2242,6 +2614,7 @@ const App = {
     if(e.defaultPrevented || e.isComposing || typeof e.key !== 'string') return;
     const d = this.dom;
     const t = e.target;
+    const escapeSwitchFocused = t === d.escapeSwitch;
     const inField = t !== d.captureInput && t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
     if(e.key === 'Escape' && !this.escapeCommands) return;
     if(e.key === 'Escape'){
@@ -2255,7 +2628,7 @@ const App = {
     }
     if(this.editing){
       if(e.key === 'Escape'){
-        if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+        if(!escapeSwitchFocused && t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
         e.preventDefault();
         this.endInlineEdit(true);
         return;
@@ -2264,17 +2637,27 @@ const App = {
       if(t !== d.captureInput && !(t && t.closest && t.closest('input, textarea, select, [contenteditable="true"], button, a'))) this.focusInput();
       return;
     }
-    if(this.commandMode && inField){ this.handleCommandKeydown(e); return; }
+    if(this.commandMode && (inField || (e.key === 'Escape' && escapeSwitchFocused))){ this.handleCommandKeydown(e); return; }
+    if(e.key === 'Escape' && escapeSwitchFocused && this.state === 'paused' && this.pauseReason === 'blur'){
+      e.preventDefault();
+      this.enterCommandMode(true);
+      return;
+    }
     if(this.state === 'running'){
       if(e.key === 'Escape'){
-        if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+        if(!escapeSwitchFocused && t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
         e.preventDefault();
         this.enterCommandMode();
       }
       return;
     }
     if(this.state === 'ready' && e.key === 'Escape'){
-      if(t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+      if(!escapeSwitchFocused && t !== d.captureInput && t && t.closest && t.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+      e.preventDefault();
+      this.enterCommandMode();
+      return;
+    }
+    if(this.state === 'finished' && e.key === 'Escape' && this.pendingDeletions.length){
       e.preventDefault();
       this.enterCommandMode();
       return;
@@ -3080,7 +3463,8 @@ const App = {
      The hidden typing field stays focused the whole time — it just holds the lesson text
      instead of what you've typed — and the visible spans mirror its value and selection, so
      the font, wrapping, colours and caret are the very ones you were typing in; nothing swaps
-     out. The clock pauses without a veil. Esc commits and returns to Command mode. Typing resumes at the
+     out. The clock pauses without a veil. Esc commits inline edits and returns to
+     the prior mode. Typing resumes at the
      same character (or, if you changed something inside what you'd already typed, at the first
      changed character). */
   canEdit(){
@@ -3137,14 +3521,18 @@ const App = {
     this.hidePill('edit');
     let pos = es.pos;
     if(changed){
-      if(this._editShown !== newText) this.remapCapturesForTextChange(this._editShown, newText);
+      if(this._editShown !== newText){
+        this.remapCapturesForTextChange(this._editShown, newText);
+        this.remapPendingDeletions(this._editShown, newText);
+      }
       pos = Math.min(es.pos, commonPrefix(es.text, newText)); // changed something you'd already typed: resume at the first changed character
       this.recordTemplateUndo(es.text, es.pos);
-      this.persistEdit(newText);
+      this.persistEdit(newText, { remapPending:false });
       eng.replaceText(newText, pos);
     }
     tv.build(eng.text, true);
     tv.restore(es, pos);
+    this.renderPendingDeletions();
     tv.setSelection(0, 0);
     const typed = es.typed.slice(0, pos);                   // the typing field goes back to exactly what was typed
     d.captureInput.value = typed;
@@ -3181,7 +3569,8 @@ const App = {
       this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
     }
   },
-  persistEdit(text){
+  persistEdit(text, options = {}){
+    if(options.remapPending !== false && this.engine) this.remapPendingDeletions(this.engine.text, text);
     const lesson = this.currentLesson;
     if(lesson.custom){
       lesson.text = text;
@@ -3263,10 +3652,7 @@ const App = {
     if(!this.editing) return;
     const ta = this.dom.captureInput;
     const val = ta.value;
-    if(val !== this._editShown){
-      this._editShown = val;
-      this.rebuildForEdit(val);
-    }
+    if(val !== this._editShown) this.rebuildForEdit(val);
     const s = ta.selectionStart, e = ta.selectionEnd;
     this.textView.moveCaret(ta.selectionDirection === 'backward' ? s : e);
     this.textView.setSelection(s, e);
@@ -3274,13 +3660,17 @@ const App = {
   rebuildForEdit(val){
     const es = this.editStart, tv = this.textView;
     const previous = this._editShown;
-    if(previous !== val) this.remapCapturesForTextChange(previous, val);
+    if(previous !== val){
+      this.remapCapturesForTextChange(previous, val);
+      this.remapPendingDeletions(previous, val);
+    }
     this._editShown = val;
     // The typed prefix keeps its green / red only up to the first character that differs from where
     // the edit began — so undoing the change brings every colour back.
     const keep = Math.min(es.pos, commonPrefix(es.text, val));
     tv.build(val, true);
     tv.restore(es, keep);
+    this.renderPendingDeletions();
     this._lines = null;
     this.applyAnnotations();
   },
@@ -3423,7 +3813,6 @@ const App = {
     this.dom.lfAcc.value = '95';
     // Opened from a course's + button: pre-fill that course, still editable.
     this.dom.lfCourse.value = preset.course || '';
-    this.dom.lfCourseOrder.value = preset.courseOrder ?? '';
     this.dom.lfOrder.value = preset.order ?? '';
     this.dom.modalScrim.classList.add('open');
     setTimeout(() => { if(this.dom.modalScrim.classList.contains('open')) this.dom.lfTitle.focus(); }, 50);
@@ -3467,7 +3856,6 @@ const App = {
     e.preventDefault();
     const title = this.dom.lfTitle.value.trim();
     const courseTitle = this.dom.lfCourse.value.trim() || 'My Lessons';
-    const courseOrder = optionalOrder(this.dom.lfCourseOrder.value);
     const order = optionalOrder(this.dom.lfOrder.value);
     const text = normalizeLessonText(this.dom.lfText.value);
     const targetWPM = clamp(parseInt(this.dom.lfWpm.value, 10) || 30, 5, 200);
@@ -3475,7 +3863,6 @@ const App = {
     if(!title || !text) return;
     const lesson = {
       id: uid('custom'), title, course: courseTitle, text, targetWPM, targetAccuracy,
-      ...(courseOrder !== null ? { courseOrder } : {}),
       ...(order !== null ? { order } : {}),
       custom:true
     };
@@ -3555,40 +3942,6 @@ const App = {
     }
     this.renderSidebar();
   },
-  async setCourseOrder(title){
-    const current = this.getAllCourses().find(course => course.title === title);
-    if(!current) return;
-    const value = await this.showActionModal({ title:'Set course order', message:'Lower numbers come first. Leave blank for automatic order.', label:'Order', value:current.order ?? '' });
-    if(value === null) return;
-    const order = value.trim() === '' ? null : optionalOrder(value);
-    if(value.trim() !== '' && order === null){
-      await this.showNotice('Invalid order', 'Please enter a valid whole number.');
-      return;
-    }
-    this.getCanonicalLessons().forEach(entry => {
-      if(this.deletedLessons.has(entry.lesson.id)) return;
-      const courseTitle = entry.lesson.course || entry.courseTitle || 'My Lessons';
-      if(courseTitle.toLowerCase() !== title.toLowerCase()) return;
-      if(entry.kind === 'custom'){
-        const target = this.customLessons.slice().reverse().find(lesson => lesson.id === entry.lesson.id);
-        if(target){
-          if(order === null) delete target.courseOrder;
-          else target.courseOrder = order;
-        }
-        return;
-      }
-      const currentOverride = this.overrides[entry.lesson.id];
-      const override = currentOverride && typeof currentOverride === 'object' && !Array.isArray(currentOverride)
-        ? { ...currentOverride } : {};
-      if(order === null) delete override.courseOrder;
-      else override.courseOrder = order;
-      if(Object.keys(override).length) this.overrides[entry.lesson.id] = override;
-      else delete this.overrides[entry.lesson.id];
-    });
-    Storage.saveLessons(this.customLessons);
-    Storage.saveOverrides(this.overrides);
-    this.renderSidebar();
-  },
   saveLessonMetadata(id, changes){
     const existing = this.overrides[id];
     const metadata = typeof existing === 'string'
@@ -3635,19 +3988,36 @@ const App = {
     URL.revokeObjectURL(url);
   },
   async exportLessons(){
+    if(this.editing){
+      this.endInlineEdit(true);
+      if(this.editing) return;
+    }
     const selectedById = new Map();
-    this.getAllCourses().flatMap(course => course.lessons).forEach(lesson => {
-      if(this.exportSelection.has(lesson.id) && !selectedById.has(lesson.id)) selectedById.set(lesson.id, lesson);
-    });
+    this.getAllCourses().forEach(course => course.lessons.forEach(lesson => {
+      if(this.exportSelection.has(lesson.id) && !selectedById.has(lesson.id)){
+        selectedById.set(lesson.id, {
+          id:lesson.id,
+          title:lesson.title,
+          text:lesson.text,
+          course:lesson.course || course.title,
+          targetWPM:lesson.targetWPM,
+          targetAccuracy:lesson.targetAccuracy,
+          ...(lesson.order != null ? { order:lesson.order } : {}),
+          ...(lesson.courseOrder != null ? { courseOrder:lesson.courseOrder } : {}),
+          ...(Array.isArray(lesson.objectives) ? { objectives:lesson.objectives } : {}),
+          ...(Array.isArray(lesson.topics) ? { topics:lesson.topics } : {})
+        });
+      }
+    }));
     const selected = Array.from(selectedById.values());
     if(!selected.length){ await this.showNotice('Nothing selected', 'Select at least one lesson to export.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-lessons.v1', lessons:selected }, null, 2);
-    this.downloadJson(payload, `type-studio-lessons-${selected.length}.json`);
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'studyping-lessons.v1', lessons:selected }, null, 2);
+    this.downloadJson(payload, `studyping-lessons-${selected.length}.json`);
   },
   async exportMarks(){
     if(!this.marks.length){ await this.showNotice('Nothing to export', 'No marks or masks to export yet.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'type-studio-marks.v1', marks:this.marks }, null, 2);
-    this.downloadJson(payload, `type-studio-marks-${this.marks.length}.json`);
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'studyping-marks.v1', marks:this.marks }, null, 2);
+    this.downloadJson(payload, `studyping-marks-${this.marks.length}.json`);
   },
   async importMarksFromFile(file){
     const reader = new FileReader();
@@ -3662,8 +4032,8 @@ const App = {
           ? `Imported ${added} mark${added === 1 ? '' : 's'}.`
           : 'No new marks were added — they are already saved or missing required fields.');
       }catch(err){
-        console.warn('TypeStudio: mark import failed', err);
-        await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Type Studio marks export.');
+        console.warn('Studyping: mark import failed', err);
+        await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Studyping marks export.');
       }
     };
     reader.readAsText(file);
@@ -3676,8 +4046,8 @@ const App = {
       await this.importLessonData(data);
     }catch(err){
       if(this.importConflict) this.finishImportConflict('skip');
-      console.warn('TypeStudio: import failed', err);
-      await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Type Studio lessons export.');
+      console.warn('Studyping: import failed', err);
+      await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Studyping lessons export.');
     }finally{
       this.importing = false;
     }
@@ -3698,7 +4068,7 @@ const App = {
     if(!list.length && !Object.keys(ovr).length && !deletedList.length){
       throw new Error(markList.length
         ? 'That file contains marks, not lessons. Use Import marks to add them.'
-        : 'That file did not look like a Type Studio lessons export.');
+        : 'That file did not look like a Studyping lessons export.');
     }
     // Restore deletions from the file before adding lessons, so a lesson in the
     // same file is not hidden by an id that the export also lists as deleted.
@@ -3792,7 +4162,7 @@ const App = {
     return result;
   },
   importLessonsSync(list, conflictMode = 'skip'){
-    // Non-interactive path for TypingStudio.importData(): conflicts follow the
+    // Non-interactive path for Studyping.importData(): conflicts follow the
     // caller's rule ('skip' by default) and identical ids are always skipped.
     const mode = conflictMode === 'update' || conflictMode === 'new' ? conflictMode : 'skip';
     const result = { added:0, updated:0, versions:0, identical:0, skipped:0, restored:0, invalid:0, conflicts:0 };
@@ -4033,6 +4403,33 @@ const App = {
     this.savePref('shortcutsCollapsed', this.shortcutsCollapsed);
     this.applyShortcutCollapsed();
   },
+  toggleCourse(title){
+    const key = courseKey(title);
+    if(!key) return;
+    if(this.collapsedCourses.has(key)) this.collapsedCourses.delete(key);
+    else this.collapsedCourses.add(key);
+    this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
+    this.syncCourseCollapse(title);
+  },
+  syncCourseCollapse(title){
+    const key = courseKey(title);
+    const collapsed = this.collapsedCourses.has(key);
+    this.dom.courseList.querySelectorAll('.course-group').forEach(group => {
+      if(courseKey(group.dataset.courseDrag) !== key) return;
+      group.classList.toggle('collapsed', collapsed);
+      const lessons = group.querySelector('.course-lessons');
+      const toggle = group.querySelector('.course-toggle');
+      if(lessons){
+        lessons.setAttribute('aria-hidden', String(collapsed));
+        lessons.inert = collapsed;
+      }
+      if(toggle){
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+        toggle.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${title}`);
+        toggle.title = `${collapsed ? 'Expand' : 'Collapse'} ${title}`;
+      }
+    });
+  },
   applyShortcutCollapsed(){
     const d = this.dom;
     if(!d.drawer) return;
@@ -4050,25 +4447,36 @@ const App = {
     } else {
       document.documentElement.dataset.theme = theme;
     }
-    const isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isGray = theme === 'gray';
     this.dom.themeBtn.classList.toggle('is-dark', isDark);
-    this.dom.themeBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+    this.dom.themeBtn.classList.toggle('is-gray', isGray);
+    const nextTheme = isGray ? 'light' : isDark ? 'gray' : 'dark';
+    const nextLabel = nextTheme === 'gray' ? 'grayscale' : nextTheme;
+    this.dom.themeBtn.setAttribute('aria-label', `Switch to ${nextLabel} theme`);
+    this.dom.themeBtn.title = `Switch to ${nextLabel} theme`;
     if(persist) this.savePref('theme', theme);
   },
   toggleTheme(){
     const current = document.documentElement.dataset.theme ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    this.setTheme(current === 'dark' ? 'light' : 'dark');
+    const nextTheme = current === 'light' ? 'dark' : current === 'dark' ? 'gray' : 'light';
+    this.setTheme(nextTheme);
   },
   toggleSound(){
     this.sound.enabled = !this.sound.enabled;
     this.savePref('sound', this.sound.enabled);
   },
   toggleKeyboard(){
-    const hidden = this.dom.keyboardPanel.style.display === 'none';
-    this.dom.keyboardPanel.style.display = hidden ? '' : 'none';
-    this.dom.keyboardToggleBtn.textContent = hidden ? 'Hide keyboard' : 'Show keyboard';
-    this.savePref('keyboardHidden', !hidden);
+    this.keyboardHidden = !this.keyboardHidden;
+    this.applyKeyboardCollapsed();
+    this.savePref('keyboardHidden', this.keyboardHidden);
+  },
+  applyKeyboardCollapsed(){
+    const collapsed = this.keyboardHidden;
+    this.dom.stageWrap.classList.toggle('keyboard-collapsed', collapsed);
+    this.dom.keyboardToggleBtn.textContent = collapsed ? 'Show keyboard' : 'Hide keyboard';
+    this.dom.keyboardToggleBtn.setAttribute('aria-expanded', String(!collapsed));
   },
   savePref(key, value){
     const prefs = Storage.loadPrefs();
@@ -4085,8 +4493,8 @@ const App = {
     const button = this.dom.escapeSwitch;
     button.setAttribute('aria-checked', String(this.escapeCommands));
     button.title = this.escapeCommands
-      ? 'Escape controls Study Typing commands; turn off to leave Escape to the browser'
-      : 'Escape is left to the browser; turn on to use Study Typing commands';
+      ? 'Escape controls Studyping commands; turn off to leave Escape to the browser'
+      : 'Escape is left to the browser; turn on to use Studyping commands';
   },
 
   /* ----- wiring ----- */
@@ -4141,29 +4549,27 @@ const App = {
     });
     d.courseList.addEventListener('click', (e) => {
       if(e.target.closest('.lesson-export')){ e.stopPropagation(); return; }
+      const courseToggle = e.target.closest('.course-toggle');
+      if(courseToggle){ e.stopPropagation(); this.toggleCourse(courseToggle.dataset.courseToggle); return; }
       const courseAdd = e.target.closest('.course-add');
       if(courseAdd){ e.stopPropagation(); this.openModal({ course:courseAdd.dataset.courseNew }); return; }
-      const courseOrder = e.target.closest('.course-order');
-      if(courseOrder){ e.stopPropagation(); this.setCourseOrder(courseOrder.dataset.courseOrder); return; }
-      const menuAction = e.target.closest('.lesson-menu-action');
-      if(menuAction){
-        e.stopPropagation();
-        const menu = menuAction.closest('.lesson-menu');
-        const id = menu.dataset.menuId;
-        menu.classList.remove('open');
-        if(menuAction.dataset.action === 'rename') this.renameLesson(id);
-        else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
-        else if(menuAction.dataset.action === 'set-order') this.setLessonOrder(id);
-        else if(menuAction.dataset.action === 'restore') this.restoreLesson(id);
-        else if(menuAction.dataset.action === 'delete') this.deleteLesson(id);
-        return;
-      }
       const menuTrigger = e.target.closest('.lesson-menu-trigger');
       if(menuTrigger){
         e.stopPropagation();
         const menu = menuTrigger.closest('.lesson-menu');
-        this.dom.courseList.querySelectorAll('.lesson-menu.open').forEach(m => { if(m !== menu) m.classList.remove('open'); });
-        menu.classList.toggle('open');
+        if(menu.classList.contains('open')){
+          this.closeLessonMenu(menu);
+        }else{
+          this.closeOpenLessonMenus();
+          const menuList = menu.querySelector('.lesson-menu-list');
+          document.body.appendChild(menuList);
+          menuList.classList.add('open');
+          menu.classList.add('open');
+          menuList.style.left = '0px';
+          menuList.style.top = '0px';
+          if(typeof menuList.showPopover === 'function') menuList.showPopover();
+          this.positionLessonMenu(menuList, menuTrigger);
+        }
         return;
       }
       const item = e.target.closest('.lesson-item');
@@ -4171,6 +4577,26 @@ const App = {
         const found = this.findLesson(item.dataset.id);
         if(found){ this.loadLesson(found.lesson, found.courseTitle); this.closeDrawer(); }
       }
+    });
+    document.addEventListener('click', (e) => {
+      const menuAction = e.target.closest('.lesson-menu-action');
+      if(menuAction){
+        e.stopPropagation();
+        const menuList = menuAction.closest('.lesson-menu-list');
+        const menu = Array.from(this.dom.courseList.querySelectorAll('.lesson-menu'))
+          .find(item => item.dataset.menuId === menuList.dataset.menuId);
+        if(!menu) return;
+        const id = menu.dataset.menuId;
+        this.closeLessonMenu(menu);
+        if(menuAction.dataset.action === 'rename') this.renameLesson(id);
+        else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
+        else if(menuAction.dataset.action === 'set-order') this.setLessonOrder(id);
+        else if(menuAction.dataset.action === 'restore') this.restoreLesson(id);
+        else if(menuAction.dataset.action === 'delete') this.deleteLesson(id);
+        return;
+      }
+      if(e.target.closest('.lesson-menu, .lesson-menu-list')) return;
+      this.closeOpenLessonMenus();
     });
 
     d.newLessonBtn.addEventListener('click', () => this.openModal());
@@ -4353,6 +4779,7 @@ const App = {
     });
     d.captureInput.addEventListener('input', (e) => this.syncFromInput(this.composing || e.isComposing));
     d.captureInput.addEventListener('keydown', (e) => {
+      if(e.defaultPrevented) return;
       if(this.editing){ this.onEditKeydown(e); return; }
       if(this.commandMode){ this.handleCommandKeydown(e); return; }
       // Two inline shortcut families that work together, one per hand:
@@ -4389,29 +4816,29 @@ const App = {
 document.addEventListener('DOMContentLoaded', () => App.init());
 
 /* =========================================================================
-   PUBLIC API — window.TypingStudio
+   PUBLIC API — window.Studyping
    ---------------------------------------------------------------------
    Use this surface to feed your own content and hook your own gamification
    logic in without touching the internals above.
 
-     TypingStudio.addLesson({
+     Studyping.addLesson({
        title: 'My Drill', course: 'My Lessons', text: '...',
        targetWPM: 40, targetAccuracy: 96,
        objectives: [{ type:'minWpm', value:40, label:'Reach 40 wpm' }] // optional
      })
-     TypingStudio.loadLesson(lessonId)
-     TypingStudio.courses()                 // -> [{ title, lessons:[...] }]
-     TypingStudio.getState()                // -> { lessonId, state, stats }
-     TypingStudio.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
-     TypingStudio.on('checkpoint', fn)      // events: start, keystroke, error,
-     TypingStudio.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
+     Studyping.loadLesson(lessonId)
+     Studyping.courses()                 // -> [{ title, lessons:[...] }]
+     Studyping.getState()                // -> { lessonId, state, stats }
+     Studyping.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
+     Studyping.on('checkpoint', fn)      // events: start, keystroke, error,
+     Studyping.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
                                              //   lessonComplete, lessonAdded, lessonEdited,
                                              //   ready, paused, resumed, markAdded, markRemoved
-     TypingStudio.setSoundEnabled(bool)
-     TypingStudio.setTheme('light'|'dark'|'system')
-     TypingStudio.exportData() / importData(json, { conflicts:'skip'|'update'|'new' })
+     Studyping.setSoundEnabled(bool)
+     Studyping.setTheme('light'|'dark'|'gray'|'system')
+     Studyping.exportData() / importData(json, { conflicts:'skip'|'update'|'new' })
    ========================================================================= */
-window.TypingStudio = {
+window.Studyping = {
   addLesson(lesson){
     const source = lesson && typeof lesson === 'object' ? lesson : {};
     const title = String(source.title || '').trim();
@@ -4424,7 +4851,7 @@ window.TypingStudio = {
       const comparison = compareImportedLesson(existing.lesson, existing.courseTitle, incoming);
       if(comparison.same) return existing.lesson.id; // already saved: no duplicate row
       id = uid('custom'); // same id, different content: keep both under a fresh id
-      console.info(`TypeStudio: lesson id "${source.id}" already exists with different content; adding the new lesson as "${id}".`);
+      console.info(`Studyping: lesson id "${source.id}" already exists with different content; adding the new lesson as "${id}".`);
     }
     const wpm = optionalInt(source.targetWPM, 5, 200);
     const acc = optionalInt(source.targetAccuracy, 50, 100);
@@ -4491,7 +4918,7 @@ window.TypingStudio = {
         // options.conflicts: 'skip' (default), 'update', or 'new' (second version).
         const result = App.importLessonsSync(data.lessons, conflictMode);
         if(result.conflicts){
-          console.info(`TypeStudio: importData resolved ${plural(result.conflicts, 'conflict')} using "${conflictMode || 'skip'}".`);
+          console.info(`Studyping: importData resolved ${plural(result.conflicts, 'conflict')} using "${conflictMode || 'skip'}".`);
         }
       }
       if(data.stats){
@@ -4504,10 +4931,13 @@ window.TypingStudio = {
       App.renderSidebar();
       return true;
     }catch(e){
-      console.warn('TypeStudio: importData failed', e);
+      console.warn('Studyping: importData failed', e);
       return false;
     }
   }
 };
+
+// Keep integrations written for the previous module name working after the rename.
+window.TypingStudio = window.Studyping;
 
 })();

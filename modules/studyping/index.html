@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study Typing App — Evolving Crisis</title>
+<title>Studyping App — Evolving Crisis</title>
 <meta name="description" content="A hackable, keyboard-aware typing practice tool you can host yourself and feed your own lessons.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8C%A8%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="./styles.css">
@@ -19,7 +19,7 @@
       </button>
       <div class="brand">
         <span class="brand-caret"></span>
-        <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Study Typing commands" title="Use Escape for Study Typing commands">
+        <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Studyping commands" title="Use Escape for Studyping commands">
           <span class="escape-switch-label">Esc commands</span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
@@ -47,9 +47,10 @@
         <span class="alt-icon icon-sound-on"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13 7a4 4 0 0 1 0 6"/><path d="M15.3 4.7a8 8 0 0 1 0 10.6"/></svg></span>
         <span class="alt-icon icon-sound-off"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><line x1="13" y1="7" x2="17" y2="13"/><line x1="17" y1="7" x2="13" y2="13"/></svg></span>
       </button>
-      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+      <button class="icon-btn" id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme">
         <span class="alt-icon icon-sun"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.1"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.4" y1="4.4" x2="5.7" y2="5.7"/><line x1="14.3" y1="14.3" x2="15.6" y2="15.6"/><line x1="4.4" y1="15.6" x2="5.7" y2="14.3"/><line x1="14.3" y1="5.7" x2="15.6" y2="4.4"/></svg></span>
         <span class="alt-icon icon-moon"><svg viewBox="0 0 20 20"><path d="M16 11.6A6.5 6.5 0 1 1 8.4 4 5.2 5.2 0 0 0 16 11.6z"/></svg></span>
+        <span class="alt-icon icon-gray"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="4" rx="1" fill="currentColor" opacity=".35" stroke="none"/><rect x="3" y="8" width="14" height="4" rx="1" fill="currentColor" opacity=".65" stroke="none"/><rect x="3" y="13" width="14" height="4" rx="1" fill="currentColor" stroke="none"/></svg></span>
       </button>
       <button class="icon-btn" id="restartBtn" aria-label="Restart lesson">
         <svg viewBox="0 0 20 20"><path d="M15.5 10a5.5 5.5 0 1 1-1.7-3.97"/><path d="M15.5 4v3.6h-3.6"/></svg>
@@ -81,9 +82,13 @@
           <li><kbd>Esc</kbd> enter Command mode</li>
           <li><kbd>t</kbd> return to Typing mode</li>
           <li><kbd>n</kbd>/<kbd>b</kbd> next/previous word</li>
+          <li><kbd>N</kbd>/<kbd>B</kbd> (Shift+n/b) queue skipped word(s) for deletion</li>
+          <li><kbd>dw</kbd> immediately deletes the current word</li>
+          <li><kbd>D</kbd> delete queued ranges; <kbd>q</kbd> clears them</li>
+          <li><kbd>Esc</kbd>/<kbd>t</kbd> return to Typing mode, keeping queued ranges</li>
           <li><kbd>:1234</kbd> jump to position 1234, then <kbd>Enter</kbd></li>
-          <li><kbd>dw</kbd> delete the current word</li>
           <li><kbd>cw</kbd> change the current word</li>
+          <li><kbd>x</kbd> delete the character at the caret</li>
           <li><kbd>mw</kbd> mark or unmark the current word</li>
           <li><kbd>m</kbd>, then <kbd>t</kbd>, then <kbd>Esc</kbd> and <kbd>m</kbd> mark a passage</li>
           <li><kbd>M</kbd> mask or unmask the current word</li>
@@ -156,7 +161,8 @@
       </section>
 
       <div class="keyboard-toggle-row">
-        <button class="text-btn" id="keyboardToggleBtn">Hide keyboard</button>
+        <button class="text-btn" id="keyboardToggleBtn" type="button"
+                aria-expanded="true" aria-controls="keyboardPanel">Hide keyboard</button>
       </div>
 
       <section class="keyboard-panel" id="keyboardPanel">
@@ -207,14 +213,9 @@
           <input id="lfCourse" type="text" list="courseNames" required maxlength="60" placeholder="e.g. My Drills">
           <datalist id="courseNames"></datalist>
         </label>
-        <div class="field-row">
-          <label class="field"><span>Course order <small>(optional)</small></span>
-            <input id="lfCourseOrder" type="number" step="1" placeholder="e.g. 10">
-          </label>
-          <label class="field"><span>Lesson order <small>(optional)</small></span>
-            <input id="lfOrder" type="number" step="1" placeholder="e.g. 20">
-          </label>
-        </div>
+        <label class="field"><span>Lesson order <small>(optional)</small></span>
+          <input id="lfOrder" type="number" step="1" placeholder="e.g. 20">
+        </label>
         <label class="field"><span>Text to type</span>
           <textarea id="lfText" required rows="5" placeholder="Paste or write the passage you want to practice…"></textarea>
         </label>
@@ -282,8 +283,8 @@
       </div>
       <ul class="marks-list" id="marksList"></ul>
       <div class="modal-actions marks-actions">
-        <button type="button" class="btn" id="marksImportBtn" title="Import marks and masks from a Type Studio marks JSON file">Import marks</button>
-        <button type="button" class="btn" id="marksExportBtn" title="Download all marks and masks as a Type Studio marks JSON file">Export marks</button>
+        <button type="button" class="btn" id="marksImportBtn" title="Import marks and masks from a Studyping marks JSON file">Import marks</button>
+        <button type="button" class="btn" id="marksExportBtn" title="Download all marks and masks as a Studyping marks JSON file">Export marks</button>
         <button type="button" class="btn" id="marksCopyBtn">Copy all</button>
         <button type="button" class="btn primary" id="marksPracticeBtn">Practice these</button>
         <input type="file" id="marksImportFileInput" accept="application/json" hidden>
