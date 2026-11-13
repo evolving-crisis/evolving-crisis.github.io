@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Evolving Crisis · Studyping · 420 pb radio chaïto</title>
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#002b36"/>
+  <path d="M12 16h21v7H20v6h12v7H20v6h13v7H12z" fill="#fdf6e3"/>
+  <path d="M37 51h22" fill="none" stroke="#586e75" stroke-linecap="round" stroke-width="2"/>
+  <g fill="#cb4b16">
+    <rect class="bar" x="38" y="34" width="4" height="16" rx="2"/>
+    <rect class="bar" x="44" y="23" width="4" height="27" rx="2"/>
+    <rect class="bar" x="50" y="29" width="4" height="21" rx="2"/>
+    <rect class="bar" x="56" y="18" width="4" height="32" rx="2"/>
+  </g>
+  <style>
+    .bar {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      animation: equalize 1.15s ease-in-out infinite alternate;
+    }
+    .bar:nth-of-type(2) { animation-delay: -0.75s; }
+    .bar:nth-of-type(3) { animation-delay: -0.4s; }
+    .bar:nth-of-type(4) { animation-delay: -0.9s; }
+    @keyframes equalize {
+      from { transform: scaleY(.42); }
+      to { transform: scaleY(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar { animation: none; transform: none; }
+    }
+  </style>
+</svg>

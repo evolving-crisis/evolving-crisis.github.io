@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Studyping App — Evolving Crisis</title>
 <meta name="description" content="A hackable, keyboard-aware typing practice tool you can host yourself and feed your own lessons.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8C%A8%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./styles.css">
 <script src="./app.js" defer></script>
 </head>
@@ -25,27 +25,55 @@
         </button>
       </div>
     </div>
-    <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global typing stats">
-      <span class="gs-label">Global</span>
-      <span class="gs-metric">
-        <span class="gs-value" id="gStatWpm">—</span>
-        <span class="gs-unit">avg wpm</span>
-      </span>
-      <span class="gs-sep" aria-hidden="true"></span>
-      <span class="gs-metric acc">
-        <span class="gs-value" id="gStatAcc">—</span>
-        <span class="gs-unit">avg acc</span>
-      </span>
-      <span class="gs-sep gs-sep-runs" aria-hidden="true"></span>
-      <span class="gs-metric runs">
-        <span class="gs-value" id="gStatRuns">0</span>
-        <span class="gs-unit">runs</span>
-      </span>
+    <div class="topbar-dashboard">
+      <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global typing stats">
+        <span class="gs-label">Global</span>
+        <span class="gs-metric">
+          <span class="gs-value" id="gStatWpm">—</span>
+          <span class="gs-unit">avg wpm</span>
+        </span>
+        <span class="gs-sep" aria-hidden="true"></span>
+        <span class="gs-metric acc">
+          <span class="gs-value" id="gStatAcc">—</span>
+          <span class="gs-unit">avg acc</span>
+        </span>
+        <span class="gs-sep gs-sep-runs" aria-hidden="true"></span>
+        <span class="gs-metric runs">
+          <span class="gs-value" id="gStatRuns">0</span>
+          <span class="gs-unit">runs</span>
+        </span>
+      </div>
+      <section class="session-stats" aria-label="Current session">
+        <section class="stats-row" id="statsRow" aria-label="Current session statistics" aria-live="polite">
+          <div class="stat"><span class="stat-value" id="statWpm">0</span><span class="stat-label">speed · wpm</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statAcc">100%</span><span class="stat-label">accuracy</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statTime">0:00</span><span class="stat-label">time</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statErrors">0</span><span class="stat-label">errors</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statPosition">0/0</span><span class="stat-label">position</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statModeSplit">— / —</span><span class="stat-label">typing / reading</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-value" id="statRemaining">—</span><span class="stat-label">typing left</span></div>
+        </section>
+        <div class="session-progress" id="sessionProgress" role="progressbar"
+             aria-label="Current lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             title="Current lesson progress">
+          <div class="session-progress-head">
+            <span>Run</span>
+            <span id="sessionProgressPct">0%</span>
+          </div>
+          <span class="session-progress-track" aria-hidden="true"><span id="sessionProgressFill"></span></span>
+        </div>
+      </section>
     </div>
     <div class="topbar-actions">
-      <button class="icon-btn" id="soundBtn" aria-label="Toggle sound">
-        <span class="alt-icon icon-sound-on"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13 7a4 4 0 0 1 0 6"/><path d="M15.3 4.7a8 8 0 0 1 0 10.6"/></svg></span>
-        <span class="alt-icon icon-sound-off"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><line x1="13" y1="7" x2="17" y2="13"/><line x1="17" y1="7" x2="13" y2="13"/></svg></span>
+      <button class="icon-btn" id="soundBtn" aria-label="Mute sound" title="Mute sound">
+        <span class="alt-icon icon-action-mute"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13 7a4 4 0 0 1 0 6"/><path d="M15.3 4.7a8 8 0 0 1 0 10.6"/></svg></span>
+        <span class="alt-icon icon-action-unmute"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><line x1="13" y1="7" x2="17" y2="13"/><line x1="17" y1="7" x2="13" y2="13"/></svg></span>
       </button>
       <button class="icon-btn" id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme">
         <span class="alt-icon icon-sun"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.1"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.4" y1="4.4" x2="5.7" y2="5.7"/><line x1="14.3" y1="14.3" x2="15.6" y2="15.6"/><line x1="4.4" y1="15.6" x2="5.7" y2="14.3"/><line x1="14.3" y1="5.7" x2="15.6" y2="4.4"/></svg></span>
@@ -92,6 +120,8 @@
           <li><kbd>mw</kbd> mark or unmark the current word</li>
           <li><kbd>m</kbd>, then <kbd>t</kbd>, then <kbd>Esc</kbd> and <kbd>m</kbd> mark a passage</li>
           <li><kbd>M</kbd> mask or unmask the current word</li>
+          <li><kbd>:mute</kbd> / <kbd>:unmute</kbd> then <kbd>Enter</kbd> change typing sounds</li>
+          <li><kbd>:radio off</kbd> / <kbd>:radio on</kbd> then <kbd>Enter</kbd> control Radio Chaito</li>
           <li><kbd>i</kbd> edit the lesson</li>
           <li><kbd>Backspace</kbd> delete the previous word</li>
           <li><kbd>u</kbd> undo · <kbd>r</kbd> redo</li>
@@ -146,18 +176,6 @@
         <div class="progress-rule"><div class="progress-fill" id="progressFill"></div></div>
         <p class="lesson-goal" id="lessonGoal">Goal: 25 wpm · 95% accuracy</p>
         <textarea id="captureInput" class="capture-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true"></textarea>
-      </section>
-
-      <section class="stats-row" id="statsRow" aria-live="polite">
-        <div class="stat"><span class="stat-value" id="statWpm">0</span><span class="stat-label">speed · wpm</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-value" id="statAcc">100%</span><span class="stat-label">accuracy</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-value" id="statTime">0:00</span><span class="stat-label">time</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-value" id="statErrors">0</span><span class="stat-label">errors</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-value" id="statPosition">0/0</span><span class="stat-label">position</span></div>
       </section>
 
       <div class="keyboard-toggle-row">

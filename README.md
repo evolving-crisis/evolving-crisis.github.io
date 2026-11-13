@@ -226,7 +226,7 @@ Visit <http://localhost:4000> and check the home page, posts, images, About page
 .
 ├── _config.yml          # Jekyll configuration, theme, plugins, and navigation
 ├── .github/workflows/pages.yml # GitHub Actions build and deployment
-├── _includes/head-custom.html  # Shared favicon markup
+├── _includes/custom-head.html # Shared favicon markup
 ├── _posts/              # Published posts
 ├── assets/images/       # Images used by posts and pages
 ├── modules/studyping/ # Standalone typing-study module

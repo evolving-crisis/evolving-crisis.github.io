@@ -187,6 +187,18 @@ $('play').onclick = () => {
   else if (live) { const current = whatsOn(); load(current.i, current.off); }
   else load(idx, 0);
 };
+window.addEventListener('message', event => {
+  if (event.origin !== window.location.origin || event.source !== window.parent ||
+      event.data?.type !== 'radio-chaito:command' ||
+      !['on', 'off'].includes(event.data.action)) return;
+  if (event.data.action === 'on') {
+    if (!playing) $('play').click();
+  } else if (playing) {
+    stopCurrent();
+    playing = false;
+    ui();
+  }
+});
 $('next').onclick = () => { live = false; load((idx + 1) % L.length, 0); };
 $('prev').onclick = () => { live = false; load((idx - 1 + L.length) % L.length, 0); };
 $('live').onclick = () => { live = true; const current = whatsOn(); load(current.i, current.off); };

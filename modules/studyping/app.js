@@ -16,9 +16,123 @@
 const qs = (sel, root) => (root||document).querySelector(sel);
 const qsa = (sel, root) => Array.from((root||document).querySelectorAll(sel));
 const prefersReducedMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersSlowUpdates = () => window.matchMedia && window.matchMedia('(update: slow)').matches;
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const collapseWhitespace = (str) => str.normalize('NFC').replace(/\s+/g, ' ').trim();
 const normalizeLessonText = (str) => str.normalize('NFC').replace(/\r\n?/g, '\n').trim();
+function markdownLessonText(markdown, title){
+  const lines = markdown.split('\n');
+  const output = [];
+  let inCodeBlock = false;
+  let skippedTitle = false;
+  lines.forEach(rawLine => {
+    const fence = rawLine.match(/^\s*(```+|~~~+)/);
+    if(fence){
+      inCodeBlock = !inCodeBlock;
+      return;
+    }
+    if(inCodeBlock){
+      output.push(rawLine);
+      return;
+    }
+    if(/^\s*(?:-{3,}|_{3,}|\*{3,})\s*$/.test(rawLine)) return;
+    let line = rawLine;
+    const heading = line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/);
+    if(heading){
+      if(!skippedTitle && title && heading[1].trim().toLowerCase() === title.trim().toLowerCase()){
+        skippedTitle = true;
+        return;
+      }
+      line = line.replace(/^\s{0,3}#{1,6}\s+/, '');
+    }
+    if(/^\s*\|.*\|\s*$/.test(line)){
+      const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(cell => cell.trim());
+      if(cells.length > 1 && cells.every(cell => /^:?-{3,}:?$/.test(cell))) return;
+      line = cells.join(' ');
+    } else {
+      line = line.replace(/^\s{0,3}>\s?/, '');
+      line = line.replace(/^\s*(?:[-+*]|\d+[.)])\s+/, '');
+    }
+    output.push(line);
+  });
+  return normalizeLessonText(output.join('\n'));
+}
+function parseMarkdownLessonFile(source, filename){
+  const normalized = String(source).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const frontmatter = normalized.match(/^\n*---\n([\s\S]*?)\n---(?:\n|$)/);
+  const metadata = {};
+  let body = normalized;
+  if(frontmatter){
+    frontmatter[1].split('\n').forEach(line => {
+      const field = line.match(/^([A-Za-z][\w-]*):\s*(.*?)\s*$/);
+      if(!field) return;
+      const value = field[2];
+      metadata[field[1]] = /^(['"]).*\1$/.test(value)
+        ? value.slice(1, -1).replace(/''/g, "'")
+        : value;
+    });
+    body = normalized.slice(frontmatter[0].length);
+  }
+  const firstHeading = body.match(/^\s{0,3}#\s+(.+)$/m);
+  const title = String(metadata.title || (firstHeading && firstHeading[1]) || filename.replace(/\.(?:md|txt)$/i, '')).trim();
+  const text = markdownLessonText(body, metadata.title ? title : '');
+  if(!title || !text) throw new Error(`Markdown lesson "${filename}" needs a title and body`);
+  const lesson = {
+    id:String(metadata.id || slugify(filename.replace(/\.(?:md|txt)$/i, ''))),
+    title,
+    course:String(metadata.course || 'More Lessons').trim(),
+    text,
+    targetWPM:optionalInt(metadata.targetWPM, 5, 200) ?? 30,
+    targetAccuracy:optionalInt(metadata.targetAccuracy, 50, 100) ?? 95
+  };
+  const order = optionalOrder(metadata.order);
+  const courseOrder = optionalOrder(metadata.courseOrder);
+  if(order !== null) lesson.order = order;
+  if(courseOrder !== null) lesson.courseOrder = courseOrder;
+  return lesson;
+}
+function parseInlineMarkdown(source){
+  const text = [];
+  const sourceIndices = [];
+  const formats = [];
+  const marks = [
+    ['**', 'md-strong'], ['__', 'md-strong'], ['~~', 'md-strike'],
+    ['`', 'md-code'], ['*', 'md-em'], ['_', 'md-em']
+  ];
+  const append = (value, start) => {
+    for(let i = 0; i < value.length; i++){
+      text.push(value[i]);
+      sourceIndices.push(start + i);
+    }
+  };
+  for(let i = 0; i < source.length;){
+    const mark = marks.find(([token]) => source.startsWith(token, i));
+    const underscore = mark && mark[0][0] === '_';
+    const validUnderscoreStart = !underscore || i === 0 || !/[A-Za-z0-9]/.test(source[i - 1]);
+    if(mark && validUnderscoreStart && (i === 0 || source[i - 1] !== '\\')){
+      const [token, style] = mark;
+      const contentStart = i + token.length;
+      const close = source.indexOf(token, contentStart);
+      if(close > contentStart && !/\s/.test(source[contentStart]) &&
+         !/\s/.test(source[close - 1]) && !source.slice(contentStart, close).includes('\n') &&
+         (!underscore || close + token.length === source.length || !/[A-Za-z0-9]/.test(source[close + token.length]))){
+        const formatStart = text.length;
+        append(source.slice(contentStart, close), contentStart);
+        formats.push({ start:formatStart, end:text.length, style });
+        i = close + token.length;
+        continue;
+      }
+    }
+    append(source[i], i);
+    i++;
+  }
+  return { text:text.join(''), sourceIndices, formats, sourceLength:source.length };
+}
+function sourcePositionForRendered(parsed, position){
+  return position < parsed.sourceIndices.length
+    ? parsed.sourceIndices[Math.max(0, position)]
+    : parsed.sourceLength;
+}
 const slugify = (str) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'lesson';
 const courseKey = (title) => String(title || '').trim().toLowerCase();
 const uid = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`;
@@ -301,11 +415,10 @@ function evaluateObjective(spec, stats){
 }
 
 // The lesson opened on first visit (and on any visit with no remembered last
-// lesson). Lives in a static pack (lessons/programmers-practice.json), not in
-// DEFAULT_COURSES below — change this id to point at any lesson, built-in or
-// packed, to change what greets a new visitor. If the pack it points to can't
-// be fetched (offline, local file:// preview, or the id doesn't exist), init()
-// falls back to the first built-in lesson automatically.
+// lesson). It can point to any built-in lesson or static JSON/Markdown lesson;
+// change this id to choose what greets a new visitor. If the pack it points to
+// can't be fetched (offline, local file:// preview, or the id doesn't exist),
+// init() falls back to an available lesson automatically.
 const DEFAULT_LESSON_ID = 'evolving-crisis-code-intro';
 
 const DEFAULT_COURSES = [
@@ -604,6 +717,7 @@ class TextView{
     this.wordIndexForChar = [];
     this.badges = [];
     this.strikes = new Map(); // char index -> { ghost, anim, el } for in-flight stroke animations
+    this.slowStrikeEl = null;
     this.markedEls = [];      // chars currently carrying a mark class
     this.maskedEls = [];      // chars currently carrying a mask class
     this.deletePreviewEls = [];
@@ -611,9 +725,10 @@ class TextView{
     this.selEls = [];         // chars inside the edit selection
     this.composingEl = null;  // the char showing the "dead key is down" preview
   }
-  build(text, keepScroll){
+  build(text, keepScroll, formats = []){
     this.strikes.forEach(s => { s.anim.onfinish = s.anim.oncancel = null; s.anim.cancel(); });
     this.strikes.clear();
+    this.slowStrikeEl = null;
     qsa('.word, .char.space, .char.whitespace, .checkpoint-badge, .strike-ghost', this.container).forEach(n=>n.remove());
     this.badges = [];
     this.badgeData = [];
@@ -627,6 +742,12 @@ class TextView{
     this.wordEls = [];
     this.wordRanges = [];
     const frag = document.createDocumentFragment();
+    let formatIndex = 0;
+    const addFormat = (el, index) => {
+      while(formatIndex < formats.length && formats[formatIndex].end <= index) formatIndex++;
+      const format = formats[formatIndex];
+      if(format && index >= format.start) el.classList.add(format.style);
+    };
     let currentWord = null, wordStart = -1, wIdx = -1;
     for(let i=0;i<text.length;i++){
       const ch = text[i];
@@ -635,6 +756,7 @@ class TextView{
         const sp = document.createElement('span');
         sp.className = ch === ' ' ? 'char space' : ch === '\t' ? 'char whitespace tab-char' : 'char whitespace newline-char';
         sp.dataset.idx = String(i);
+        addFormat(sp, i);
         if(ch === '\t'){
           sp.textContent = '\t';
           sp.setAttribute('aria-label', 'tab character');
@@ -663,6 +785,7 @@ class TextView{
       }
       const cs = document.createElement('span');
       cs.className = 'char';
+      addFormat(cs, i);
       cs.dataset.idx = String(i);
       cs.textContent = ch;
       this.charEls[i] = cs;
@@ -782,11 +905,16 @@ class TextView{
     }
     return { states, badges: this.badgeData.filter(b => b.charIndex < upto).map(b => ({ ...b })) };
   }
-  restore(snap, keep){
+  restore(snap, keep, indexMap){
     const n = Math.min(keep, snap.states.length, this.charEls.length);
-    for(let i = 0; i < n; i++){ if(snap.states[i]) this.charEls[i].classList.add(snap.states[i]); }
-    for(let i = 0; i < n; i++) this.refreshWord(i);
-    snap.badges.filter(b => b.charIndex < n).forEach(b => this.addCheckpoint(b, true));
+    for(let i = 0; i < n; i++){
+      const displayIndex = indexMap ? indexMap[i] : i;
+      if(snap.states[i] && this.charEls[displayIndex]) this.charEls[displayIndex].classList.add(snap.states[i]);
+      this.refreshWord(displayIndex);
+    }
+    snap.badges.filter(b => b.charIndex < n).forEach(b => {
+      this.addCheckpoint(indexMap ? { ...b, charIndex:indexMap[b.charIndex] } : b, true);
+    });
   }
   setSelection(s, e){
     this.selEls.forEach(el => el.classList.remove('sel'));
@@ -849,10 +977,17 @@ class TextView{
     // far/soft to nothing. It's an overlay ghost (not a transform on the real
     // character) because inline text can't be transformed, and because the real
     // layout, caret math and scroll logic must stay untouched.
-    if(prefersReducedMotion() || typeof this.container.animate !== 'function') return;
+    if(prefersReducedMotion()) return;
     const el = this.charEls[idx];
     if(!el || el.classList.contains('space')) return;
     if(!correct && el.classList.contains('masked')) return; // don't leak the answer
+    if(prefersSlowUpdates()){
+      if(this.slowStrikeEl) this.slowStrikeEl.classList.remove('slow-stamp');
+      el.classList.add('slow-stamp');
+      this.slowStrikeEl = el;
+      return;
+    }
+    if(typeof this.container.animate !== 'function') return;
     this.cancelStrike(idx);
     const c = this.container;
     const cr = c.getBoundingClientRect();
@@ -1085,13 +1220,27 @@ class StatsView{
     this.els.time.textContent = '0:00';
     this.els.errors.textContent = '0';
     this.els.position.textContent = '0/0';
+    this.els.modeSplit.textContent = '— / —';
+    this.els.remaining.textContent = '—';
     this.lastWpm = 0;
   }
-  update(stats){
+  update(stats, timing){
     this.els.wpm.textContent = String(stats.wpm);
     this.els.acc.textContent = stats.accuracy + '%';
     this.els.time.textContent = formatTime(stats.elapsedMs);
     this.els.errors.textContent = String(stats.errors);
+    this.els.modeSplit.textContent = timing.typingPercent === null
+      ? '— / —'
+      : `${timing.typingPercent}% / ${timing.readingPercent}%`;
+    this.els.modeSplit.title = timing.engagedMs > 0
+      ? `Typing ${formatTime(stats.elapsedMs)} · reading ${formatTime(timing.readingMs)}`
+      : 'Typing time compared with time spent in Command mode';
+    this.els.remaining.textContent = timing.remainingMs === null ? '—' : formatTime(timing.remainingMs);
+    this.els.remaining.title = timing.remainingMs === 0
+      ? 'Lesson complete'
+      : timing.estimateWpm
+      ? `Estimated at ${timing.estimateWpm} wpm; excludes reading and pauses`
+      : 'Type a little or complete a lesson to establish a pace estimate';
     if(stats.wpm > this.lastWpm && !prefersReducedMotion()){
       this.els.wpm.animate([{transform:'scale(1)'},{transform:'scale(1.16)'},{transform:'scale(1)'}], {duration:220, easing:'ease-out'});
     }
@@ -1188,10 +1337,13 @@ const App = {
   shortcutsCollapsed: false, // pref: hide the Shortcuts list so Courses gets the full drawer height
   collapsedCourses: new Set(),
   courseSequence: [],
-  keyboardHidden: false,
+  keyboardHidden: true,
   currentLesson: null,
   currentCourseTitle: '',
   timerHandle: null,
+  readingTimeMs: 0,
+  readingStartedAt: null,
+  globalAvgWpm: null,
   dom: {},
 
   async init(){
@@ -1217,6 +1369,7 @@ const App = {
     this.figuresOn = prefs.figuresOn !== false;
     this.mediaDeckCollapsed = prefs.mediaDeckCollapsed === true;
     this.escapeCommands = prefs.escapeCommands !== false;
+    this.keyboardHidden = prefs.keyboardHidden !== false;
     this.shortcutsCollapsed = prefs.shortcutsCollapsed === true;
     this.collapsedCourses = new Set(
       Array.isArray(prefs.collapsedCourses) ? prefs.collapsedCourses.map(courseKey).filter(Boolean) : []
@@ -1232,12 +1385,13 @@ const App = {
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
       globalStats: qs('#globalStats'), globalWpm: qs('#gStatWpm'), globalAcc: qs('#gStatAcc'), globalRuns: qs('#gStatRuns'),
+      sessionProgress: qs('#sessionProgress'), sessionProgressFill: qs('#sessionProgressFill'), sessionProgressPct: qs('#sessionProgressPct'),
       soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
       restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
       progressFill: qs('#progressFill'), captureInput: qs('#captureInput'),
       textShell: qs('#textShell'), readyPill: qs('#readyPill'), startCueSub: qs('#startCueSub'),
-      stageWrap: qs('.stage-wrap'), stage: qs('#stage'), statsRow: qs('#statsRow'),
+      stageWrap: qs('.stage-wrap'), stage: qs('#stage'),
       stagePip: qs('#stagePip'), stagePipBody: qs('#stagePipBody'),
       markPill: qs('#markPill'), marksScrim: qs('#marksScrim'), marksCloseBtn: qs('#marksCloseBtn'),
       maskPill: qs('#maskPill'), maskToggleBtn: qs('#maskToggleBtn'), figuresToggleBtn: qs('#figuresToggleBtn'),
@@ -1255,7 +1409,8 @@ const App = {
       mediaFile: qs('#mediaFile'), mediaHint: qs('#mediaHint'),
       editPill: qs('#editPill'),
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
-      keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
+      statModeSplit: qs('#statModeSplit'), statRemaining: qs('#statRemaining'),
+      keyboardToggleRow: qs('.keyboard-toggle-row'), keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
       modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), modalTitle: qs('#modalTitle'), lessonForm: qs('#lessonForm'),
       actionModalScrim: qs('#actionModalScrim'), actionModalTitle: qs('#actionModalTitle'), actionModalMessage: qs('#actionModalMessage'),
       actionModalField: qs('#actionModalField'), actionModalLabel: qs('#actionModalLabel'), actionModalInput: qs('#actionModalInput'),
@@ -1283,7 +1438,10 @@ const App = {
     if(this.dom.captureInput && this.dom.stageWrap) this.dom.stageWrap.appendChild(this.dom.captureInput);
     this.textView = new TextView(this.dom.textDisplay, this.dom.caret);
     this.keyboardView = new KeyboardView(this.dom.keyboard);
-    this.statsView = new StatsView({ wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors, position:this.dom.statPosition });
+    this.statsView = new StatsView({
+      wpm:this.dom.statWpm, acc:this.dom.statAcc, time:this.dom.statTime, errors:this.dom.statErrors,
+      position:this.dom.statPosition, modeSplit:this.dom.statModeSplit, remaining:this.dom.statRemaining
+    });
 
     // theme
     this.setTheme(
@@ -1292,8 +1450,7 @@ const App = {
     );
     // sound
     if(prefs.sound === false) this.sound.enabled = false;
-    this.dom.soundBtn.classList.toggle('is-muted', !this.sound.enabled);
-    this.keyboardHidden = prefs.keyboardHidden === true;
+    this.updateSoundButton();
     this.applyKeyboardCollapsed();
 
     this.wireEvents();
@@ -1333,12 +1490,11 @@ const App = {
     if(this.staticPackMarks.length) this.importMarks(this.staticPackMarks, { fresh:false });
   },
 
-  /* ----- static lesson packs (git-managed, same-origin JSON under ./lessons/) -----
-     These are YOUR curated content: commit JSON files under lessons/, list their
-     filenames in lessons/index.json, push, and every visitor sees them on next
-     load — no code changes needed. If the fetch fails (no lessons/ folder deployed,
-     or the page is opened as a local file:// instead of served over http), the app
-     just falls back to the built-in DEFAULT_COURSES above; nothing breaks. */
+  /* ----- static lesson packs (git-managed files under ./lessons/) -----
+     These are YOUR curated content: commit JSON or Markdown files under lessons/,
+     list their filenames in lessons/index.json, push, and every visitor sees them
+     on next load — no code changes needed. If the fetch fails, the app just falls
+     back to the built-in DEFAULT_COURSES above; nothing breaks. */
   async fetchStaticPacks(){
     this.staticPackMarks = [];
     try{
@@ -1348,15 +1504,23 @@ const App = {
       const files = await res.json();
       if(!Array.isArray(files)) throw new Error('manifest is not an array');
       const packs = await Promise.all(files.map(async (name) => {
+        if(typeof name !== 'string') return null;
         try{
           const packUrl = new URL(`lessons/${encodeURIComponent(name)}`, document.baseURI);
           const r = await fetch(packUrl, { cache:'no-store' });
-          if(!r.ok) return null;
+          if(!r.ok) throw new Error(`request failed (${r.status})`);
+          if(/\.(?:md|txt)$/i.test(name)){
+            const lesson = parseMarkdownLessonFile(await r.text(), name);
+            return { course:lesson.course, order:lesson.courseOrder, lessons:[lesson] };
+          }
           const pack = await r.json();
           if(!pack || typeof pack !== 'object' ||
              (!Array.isArray(pack.lessons) && !Array.isArray(pack.marks))) return null;
           return pack;
-        }catch(e){ return null; }
+        }catch(e){
+          console.warn(`Studyping: unable to load "${name}" —`, e.message);
+          return null;
+        }
       }));
       this.staticPackCourses = packs.filter(p => p && Array.isArray(p.lessons)).map(p => ({
         title: p.course || 'More Lessons',
@@ -1799,6 +1963,8 @@ const App = {
     const openedCourse = this.collapsedCourses.delete(courseKey(nextCourseTitle));
     if(openedCourse) this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
     this.currentLesson = lesson;
+    this.readingTimeMs = 0;
+    this.readingStartedAt = null;
     this.lessonIntro = !this.sessionLessonVisits.has(lesson.id);
     if(this.lessonIntro){
       this.sessionLessonVisits.add(lesson.id);
@@ -1809,7 +1975,9 @@ const App = {
     this.templateUndo = [];
     this.templateRedo = [];
     this.currentCourseTitle = nextCourseTitle;
-    this.engine = new TypingEngine(lesson);
+    this.lessonSource = normalizeLessonText(lesson.text);
+    this.lessonMarkdown = parseInlineMarkdown(this.lessonSource);
+    this.engine = new TypingEngine({ ...lesson, text:this.lessonMarkdown.text });
     this.engine.addEventListener('start', () => this.onStart());
     this.engine.addEventListener('keystroke', (e) => this.onKeystroke(e));
     this.engine.addEventListener('backspace', (e) => this.onBackspace(e));
@@ -1824,11 +1992,11 @@ const App = {
       : 0;
     this.engine.pos = savedPosition;
     this.engine.wordsCompleted = (this.engine.text.slice(0, savedPosition).match(/ /g) || []).length;
-    this.textView.build(this.engine.text);
+    this.textView.build(this.engine.text, false, this.lessonMarkdown.formats);
     for(let i = 0; i < savedPosition; i++) this.textView.setCharState(i, 'correct');
     this.textView.moveCaret(savedPosition);
     this.keyboardView.clearNext();
-    this.keyboardView.highlightNext(lesson.text[0]);
+    this.keyboardView.highlightNext(this.engine.text[0]);
     this.statsView.reset();
     this.state = 'idle';
     this.updateTypingPosition();
@@ -1856,6 +2024,8 @@ const App = {
   restart(){
     if(!this.engine) return;
     if(this.editing) this.endInlineEdit(true);
+    this.readingTimeMs = 0;
+    this.readingStartedAt = null;
     this.clearPendingDeletions();
     this.commandMode = false;
     this.clearCommandBuffer();
@@ -1864,7 +2034,7 @@ const App = {
     this.engine.reset();
     delete this.positions[this.currentLesson.id];
     Storage.savePositions(this.positions);
-    this.textView.build(this.engine.text);
+    this.textView.build(this.engine.text, false, this.lessonMarkdown.formats);
     this.keyboardView.clearNext();
     this.statsView.reset();
     this.updateTypingPosition();
@@ -1876,6 +2046,7 @@ const App = {
     this.hideCompletion();
     this.dom.progressFill.style.width = '0%';
     this.dom.progressFill.style.background = 'var(--brass)';
+    this.updateSessionProgress(0);
     this.dom.captureInput.value = '';
     this.shadowValue = '';
     this.stopTicker();
@@ -1888,6 +2059,7 @@ const App = {
     this.pauseReason = null;
     this.lastKeyAt = performance.now();
     this.updateOverlay();
+    this.updateStats();
     this.startTicker();
   },
   onKeystroke(e){
@@ -1900,7 +2072,6 @@ const App = {
     this.textView.refreshWord(index);
     this.keyboardView.flashPressed(char, correct);
     this.sound.playKey({ error:!correct, space: char === ' ' });
-    this.statsView.update(this.engine.getStats());
     if(!correct && this.maskSet.has(index)){
       // Typing from memory: a slip is remembered (it counts against that passage's recall score),
       // and a second miss on the same letter lets a faint hint show through the tape.
@@ -1923,7 +2094,6 @@ const App = {
     this.updateTypingPosition();
     this.textView.refreshWord(index);
     this.sound.playKey({});
-    this.statsView.update(this.engine.getStats());
     this.hintNext();
     this.updateProgress();
     if(this.captures.mark || this.captures.mask) this.refreshOverlays();
@@ -2074,7 +2244,7 @@ const App = {
     this.persistEdit(newText);
     const nextPosition = clamp(position, 0, newText.length);
     this.engine.replaceText(newText, nextPosition);
-    this.textView.build(newText, true);
+    this.textView.build(newText, true, this.lessonMarkdown.formats);
     this.textView.restore({ states, badges }, newText.length);
     this.renderPendingDeletions();
     this.dom.captureInput.value = newText.slice(0, nextPosition);
@@ -2108,6 +2278,7 @@ const App = {
     this.templateUndo.push({
       lessonId:this.currentLesson.id,
       text,
+      sourceText:options.sourceText === undefined ? this.lessonSource : options.sourceText,
       pos,
       pendingDeletions:(options.pendingDeletions || this.pendingDeletions).map(range => ({ ...range }))
     });
@@ -2121,10 +2292,12 @@ const App = {
   },
   applyTemplateHistoryEntry(entry){
     const snapshot = this.textView.snapshot(this.engine.pos);
-    const pos = Math.min(entry.pos, entry.text.length);
-    this.persistEdit(entry.text);
-    this.engine.replaceText(entry.text, pos);
-    this.textView.build(this.engine.text, true);
+    const sourceText = entry.sourceText === undefined ? entry.text : entry.sourceText;
+    const parsed = parseInlineMarkdown(sourceText);
+    const pos = Math.min(entry.pos, parsed.text.length);
+    this.persistEdit(parsed.text, { sourceText });
+    this.engine.replaceText(parsed.text, pos);
+    this.textView.build(this.engine.text, true, this.lessonMarkdown.formats);
     this.textView.restore(snapshot, Math.min(pos, snapshot.states.length));
     if(entry.pendingDeletions) this.pendingDeletions = entry.pendingDeletions.map(range => ({ ...range }));
     this.renderPendingDeletions();
@@ -2143,6 +2316,7 @@ const App = {
     this.templateRedo.push({
       lessonId:this.currentLesson.id,
       text:this.engine.text,
+      sourceText:this.lessonSource,
       pos:this.engine.pos,
       pendingDeletions:this.pendingDeletions.map(range => ({ ...range }))
     });
@@ -2155,6 +2329,7 @@ const App = {
     this.templateUndo.push({
       lessonId:this.currentLesson.id,
       text:this.engine.text,
+      sourceText:this.lessonSource,
       pos:this.engine.pos,
       pendingDeletions:this.pendingDeletions.map(range => ({ ...range }))
     });
@@ -2184,6 +2359,7 @@ const App = {
     this.commandMode = true;
     this.clearCommandBuffer();
     if(this.state === 'running') this.pauseTyping('command');
+    this.updateStats();
     this.updateOverlay();
     this.showPill('edit', this.pendingDeletions.length
       ? `${this.countPendingDeletionWords()} word${this.countPendingDeletionWords() === 1 ? '' : 's'} queued · D commits · q clears · Esc returns`
@@ -2192,6 +2368,8 @@ const App = {
   },
   leaveCommandMode(){
     if(!this.commandMode) return;
+    this.stopReadingClock();
+    this.stopTicker();
     this.commandMode = false;
     this.clearCommandBuffer();
     if(this.pendingDeletions.length){
@@ -2201,7 +2379,10 @@ const App = {
       this.hidePill('edit');
     }
     if(this.state === 'paused' && this.pauseReason === 'command') this.resumeTyping();
-    else this.updateOverlay();
+    else {
+      this.updateStats();
+      this.updateOverlay();
+    }
   },
   activateTyping(){
     if(this.commandMode){
@@ -2216,6 +2397,8 @@ const App = {
   },
   startInlineEdit(){
     // Shared by `i` and `cw`: drop Command-mode chrome, then edit the lesson at the caret.
+    this.stopReadingClock();
+    this.stopTicker();
     this.commandMode = false;
     this.clearCommandBuffer();
     this.hidePill('edit');
@@ -2233,22 +2416,41 @@ const App = {
     e.preventDefault();
     const key = e.key;
     if(key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta') return true;
+    const navigationKey = !this.pendingCommand && (key === 'n' || key === 'b');
+    if(!navigationKey){
+      const wasReading = this.readingStartedAt !== null;
+      this.stopReadingClock();
+      this.stopTicker();
+      if(wasReading) this.updateStats();
+    }
     if(key === 'Escape'){
       if(this.escapeCommands) this.leaveCommandMode();
       else this.clearCommandBuffer();
       return true;
     }
     if(this.pendingCommand.startsWith(':')){
-      if(/^\d$/.test(key)){
+      if(/^\d$/.test(key) || /^[a-z ]$/i.test(key)){
         this.pendingCommand += key;
-        this.showPill('edit', `Jump to position: ${this.pendingCommand}`);
+        this.showPill('edit', /^\d+$/.test(this.pendingCommand.slice(1))
+          ? `Jump to position: ${this.pendingCommand}`
+          : `Command: ${this.pendingCommand}`);
       } else if(key === 'Enter'){
-        const position = Number(this.pendingCommand.slice(1));
+        const command = this.pendingCommand.slice(1).trim().toLowerCase();
         this.clearCommandBuffer();
-        this.jumpToPosition(position);
+        if(/^\d+$/.test(command)) this.jumpToPosition(Number(command));
+        else if(command === 'mute'){
+          this.setSoundEnabled(false);
+          this.showPill('edit', 'Typing sounds muted', 1200);
+        } else if(command === 'unmute'){
+          this.setSoundEnabled(true);
+          this.showPill('edit', 'Typing sounds on', 1200);
+        }
+        else if(command === 'radio off') this.setRadioPlaying(false);
+        else if(command === 'radio on') this.setRadioPlaying(true);
+        else this.showPill('edit', `Unknown command: :${command}`, 1800);
       } else if(key === 'Backspace' && this.pendingCommand.length > 1){
         this.pendingCommand = this.pendingCommand.slice(0, -1);
-        this.showPill('edit', `Jump to position: ${this.pendingCommand}`);
+        this.showPill('edit', `Command: ${this.pendingCommand}`);
       } else {
         this.clearCommandBuffer();
       }
@@ -2320,8 +2522,17 @@ const App = {
     if(key === 'd'){ this.queueCommandBuffer('d'); return true; }
     if(key === 'c'){ this.queueCommandBuffer('c'); return true; }
     if(key === 'x'){ this.deleteCharacterAtCaret(); return true; }
-    if(key === 'n'){ this.skipWord(); return true; }
-    if(key === 'b'){ this.previousWord(); return true; }
+    if(key === 'n' || key === 'b'){
+      const previousPosition = this.engine.pos;
+      if(key === 'n') this.skipWord();
+      else this.previousWord();
+      if(this.engine.pos !== previousPosition){
+        this.startReadingClock();
+        this.updateStats();
+        if(this.readingStartedAt !== null) this.startTicker();
+      }
+      return true;
+    }
     if(key === 'N'){ this.stageWordDeletion('forward'); return true; }
     if(key === 'B'){ this.stageWordDeletion('backward'); return true; }
     if(key === 'u'){ this.undoTemplateEdit(); return true; }
@@ -2361,7 +2572,7 @@ const App = {
     this.persistEdit(newText);
     this.adjustCapturesForDeletion(pos, end);
     eng.replaceText(newText, pos);
-    this.textView.build(eng.text, true);
+    this.textView.build(eng.text, true, this.lessonMarkdown.formats);
     this.textView.restore(snapshot, eng.pos);
     this.renderPendingDeletions();
     this.dom.captureInput.value = eng.text.slice(0, eng.pos);
@@ -2404,7 +2615,7 @@ const App = {
     this.persistEdit(newText);
     this.adjustCapturesForDeletion(start, end);
     eng.replaceText(newText, Math.min(newPosition, newText.length));
-    this.textView.build(eng.text, true);
+    this.textView.build(eng.text, true, this.lessonMarkdown.formats);
     this.textView.restore(snapshot, eng.pos);
     this.renderPendingDeletions();
     this.dom.captureInput.value = eng.text.slice(0, eng.pos);
@@ -2440,8 +2651,47 @@ const App = {
     });
   },
   updateTypingPosition(){
-    if(this.engine) this.statsView.updatePosition(this.engine.pos, this.engine.text.length);
+    if(this.engine){
+      this.statsView.updatePosition(this.engine.pos, this.engine.text.length);
+      this.updateStats();
+    }
     this.syncMediaDeck();
+  },
+  startReadingClock(){
+    if(this.commandMode && this.engine && !this.engine.finished &&
+       this.engine.startTime !== null && this.readingStartedAt === null){
+      this.readingStartedAt = performance.now();
+    }
+  },
+  stopReadingClock(){
+    if(this.readingStartedAt !== null){
+      this.readingTimeMs += Math.max(0, performance.now() - this.readingStartedAt);
+      this.readingStartedAt = null;
+    }
+  },
+  getReadingTimeMs(now = performance.now()){
+    return this.readingTimeMs + (this.readingStartedAt === null ? 0 : Math.max(0, now - this.readingStartedAt));
+  },
+  updateStats(){
+    if(!this.engine || !this.statsView) return;
+    const stats = this.engine.getStats();
+    const readingMs = this.getReadingTimeMs();
+    const engagedMs = stats.elapsedMs + readingMs;
+    const hasRunPace = stats.elapsedMs >= 10000 && stats.keystrokes >= 10 && stats.wpm > 0;
+    const estimateWpm = hasRunPace ? stats.wpm : this.globalAvgWpm;
+    const remainingChars = Math.max(0, this.engine.text.length - this.engine.pos);
+    const remainingMs = remainingChars === 0 ? 0
+      : (estimateWpm > 0 ? Math.ceil((remainingChars / 5 / estimateWpm) * 60000) : null);
+    this.statsView.update(stats, {
+      engagedMs,
+      readingMs,
+      typingPercent: engagedMs > 0 ? Math.round((stats.elapsedMs / engagedMs) * 100) : null,
+      readingPercent: engagedMs > 0
+        ? 100 - Math.round((stats.elapsedMs / engagedMs) * 100)
+        : null,
+      estimateWpm,
+      remainingMs
+    });
   },
   jumpToPosition(position){
     if(!this.engine || !Number.isInteger(position)) return;
@@ -2483,6 +2733,7 @@ const App = {
     if(this.captures.mark) this.commitCapture('mark');
     if(this.captures.mask) this.commitCapture('mask');
     this.state = 'finished';
+    this.stopReadingClock();
     delete this.positions[this.currentLesson.id];
     Storage.savePositions(this.positions);
     this.stopTicker();
@@ -2503,6 +2754,7 @@ const App = {
   updateProgress(){
     const pct = clamp(Math.round((this.engine.pos/this.engine.text.length)*100), 0, 100);
     this.dom.progressFill.style.width = pct + '%';
+    this.updateSessionProgress(pct);
     const acc = this.engine.getStats().accuracy;
     const hue = clamp((acc-70)*4, 0, 130); // 70%acc -> red-ish, 100%acc -> green-ish, feeding the brass baseline otherwise
     if(acc < 90){
@@ -2510,6 +2762,13 @@ const App = {
     } else {
       this.dom.progressFill.style.background = 'var(--brass)';
     }
+  },
+  updateSessionProgress(pct){
+    if(!this.dom.sessionProgress) return;
+    this.dom.sessionProgressFill.style.width = pct + '%';
+    this.dom.sessionProgressPct.textContent = pct + '%';
+    this.dom.sessionProgress.setAttribute('aria-valuenow', String(pct));
+    this.dom.sessionProgress.title = `Current lesson progress: ${pct}%`;
   },
 
   /* ----- overlay / pause / focus ----- */
@@ -2582,6 +2841,12 @@ const App = {
     this.bus.dispatchEvent(new CustomEvent('ready'));
   },
   pauseTyping(reason, at){
+    if(this.commandMode && this.readingStartedAt !== null &&
+       (reason === 'blur' || reason === 'window' || reason === 'hidden')){
+      this.stopReadingClock();
+      this.stopTicker();
+      this.updateStats();
+    }
     if(this.state === 'paused'){
       // Blur and window-leave events arrive in either order; keep the more specific reason.
       if(this.pauseReason === 'blur' && (reason === 'window' || reason === 'hidden')){
@@ -2595,7 +2860,7 @@ const App = {
     this.state = 'paused';
     this.pauseReason = reason;
     this.stopTicker();
-    this.statsView.update(this.engine.getStats());
+    this.updateStats();
     this.updateOverlay();
     this.bus.dispatchEvent(new CustomEvent('paused', { detail:{ reason } }));
   },
@@ -2605,6 +2870,7 @@ const App = {
     this.state = 'running';
     this.pauseReason = null;
     this.lastKeyAt = performance.now(); // fresh start for the idle watchdog
+    this.updateStats();
     this.startTicker();
     this.updateOverlay();
     this.focusInput();
@@ -2690,13 +2956,16 @@ const App = {
   startTicker(){
     this.stopTicker();
     this.timerHandle = setInterval(() => {
-      if(this.state !== 'running') return;
-      // Idle watchdog: walked away without leaving the window? Pause, back-dated to the last keystroke.
-      if(IDLE_PAUSE_MS > 0 && performance.now() - this.lastKeyAt > IDLE_PAUSE_MS){
-        this.pauseTyping('idle', this.lastKeyAt);
-        return;
+      if(this.state === 'running'){
+        // Idle watchdog: walked away without leaving the window? Pause, back-dated to the last keystroke.
+        if(IDLE_PAUSE_MS > 0 && performance.now() - this.lastKeyAt > IDLE_PAUSE_MS){
+          this.pauseTyping('idle', this.lastKeyAt);
+          return;
+        }
+        this.updateStats();
+      } else if(this.commandMode && this.state === 'paused'){
+        this.updateStats();
       }
-      this.statsView.update(this.engine.getStats());
     }, 250);
   },
   stopTicker(){
@@ -2745,6 +3014,7 @@ const App = {
   updateGlobalStats(){
     if(!this.dom.globalStats) return;
     const stats = collectGlobalStats(Storage.loadStats());
+    this.globalAvgWpm = stats.avgWpm;
     this.dom.globalWpm.textContent = stats.avgWpm === null ? '—' : String(stats.avgWpm);
     this.dom.globalAcc.textContent = stats.avgAccuracy === null ? '—' : `${stats.avgAccuracy}%`;
     this.dom.globalRuns.textContent = stats.runs.toLocaleString();
@@ -2752,6 +3022,7 @@ const App = {
     const description = describeGlobalStats(stats);
     this.dom.globalStats.title = description;
     this.dom.globalStats.setAttribute('aria-label', description);
+    if(this.engine) this.updateStats();
   },
   saveBestStats(stats){
     const stored = Storage.loadStats();
@@ -2825,15 +3096,29 @@ const App = {
   },
   displayText(){
     // what's on screen: the lesson, or — while editing — whatever the field currently holds
-    return this.editing ? this.dom.captureInput.value : (this.engine ? this.engine.text : '');
+    return this.editing
+      ? parseInlineMarkdown(this.dom.captureInput.value).text
+      : (this.engine ? this.engine.text : '');
   },
   applyAnnotations(){
     // Resolve this lesson's marks and masks to character ranges. A mask made during THIS run is
     // already typed, so it only takes effect from the next run ("soon"). Masks lift while editing.
-    const text = this.displayText();
+    const parsedEdit = this.editing ? parseInlineMarkdown(this.dom.captureInput.value) : null;
+    const text = parsedEdit ? parsedEdit.text : this.displayText();
     const lesson = this.currentLesson;
     const mine = lesson ? this.marks.filter(m => m.lessonId === lesson.id) : [];
-    const resolve = (m) => { const r = this.resolveMarkRange(m, text); return r ? { id:m.id, s:r[0], e:r[1] } : null; };
+    const resolve = (m) => {
+      const r = this.resolveMarkRange(m, text);
+      if(!r) return null;
+      if(!parsedEdit) return { id:m.id, s:r[0], e:r[1] };
+      return {
+        id:m.id,
+        s:sourcePositionForRendered(parsedEdit, r[0]),
+        e:r[1] < parsedEdit.sourceIndices.length
+          ? parsedEdit.sourceIndices[r[1] - 1] + 1
+          : parsedEdit.sourceLength
+      };
+    };
     this.markRanges = mine.filter(m => m.kind !== 'mask').map(resolve).filter(Boolean);
     const masks = mine.filter(m => m.kind === 'mask').map(resolve).filter(Boolean);
     this.maskRanges = masks.filter(r => !this.freshMasks.has(r.id));
@@ -3127,12 +3412,11 @@ const App = {
   enterFigureFocus(){
     if(this.figureFocusActive) return;
     const d = this.dom;
-    if(!d.stagePip || !d.stagePipBody || !d.stage || !d.statsRow) return;
-    // Interchange: the real typing stage becomes the PiP thumbnail (stats live
-    // outside .stage, so they stay hidden there), and the figure card takes the
-    // main stage slot.
+    if(!d.stagePip || !d.stagePipBody || !d.stage || !d.keyboardToggleRow) return;
+    // Interchange: the typing stage becomes the PiP thumbnail; the figure card
+    // takes its slot while session stats remain in the top bar.
     d.stagePipBody.appendChild(d.stage);
-    d.stageWrap.insertBefore(d.mediaDeck, d.statsRow);
+    d.stageWrap.insertBefore(d.mediaDeck, d.keyboardToggleRow);
     d.stageWrap.classList.add('figure-focus');
     d.mediaDeck.classList.add('is-main');
     d.stagePip.hidden = false;
@@ -3143,7 +3427,7 @@ const App = {
     if(!this.figureFocusActive) return;
     const d = this.dom;
     d.stagePip.hidden = true;
-    if(d.stage && d.statsRow) d.stageWrap.insertBefore(d.stage, d.statsRow);
+    if(d.stage && d.keyboardToggleRow) d.stageWrap.insertBefore(d.stage, d.keyboardToggleRow);
     if(this.mediaDeckHome && this.mediaDeckHome.parent){
       const next = this.mediaDeckHome.nextSibling;
       if(next && next.parentNode === this.mediaDeckHome.parent) this.mediaDeckHome.parent.insertBefore(d.mediaDeck, next);
@@ -3481,7 +3765,7 @@ const App = {
   beginInlineEdit(){
     const d = this.dom, eng = this.engine;
     this.editStart = {
-      text: eng.text, pos: eng.pos, typed: d.captureInput.value,
+      text: eng.text, sourceText:this.lessonSource, pos: eng.pos, typed: d.captureInput.value,
       wasState: this.state,
       wasPauseReason: this.pauseReason,
       wasCommandMode: this.commandMode || (this.state === 'paused' && this.pauseReason === 'command'),
@@ -3493,15 +3777,19 @@ const App = {
       this.state = 'paused';
       this.pauseReason = 'edit';
       this.stopTicker();
-      this.statsView.update(eng.getStats());
+      this.updateStats();
     }
     this.composing = false;
     this.textView.setComposing(null, false);
-    d.captureInput.value = eng.text;                       // the field now holds the lesson, caret where your typing caret was
-    d.captureInput.setSelectionRange(eng.pos, eng.pos);
-    this._editShown = eng.text;
+    const sourcePosition = sourcePositionForRendered(this.lessonMarkdown, eng.pos);
+    d.captureInput.value = this.lessonSource;
+    d.captureInput.setSelectionRange(sourcePosition, sourcePosition);
+    this._editShown = this.lessonSource;
+    this._editMarkdown = this.lessonMarkdown;
     this._vx = null;
     this._lines = null;
+    this.textView.build(this.lessonSource, true);
+    this.textView.restore(this.editStart, eng.pos, this.lessonMarkdown.sourceIndices);
     this.applyAnnotations();                               // masks lift while editing, so you can see what you're changing
     this.hintNext();
     this.updateOverlay();
@@ -3513,24 +3801,25 @@ const App = {
   endInlineEdit(accept){
     if(!this.editing) return;
     const d = this.dom, eng = this.engine, tv = this.textView, es = this.editStart;
-    const newText = normalizeLessonText(d.captureInput.value);
-    if(accept && !newText){ this.showPill('edit', "The lesson text can't be empty", 1800); return; }
-    const changed = accept && newText !== es.text;
+    const newSource = normalizeLessonText(d.captureInput.value);
+    const parsed = parseInlineMarkdown(newSource);
+    if(accept && !parsed.text){ this.showPill('edit', "The lesson text can't be empty", 1800); return; }
+    const changed = accept && newSource !== es.sourceText;
     this.editing = false;
     this.composing = false;
     this.hidePill('edit');
     let pos = es.pos;
     if(changed){
-      if(this._editShown !== newText){
-        this.remapCapturesForTextChange(this._editShown, newText);
-        this.remapPendingDeletions(this._editShown, newText);
+      if(this._editShown !== newSource){
+        this.remapCapturesForTextChange(this._editMarkdown.text, parsed.text);
+        this.remapPendingDeletions(this._editMarkdown.text, parsed.text);
       }
-      pos = Math.min(es.pos, commonPrefix(es.text, newText)); // changed something you'd already typed: resume at the first changed character
-      this.recordTemplateUndo(es.text, es.pos);
-      this.persistEdit(newText, { remapPending:false });
-      eng.replaceText(newText, pos);
+      pos = Math.min(es.pos, commonPrefix(es.text, parsed.text)); // changed something you'd already typed: resume at the first changed character
+      this.recordTemplateUndo(es.text, es.pos, { sourceText:es.sourceText });
+      this.persistEdit(parsed.text, { sourceText:newSource, remapPending:false });
+      eng.replaceText(parsed.text, pos);
     }
-    tv.build(eng.text, true);
+    tv.build(eng.text, true, this.lessonMarkdown.formats);
     tv.restore(es, pos);
     this.renderPendingDeletions();
     tv.setSelection(0, 0);
@@ -3542,7 +3831,7 @@ const App = {
     this.editStart = null;
     this.applyAnnotations();
     tv.moveCaret(pos);
-    this.statsView.update(eng.getStats());
+    this.updateStats();
     this.updateProgress();
     this.hintNext();
     if(es.wasCommandMode && es.wasState === 'paused'){
@@ -3571,9 +3860,12 @@ const App = {
   },
   persistEdit(text, options = {}){
     if(options.remapPending !== false && this.engine) this.remapPendingDeletions(this.engine.text, text);
+    const sourceText = normalizeLessonText(options.sourceText === undefined ? text : options.sourceText);
+    this.lessonSource = sourceText;
+    this.lessonMarkdown = parseInlineMarkdown(sourceText);
     const lesson = this.currentLesson;
     if(lesson.custom){
-      lesson.text = text;
+      lesson.text = sourceText;
       Storage.saveLessons(this.customLessons);
     } else {
       // Built-in / static-pack lessons are code- or git-managed, so the edit is an override keyed by
@@ -3585,11 +3877,11 @@ const App = {
       const metadata = existing && typeof existing === 'object' && !Array.isArray(existing)
         ? Object.fromEntries(Object.entries(existing).filter(([key]) => key !== 'text'))
         : {};
-      if(text === original){
+      if(sourceText === original){
         if(Object.keys(metadata).length) this.overrides[lesson.id] = metadata;
         else delete this.overrides[lesson.id];
       } else {
-        this.overrides[lesson.id] = { ...metadata, text };
+        this.overrides[lesson.id] = { ...metadata, text:sourceText };
       }
       Storage.saveOverrides(this.overrides);
       const found = this.findLesson(lesson.id);
@@ -3661,15 +3953,20 @@ const App = {
     const es = this.editStart, tv = this.textView;
     const previous = this._editShown;
     if(previous !== val){
-      this.remapCapturesForTextChange(previous, val);
-      this.remapPendingDeletions(previous, val);
+      const previousText = parseInlineMarkdown(previous).text;
+      const nextMarkdown = parseInlineMarkdown(val);
+      this.remapCapturesForTextChange(previousText, nextMarkdown.text);
+      this.remapPendingDeletions(previousText, nextMarkdown.text);
+      this._editMarkdown = nextMarkdown;
+    } else {
+      this._editMarkdown = parseInlineMarkdown(val);
     }
     this._editShown = val;
     // The typed prefix keeps its green / red only up to the first character that differs from where
     // the edit began — so undoing the change brings every colour back.
-    const keep = Math.min(es.pos, commonPrefix(es.text, val));
+    const keep = Math.min(es.pos, commonPrefix(es.text, this._editMarkdown.text));
     tv.build(val, true);
-    tv.restore(es, keep);
+    tv.restore(es, keep, this._editMarkdown.sourceIndices);
     this.renderPendingDeletions();
     this._lines = null;
     this.applyAnnotations();
@@ -4465,7 +4762,26 @@ const App = {
   },
   toggleSound(){
     this.sound.enabled = !this.sound.enabled;
+    this.updateSoundButton();
     this.savePref('sound', this.sound.enabled);
+  },
+  setSoundEnabled(enabled){
+    this.sound.enabled = enabled;
+    this.updateSoundButton();
+    this.savePref('sound', enabled);
+  },
+  setRadioPlaying(playing){
+    if(window.parent !== window && window.location.origin !== 'null'){
+      window.parent.postMessage({ type:'studyping:radio', action:playing ? 'on' : 'off' }, window.location.origin);
+    }
+    this.showPill('edit', playing ? 'Radio on' : 'Radio off', 1200);
+  },
+  updateSoundButton(){
+    const muted = !this.sound.enabled;
+    const action = muted ? 'Unmute sound' : 'Mute sound';
+    this.dom.soundBtn.classList.toggle('is-muted', muted);
+    this.dom.soundBtn.setAttribute('aria-label', action);
+    this.dom.soundBtn.title = action;
   },
   toggleKeyboard(){
     this.keyboardHidden = !this.keyboardHidden;
@@ -4897,9 +5213,7 @@ window.Studyping = {
   on(evt, fn){ App.bus.addEventListener(evt, fn); },
   off(evt, fn){ App.bus.removeEventListener(evt, fn); },
   setSoundEnabled(v){
-    App.sound.enabled = !!v;
-    App.dom.soundBtn.classList.toggle('is-muted', !App.sound.enabled);
-    App.savePref('sound', App.sound.enabled);
+    App.setSoundEnabled(!!v);
   },
   setTheme(t){ App.setTheme(t); },
   exportData(){

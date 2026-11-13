@@ -10,11 +10,13 @@ browser state or lesson content to Jekyll.
 ```
 modules/studyping/
 ├── index.html
+├── favicon.svg
 ├── styles.css
 ├── app.js
 └── lessons/
-  index.json              <- manifest: which pack files to load
+  index.json              <- manifest: which lesson files to load
   evolving-crisis-code-fr.json
+  guia-estudio-devops-unal.txt
 ```
 
 ## Use within Evolving Crisis
@@ -34,7 +36,9 @@ The module uses the same Solarized light and dark palette as the Evolving
 Crisis theme: `#fdf6e3` / `#002b36` for the main surfaces, with Solarized
 accent colors for controls, marks, and feedback. The theme button cycles
 through light, dark, and grayscale palettes; grayscale uses contrast and
-lightness differences to distinguish controls, marks, and typing feedback.
+opaque gray levels to distinguish controls, marks, and typing feedback. On
+displays that report a slow update rate, per-keystroke motion becomes a crisp,
+stationary stamp on the latest character instead of an animated glyph.
 
 ## Standalone hosting
 
@@ -56,8 +60,8 @@ Two gotchas are worth preserving:
 
 Opening `index.html` by double-clicking it (a `file://` URL) will mostly work,
 but `fetch()` calls are blocked under `file://` in most browsers, so the
-`lessons/*.json` static packs won't load (the built-in lessons still will — see
-below). To see the real thing, serve the folder over HTTP:
+static lesson files in `lessons/` won't load (the built-in lessons still will
+— see below). To see the real thing, serve the folder over HTTP:
 
 ```
 python3 -m http.server 8000      # run from modules/studyping/
@@ -81,6 +85,18 @@ when stats are imported through `Studyping.importData()`, and when another
 tab changes the stats key. `Studyping.getGlobalStats()` returns the same
 aggregate as a plain object for custom UI or gamification.
 
+The live stats row compares typing time with reading time. A reading interval
+starts when `n` or `b` successfully moves to another word; it ends on the next
+non-navigation command, when Command mode ends, or when typing resumes. Idle
+Command mode before a navigation and inline editing are excluded. The estimate of typing time left uses the current run's WPM after at least ten
+seconds and ten keystrokes, or the saved global average WPM before then.
+
+The global summary and current-session dashboard share the top bar. Session
+metrics and lesson progress follow the global stats before the sound, theme,
+restart, and type controls; at narrower widths, the dashboard wraps below the
+controls. The on-screen keyboard starts collapsed unless a saved preference
+says otherwise.
+
 ## Where lessons come from (three tiers)
 
 **1. Built into `app.js` (`DEFAULT_COURSES`).** Always available, zero network
@@ -96,17 +112,41 @@ lesson and then the first built-in lesson.
 
 The current default is `evolving-crisis-code-intro`, the first lesson of the
 French `Comprendre Evolving Crisis` course. It explains the module's HTML, CSS,
-JavaScript, static JSON packs, persistence, and design trade-offs, with short
+JavaScript, static lesson packs, persistence, and design trade-offs, with short
 code excerpts mixed into the typing practice.
 
-**2. Static packs under `lessons/*.json` — the ones *you* curate.** On load,
+**2. Static lessons under `lessons/` — the ones *you* curate.** On load,
 `app.js` fetches `lessons/index.json` (an array of filenames) before the
 initial lesson and sidebar are rendered, then fetches each file and merges it
-in as a course. This is the "static lesson paths"
-tier: pure JSON, no code, git-managed, versioned, reviewable in a PR. To add a
-pack: drop a new `your-pack.json` (same shape as the two examples) into
-`lessons/`, add its filename to `index.json`, commit, push. Every visitor sees
-it on their next page load.
+in as a course. JSON lesson packs and Markdown lesson files are supported.
+Because Jekyll converts `.md` files into HTML, store raw Markdown lesson
+content in a `.txt` file so the app can fetch it unchanged. This is the "static
+lesson paths" tier: git-managed, versioned, and reviewable in a PR. To add a
+file, place it in `lessons/` and add its filename to `index.json`. Every
+visitor sees it on their next page load.
+
+Markdown lessons may start with YAML-style front matter to set their course and
+sorting metadata:
+
+```yaml
+---
+id: devops-platform-engineering-unal
+title: "Platform Engineering and DevOps"
+course: "Programmer's Practice"
+courseOrder: 2
+order: 1
+targetWPM: 30
+targetAccuracy: 95
+---
+```
+
+`courseOrder` sorts the course relative to the others; `order` sorts lessons
+within that course. The title can also be taken from the first level-one
+heading. The Markdown body is converted to readable practice text: headings,
+lists, blockquotes, table separators, and code fences are handled, while inline
+formatting is preserved for the typing view. The DevOps guide in this folder
+demonstrates the format. Static hosting cannot discover files added to a
+directory, so each Markdown file still needs to be listed in `index.json`.
 
 Static hosting can't list a folder's contents for you (there's no directory
 index), which is why the manifest (`index.json`) exists — it's the only way
@@ -198,11 +238,18 @@ Where the edit is stored depends on the tier:
 - a **tier 3** (custom) lesson is updated in place — same id, so scores stay attached;
 - a **tier 1 or 2** (built-in or static-pack) lesson is never modified — those are
   code/git-managed. Your edit is stored as an *override* keyed by lesson id
+
   (`studyping.overrides.v1`): same id, so your best scores and marks stay
   attached, and a "Restore original" action appears in the lesson's three-dot
   menu.
   (If you edit it back to the original text the override disappears by itself.) Overrides travel with
   `Studyping.exportData()`; they are not part of the drawer's selected-lesson export.
+
+Lesson text supports inline Markdown for strong (`**bold**` or `__bold__`),
+emphasis (`*italic*` or `_italic_`), inline code (`` `code` ``), and strike
+(`~~deleted~~`). The typing view shows the formatted text without its delimiters,
+so `**bold**` is typed as `bold`. In-place edit mode shows the Markdown source,
+including its delimiters.
 
 ## Getting a visitor's custom lesson back from them
 
@@ -496,6 +543,8 @@ mode, or `i` to enter inline editing.
 | `u` | undo the last lesson-template edit or confirmed deletion |
 | `r` | redo a lesson-template edit or confirmed deletion |
 | `restart` | reset the current typing session to the beginning |
+| `:mute` / `:unmute` | turn typing sounds off / on |
+| `:radio off` / `:radio on` | stop / start Radio Chaito in the site header |
 | `mw` | mark or unmark the current word |
 | `m` | start or finish a marked passage |
 | `M` | mask or unmask the current word |
@@ -522,6 +571,8 @@ most recent 20 entries and at most 500,000 characters, so repeated edits to a
 large lesson cannot grow memory without bound. New edits clear the redo history.
 The `r` redo command waits briefly to determine whether it is the beginning of
 the `restart` reset command.
+Enter a colon command in Command mode and press `Enter` to run it. Radio
+commands are available when Studyping is embedded on the Evolving Crisis site.
 
 ## Accents and dead keys
 

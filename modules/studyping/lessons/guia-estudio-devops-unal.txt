@@ -1,0 +1,522 @@
+
+---
+id: devops-platform-engineering-unal
+title: "NOTAS DE CLASE: INGENIERÍA DE PLATAFORMAS, DEVOPS Y TROUBLESHOOTING DE PRODUCCIÓN"
+course: "Programmers practice"
+targetWPM: 30
+targetAccuracy: 95
+---
+
+# NOTAS DE CLASE: INGENIERÍA DE PLATAFORMAS, DEVOPS Y TROUBLESHOOTING DE PRODUCCIÓN
+*Documento de Trabajo e Investigación Aplicada — Estilo Notas de Clase UNAL / Cuadernos de Ingeniería*
+*Preparación para la Entrevista Técnica Senior de DevOps & Platform Engineer (Ascendion / Digital Banking)*
+
+---
+
+## Prólogo Académico & Filosofía de Ingeniería de Plataformas
+
+Esta guía de estudio está estructurada bajo el rigor conceptual y pedagógico característico de las **Notas de Clase de la Universidad Nacional de Colombia (UNAL)**. El objetivo es ofrecer un compendio autocontenido, analítico y sintético que conecte la teoría de sistemas distribuidos con la realidad operativa de la infraestructura enterprise de misión crítica.
+
+El hilo conductor de este material parte de una premisa fundamental: **la complejidad moderna de Kubernetes y OpenShift no elimina los fundamentos del sistema operativo, sino que los abstrae**. Quien administró servidores Red Hat Enterprise Linux (RHEL) a bajo nivel en la Universidad Nacional —configurando el kernel, el stack de red con iptables, resoluciones DNS con BIND y la gestión manual de certificados SSL— posee la visión analítica necesaria para diagnosticar fallos complejos en clusters multicloud contemporáneos. 
+
+A lo largo de estos módulos, transitaremos de la fluidez conceptual a ejemplos específicos con herramientas enterprise (**Red Hat OpenShift, Kubernetes, Argo CD, Azure DevOps Pipelines, Red Hat Quay, Prometheus, Grafana, Splunk y New Relic**), aplicados a sectores con alta exigencia de disponibilidad y cumplimiento normativo como banca digital (SFFCU), procesamiento de pagos (PayU Latam), tecnología médica (BrightInsight / PSL) y sistemas farmacéuticos (Globant Argentina).
+
+---
+## Módulo 1: Linux Enterprise (RHEL), Kubernetes & Red Hat OpenShift en Producción
+
+### 1.1. Fundamentos de RHEL y Diagnóstico a Bajo Nivel
+La administración de servidores Red Hat Enterprise Linux (RHEL) en entornos universitarios e industriales establece las bases de la resolución de incidentes (troubleshooting). Cuando un contenedor falla en OpenShift o Kubernetes, el problema subyacente suele residir en el espacio de nombres del kernel (namespaces), grupos de control (cgroups), almacenamiento o red.
+
+#### Herramientas de Diagnóstico de Sistema y Red
+* **Gestión de Procesos y Recursos**: systemctl status, journalctl, top, htop, vmstat.
+* **Troubleshooting de Red**:
+  * Inspección de sockets y puertos: ss -tulpn o netstat -tulpn.
+  * Verificación de conectividad y rutas: ip a, ip route, traceroute, nc -zv.
+  * Diagnóstico DNS: dig +trace +short, nslookup, getent hosts.
+  * Análisis de tráfico a bajo nivel: tcpdump -i eth0 port 443.
+* **Certificados SSL/TLS y SSH**:
+  * Verificación de la cadena de certificados en un endpoint HTTPS con openssl s_client.
+  * Inspección de fechas de expiración de certificados locales con openssl x509.
+  * Permisos de llaves SSH: chmod 600 ~/.ssh/id_rsa y chmod 700 ~/.ssh.
+
+---
+
+### 1.2. Arquitectura Comparativa: Kubernetes Vanilla vs. Red Hat OpenShift Enterprise
+
+Mientras que Kubernetes Vanilla provee los componentes primitivos de orquestación, Red Hat OpenShift es una plataforma de aplicaciones empresarial sobre RHEL CoreOS que integra gobernanza y herramientas de desarrollador por defecto.
+
+| Dimensión Técnica | Kubernetes Vanilla | Red Hat OpenShift Enterprise | Impacto Operativo y Razonamiento de Arquitectura |
+| :--- | :--- | :--- | :--- |
+| **Aislamiento Multi-tenant** | Namespaces | Projects (OpenShift Projects) | Los Projects en OpenShift envuelven los Namespaces de K8s agregando RBAC automático y cuotas por defecto. |
+| **Exposición de Servicios** | Ingress Controller (NGINX, Traefik, Istio) | Routes (HAProxy gestionado por el Ingress Operator) | Las Routes de OpenShift simplifican la gestión de certificados TLS (Edge, Re-encryption, Passthrough). |
+| **Seguridad de Contenedores** | Pod Security Standards (PSS) / Admission Controllers | Security Context Constraints (SCC) | OpenShift previene por defecto la ejecución con privilegios elevados (restricted-v2 SCC), garantizando aislamiento seguro. |
+| **Construcción e Imágenes** | Requiere pipelines externos de Docker/Kaniko | BuildConfig (S2I - Source-to-Image) y ImageStreams | Automatiza la compilación desde código fuente e integraciones automáticas con el registro interno de OpenShift. |
+
+---
+
+### 1.3. Troubleshooting Forense de Pods en Producción
+
+#### A. CrashLoopBackOff
+Un Pod entra en estado CrashLoopBackOff cuando el contenedor inicia, falla y se reinicia de manera repetida, incrementando el tiempo de espera (back-off) exponencialmente.
+
+* **Causas Raíz Comunes**:
+  1. Excepción no controlada en la aplicación (p. ej., error de conexión a base de datos PostgreSQL/Oracle por credenciales inválidas).
+  2. Falta de variables de entorno o archivos de configuración montados vía ConfigMap o Secret.
+  3. Fuga de memoria que dispara el OOMKilled (Exit Code 137).
+  4. Comando de entrada (entrypoint/cmd) incorrecto o binario no ejecutable.
+* **Flujo de Diagnóstico Paso a Paso**:
+  * 1. Obtener estado general e identificar el Pod afectado: `kubectl get pods -n digital-banking -o wide`
+  * 2. Inspeccionar eventos recientes e historial del Pod: `kubectl describe pod <pod-name> -n digital-banking`
+  * 3. Revisar logs del contenedor actual y del contenedor anterior: `kubectl logs <pod-name> -n digital-banking --previous --tail=100`
+  * 4. Verificar si el motivo de salida fue OOMKilled (Exit Code 137): `kubectl get pod <pod-name> -n digital-banking -o jsonpath={.status.containerStatuses[*].lastState.terminated.reason}`
+
+#### B. ImagePullBackOff y ErrImagePull
+Ocurre cuando el agente Kubelet no logra descargar la imagen del registro de contenedores.
+
+* **Causas Raíz Comunes**:
+  1. El tag de la imagen no existe en el registro (ej. Red Hat Quay o GCP Artifact Registry).
+  2. Nombre de la imagen o URL del registro mal escrito en el Deployment manifest.
+  3. Credenciales de autenticación expiradas o falta de imagePullSecrets en el Namespace/ServiceAccount.
+  4. Restricción de red o firewall bloqueando el puerto 443 hacia el Container Registry.
+* **Procedimiento de Resolución**:
+  * Verificar el evento exacto del fallo de descarga: `kubectl get events -n digital-banking --field-selector involvedObject.name=<pod-name>`
+  * Validar la existencia del secreto de extracción de imagen (Pull Secret): `kubectl get secret quay-pull-secret -n digital-banking`
+  * Inspeccionar la configuración de nodos en OpenShift: `oc describe node <node-name>`
+
+---
+
+### 1.4. Health Probes: Liveness, Readiness y Startup Probes
+
+La correcta configuración de los sondeos de salud (probes) previene caídas masivas en producción y garantiza la alta disponibilidad en arquitecturas microservicios.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-processor
+  namespace: payu-latam-prod
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: payment-api
+        image: quay.io/payu/payment-api:v1.4.2
+        ports:
+        - containerPort: 8080
+        startupProbe:
+          httpGet:
+            path: /healthz/startup
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 30 # Permite hasta 150s para inicialización de la JVM/Spring Boot
+        livenessProbe:
+          httpGet:
+            path: /healthz/liveness
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3 # Si falla 3 veces seguidas, Kubelet REINICIA el Pod
+        readinessProbe:
+          httpGet:
+            path: /healthz/readiness
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2 # Si falla, remueve el Pod de los endpoints del Service (NO lo reinicia)
+```
+
+#### Análisis de Riesgo Operativo: El Problema de la Avalancha ("Thundering Herd")
+Si la livenessProbe está configurada agresivamente con un timeoutSeconds corto y sin startupProbe, durante un pico de carga la aplicación puede responder lento. El Kubelet interpretará la lentitud como la muerte del proceso y reiniciará los pods en paralelo. Esto transferirá el tráfico a los pods restantes, sobrecargándolos y provocando un reinicio masivo en cascada de todo el clúster.
+
+---
+
+### 1.5. Escenario Real de Industria: Fallo de Resolución DNS y Agotamiento de Recurso Efímero en PayU Latam / Digital Banking
+
+* **Escenario**: Durante una transacción masiva en viernes de quincena, los microservicios de pasarela de pagos comenzaron a arrojar errores 504 Gateway Timeout y pods cayendo en CrashLoopBackOff.
+* **Diagnóstico e Investigación**:
+  1. Ejecución de `kubectl get pods -n payu-prod` reveló pods con estado Evicted y otros en CrashLoopBackOff.
+  2. `kubectl describe node` indicó la condición DiskPressure en 3 nodos del clúster debido a logs descontrolados escritos en `/var/log/pods` por microservicios heredados.
+  3. Adicionalmente, CoreDNS no respondía solicitudes debido a la saturación de conexiones hacia el conector de base de datos Oracle.
+* **Resolución Implementada**:
+  * Implementación de límites de recursos efímeros (ephemeral-storage limits y requests) en las especificaciones de Pods.
+  * Rotación automática de logs mediante la configuración del contenedor con max-size: "50m".
+  * Ajuste de ndots:2 en el dnsConfig del Pod para reducir las búsquedas DNS redundantes en los dominios de búsqueda de Kubernetes.
+
+---
+## Módulo 2: Argo CD, GitOps & Reconciliación Declarativa
+
+### 2.1. Arquitectura y Componentes de Argo CD
+GitOps establece que **el repositorio Git es la única fuente de verdad** (Single Source of Truth) para el estado deseado de la infraestructura y aplicaciones. Argo CD actúa como el controlador de reconciliación en tiempo real.
+
+Argo CD se compone de tres microservicios principales:
+* **argocd-server**: Provee la interfaz API, UI web y gestión de autenticación RBAC.
+* **argocd-repo-server**: Mantiene el clon local del repositorio Git y renderiza los manifiestos (Helm, Kustomize, Jsonnet o YAML puro).
+* **argocd-application-controller**: Controlador continuo que compara el estado deseado (Git) contra el estado real (API Server de Kubernetes/OpenShift) y dispara las acciones de reconciliación.
+
+---
+
+### 2.2. Políticas de Sincronización y Configuración Declarativa
+Ejemplo de un objeto Application en Argo CD para el entorno de producción de LoanLogics / SFFCU:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: digital-banking-origination
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:sffcu-org/digital-banking-manifests.git"
+    targetRevision: HEAD
+    path: environments/production/origination
+  destination:
+    server: "cluster-local-api"
+    namespace: banking-prod
+  syncPolicy:
+    automated:
+      prune: true        # Elimina recursos en K8s que fueron borrados en Git
+      selfHeal: true     # Revierte automáticamente cualquier cambio manual directo en el clúster
+    syncOptions:
+      - CreateNamespace=true
+      - Validate=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+```
+
+---
+
+### 2.3. Troubleshooting de Estados: OutOfSync y Degraded
+
+#### A. Estado OutOfSync
+* **Significado**: El estado real en el clúster (Live State) difiere del manifiesto definido en el repositorio Git (Desired State).
+* **Causas y Diagnóstico**:
+  1. **Modificación manual imperativa**: Un operador ejecutó cambios directamente en el clúster. Si `selfHeal: true` está habilitado, Argo CD revertirá el cambio.
+  2. **Campos mutados dinámicamente por Webhooks o Controllers**: Campos como status, metadata.generation, o inyección de sidecars (ej. Istio sidecar proxy).
+  3. **Solución Técnicamente Rigurosa**: Configurar `ignoreDifferences` en la definición de la Application para ignorar campos mutados por admission webhooks:
+     ```yaml
+     spec:
+       ignoreDifferences:
+       - group: apps
+         kind: Deployment
+         jsonPointers:
+         - /spec/template/metadata/annotations
+     ```
+
+#### B. Estado Degraded
+* **Significado**: Los manifiestos se aplicaron correctamente en la API de Kubernetes, pero los recursos no alcanzaron un estado saludable (Healthy).
+* **Causas Comunes**:
+  * Pods asociados al Deployment están en CrashLoopBackOff o ImagePullBackOff.
+  * Un PersistentVolumeClaim (PVC) no se puede vincular (Pending).
+  * Un Custom Resource Definition (CRD) no pasó la validación del esquema.
+
+---
+
+### 2.4. Estrategias de Rollback y Despliegues Avanzados (Blue/Green vs. Canary)
+
+* **Rollback GitOps**: En el paradigma GitOps, **NUNCA se debe ejecutar un rollback imperativo en producción de forma permanente** si el sync automatizado está activo, ya que el controlador sobreescribirá el rollback al detectar el commit en Git. La forma correcta de hacer rollback en GitOps es ejecutar un `git revert <commit-hash>` y realizar push al repositorio.
+* **Canary Deployment con Argo Rollouts**:
+  Permite desplegar gradualmente una versión (ej. 10% del tráfico, luego 25%, 50%, 100%) ejecutando pruebas de análisis en tiempo real mediante métricas de Prometheus.
+
+---
+## Módulo 3: Azure DevOps Pipelines & CI/CD Enterprise Multi-Ambiente
+
+### 3.1. Diseño de Pipelines YAML Multi-Etapa desde Cero
+Basado en la experiencia de arquitectura de pipelines implementada para aplicaciones farmacéuticas en Argentina y plataformas de salud (BrightInsight):
+
+```yaml
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+
+variables:
+  - name: containerRegistry
+    value: "sffcuquay.azurecr.io"
+  - name: imageRepository
+    value: "pharma/sales-api"
+  - name: dockerfilePath
+    value: "$(Build.SourcesDirectory)/Dockerfile"
+  - name: tag
+    value: "$(Build.BuildId)"
+
+stages:
+- stage: BuildAndTest
+  displayName: "Etapa 1: Build, Unit Test & Security Scan"
+  jobs:
+  - job: Compile
+    displayName: "Compilación y Pruebas Estáticas"
+    pool:
+      vmImage: "ubuntu-latest"
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "18.x"
+    - script: |
+        npm ci
+        npm run test:ci
+        npm run build
+      displayName: "Ejecución de Pruebas Unitarias y Build"
+    
+    # Quality Gate con SonarQube / Veracode
+    - task: SonarQubeAnalyze@5
+      displayName: "Ejecución de Análisis de Código SonarQube"
+
+- stage: PackageAndPush
+  displayName: "Etapa 2: Empaquetado y Push a Quay/ACR"
+  dependsOn: BuildAndTest
+  condition: succeeded()
+  jobs:
+  - job: DockerBuild
+    steps:
+    - task: Docker@2
+      displayName: "Build and Push Docker Image"
+      inputs:
+        command: buildAndPush
+        containerRegistry: "AzureCR-ServiceConnection"
+        repository: "$(imageRepository)"
+        dockerfile: "$(dockerfilePath)"
+        tags: |
+          $(tag)
+          latest
+
+- stage: DeployToStaging
+  displayName: "Etapa 3: Despliegue a Staging"
+  dependsOn: PackageAndPush
+  jobs:
+  - deployment: DeployStaging
+    environment: "Pharma-Staging" # Incluye aprobaciones manuales y Quality Gates
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: "Azure-Production-Subscription"
+              KeyVaultName: "kv-pharma-staging"
+              SecretsFilter: "*"
+          - script: |
+              echo "Actualizando manifiestos GitOps para el tag $(tag)"
+              # Script de automatización de Git commit para actualizar la imagen en Argo CD
+```
+
+---
+
+### 3.2. Gobernanza, Secretos y Quality Gates
+
+1. **Gestión Nube-Nativa de Secretos**: Los secretos nunca se almacenan en código plano ni en repositorios. Se integran mediante **Azure Key Vault** mapeados directamente como variables secretas en los agentes de ejecución durante la fase de despliegue.
+2. **Quality Gates Obligatorios**:
+   * Pruebas de cobertura de código (mínimo 85% de coverage).
+   * Verificación de Quality Gate en SonarQube/Veracode: Si se identifican hallazgos de severidad Alta o Crítica, el pipeline interrumpe inmediatamente el despliegue.
+   * **Environment Approvals**: Requisito de doble aprobación (Lead Architect + SecOps) en Azure DevOps Environments antes del paso a la etapa de Producción.
+
+---
+## Módulo 4: DevSecOps, Container Registries & Red Hat Quay
+
+### 4.1. Red Hat Quay & Gobernanza de Imágenes
+En entornos empresariales y bancarios, el registro de contenedores es una pieza crítica de gobernanza. **Red Hat Quay** proporciona capacidades enterprise como escaneo Clair integrado, almacenamiento geodistribuido y control de acceso granular por RBAC.
+
+#### Promoción e Inmutabilidad de Imágenes
+
+| Etapa de Despliegue | Repositorio Quay | Control de Calidad / Gobernanza | Política de Inmutabilidad |
+| :--- | :--- | :--- | :--- |
+| **Desarrollo** | `quay.io/sffcu/banking-api:1.0-dev` | Escaneo Clair Automatizado | Tags de Feature Branches con retención de 30 días |
+| **Staging / QA** | `quay.io/sffcu/banking-api:1.0-rc1` | Pruebas DAST / Veracode | Tag de Release Candidate inmutable |
+| **Producción** | `quay.io/sffcu/banking-api:v1.0.0` | Auditoría de Cumplimiento PCI-DSS | Tags Semánticos Inmutables (Prohibido sobreescribir) |
+
+1. **Política de Tags Inmutables**: Prohibir la sobreescritura del tag `latest` en entornos de producción para garantizar la trazabilidad y la auditabilidad estricta (cumplimiento PCI-DSS / HIPAA).
+2. **Políticas de Retención (Pruning Policies)**: Reglas de limpieza automática para eliminar builds temporales de feature branches mayores a 30 días, preservando todos los releases tageados semánticamente (`vX.Y.Z`).
+
+---
+
+### 4.2. Integración de Escaneo de Análisis de Seguridad (Shift-Left Security)
+
+#### Análisis en la Construcción de Imágenes
+Un principio fundamental en DevSecOps es detectar desviaciones de seguridad en las fases iniciales del ciclo de vida del software (Shift-Left).
+
+#### Resolución de Actualizaciones en Imágenes Base:
+* **Problema**: Un reporte de gobernanza identifica componentes obsoletos en la imagen base de la aplicación.
+* **Solución de Ingeniería**:
+  1. Migración de imágenes base tradicionales (ej. `ubuntu:latest` o `node:14`) a **Red Hat Universal Base Images (UBI)** o imágenes distroless/minimales (`ubi9/ubi-minimal`).
+  2. Implementación de **Multi-stage Builds** en Dockerfile para excluir herramientas de compilación (`gcc`, `make`, `npm`) del artefacto final de producción:
+
+```dockerfile
+# Etapa 1: Build
+FROM registry.redhat.io/ubi9/nodejs-18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Etapa 2: Runtime Minimalista de Producción
+FROM registry.redhat.io/ubi9/ubi-minimal:latest
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+USER 1001
+EXPOSE 8080
+CMD ["node", "dist/main.js"]
+```
+
+---
+## Módulo 5: Observabilidad, Métricas & Diagnóstico de Incidentes en Tiempo Real
+
+### 5.1. El Stack Enterprise de Observabilidad
+La observabilidad se fundamenta en los tres pilares principales: **Métricas, Logs y Trazas**.
+
+| Pilar de Observabilidad | Herramientas Enterprise | Propósito y Naturaleza del Dato |
+| :--- | :--- | :--- |
+| **Métricas** | Prometheus, Grafana | Estado numérico agregable en series temporales para alertas y SLA/SLO. |
+| **Logs** | ELK Stack (Elasticsearch, Logstash, Kibana), Splunk | Registro de eventos discretos y detallados para diagnóstico post-hoc. |
+| **Trazas** | New Relic, Jaeger, OpenTelemetry | Seguimiento distribuido del viaje de una petición a través de microservicios. |
+
+---
+
+### 5.2. Las 4 Señales Doradas (Golden Signals) de SRE y Consultas PromQL
+
+1. **Latencia**: Tiempo necesario para procesar una solicitud (diferenciando entre solicitudes exitosas y fallidas).
+2. **Tráfico**: Medida de la demanda del sistema (ej. peticiones HTTP por segundo - RPS).
+3. **Errores**: Tasa de peticiones que fallan (HTTP 5xx, excepciones no capturadas).
+4. **Saturación**: Grado de utilización de los recursos más restringidos del sistema (CPU, Memoria, I/O de disco).
+
+#### PromQL Avanzado para Tableros de Grafana y Alertas
+* **Tasa de Errores HTTP 5xx en los últimos 5 minutos**:
+  ```promql
+  sum(rate(http_requests_total{status=~"5..", namespace="banking-prod"}[5m])) 
+  / 
+  sum(rate(http_requests_total{namespace="banking-prod"}[5m])) * 100
+  ```
+* **Percentil 99 de Latencia (p99) por Servicio**:
+  ```promql
+  histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{namespace="banking-prod"}[5m])) by (le, service))
+  ```
+* **Saturación de Memoria en Pods respecto al Límite**:
+  ```promql
+  sum(container_memory_working_set_bytes{container=""}) by (pod) 
+  / 
+  sum(kube_pod_container_resource_limits{resource="memory"}) by (pod) * 100
+  ```
+
+---
+
+### 5.3. Playbook de Diagnóstico de Incidentes: Caso Real de Degradación de Latencia
+
+* **Caso de Estudio**: En la plataforma de préstamos de LoanLogics / SFFCU, las alertas de PagerDuty notifican un disparo en el percentil 99 de latencia (> 3.5 segundos) y caídas intermitentes de pods.
+* **Secuencia de Diagnóstico del Platform / SRE Engineer**:
+  1. **Visualización en Grafana**: Confirmación de aumento en la gráfica de Latencia P99 coincidiendo con un incremento del CPU Throttling en el panel de Kubernetes Compute Resources.
+  2. **Inspección de Logs en Splunk/ELK**: Filtrado por `trace_id` de peticiones degradadas:
+     ```spl
+     index=banking_prod_logs sourcetype=kubernetes "ERROR" OR "TimeoutException" | stats count by service_name
+     ```
+  3. **Identificación de la Causa Raíz**: CPU Throttling severo provocado por un `cpu limit` demasiado bajo en el manifest del Pod Java (Spring Boot), causando que el Garbage Collector congelara los hilos de ejecución (Stop-the-World).
+  4. **Acción Remedial Inmediata**: Ajuste de los `cpu limits` en aplicaciones Java (siguiendo las recomendaciones modernas de SRE para prevenir throttling innecesario) manteniendo únicamente el `cpu request` e incrementando el `memory limit`.
+
+---
+## Módulo 6: Banco de Preguntas Avanzadas para Entrevista Técnica Senior (Solucionario UNAL)
+
+### Pregunta 1 (Linux & Storage)
+**Pregunta**: ¿Qué ocurre a nivel de sistema operativo cuando un proceso dentro de un contenedor en OpenShift genera un error `No space left on device` (ENOSPC), pero al ejecutar `df -h` se observa que el sistema de archivos tiene 40% de capacidad disponible? Explique la causa raíz y cómo resolverlo.
+
+**Respuesta Técnica Senior (Solucionario)**:
+El síntoma describe el **agotamiento de Inodos (Inodes)** en el sistema de archivos (ext4/xfs). Cada archivo, directorio o socket en Linux requiere un inodo que almacene los metadatos. Si una aplicación genera millones de archivos pequeños (por ejemplo, archivos de sesión o temporales no limpiados), se pueden agotar todos los inodos disponibles antes de consumir el espacio en disco en bytes.
+* **Comando de Verificación**: `df -i` para inspeccionar el uso de inodos.
+* **Diagnóstico e Identificación de Directorios**:
+  ```bash
+  find /var/log -xdev -printf "%h\n" | sort | uniq -c | sort -k1 -nr | head -n 10
+  ```
+* **Solución**: Eliminar los archivos residuales, implementar rotación de logs (`logrotate`) o configurar retención automática, y en volúmenes persistentes futuros formatear con una densidad de inodos mayor (`mkfs.ext4 -i <bytes-per-inode>`).
+
+---
+
+### Pregunta 2 (Kubernetes & Networking)
+**Pregunta**: Explique la diferencia conceptual y de flujo de red entre una `LivenessProbe` y una `ReadinessProbe`. ¿Qué sucede exactamente en el plano de control (Control Plane) y en iptables/kube-proxy cuando la `ReadinessProbe` de un Pod falla?
+
+**Respuesta Técnica Senior (Solucionario)**:
+* **LivenessProbe**: Determina si el proceso dentro del contenedor está vivo. Si la prueba falla consecutivamente según el `failureThreshold`, el **Kubelet reinicia el contenedor** de forma local. No afecta directamente las reglas de enrutamiento a menos que el pod muera.
+* **ReadinessProbe**: Determina si el Pod está listo para recibir tráfico de red. Si la prueba falla:
+  1. El Kubelet actualiza el estado del Pod a `Ready = False`.
+  2. El controlador de Endpoints de Kubernetes remueve la dirección IP del Pod de la lista de `Endpoints` (o `EndpointSlices`) asociada al `Service`.
+  3. `kube-proxy` en cada nodo del clúster recibe el evento y actualiza las reglas de filtrado de paquetes en el kernel (`iptables` o `IPVS`), removiendo las cadenas de enrutamiento hacia esa IP.
+  4. **Resultado**: El tráfico de los clientes ya no es dirigido a ese Pod, pero **el Pod NO se reinicia**, permitiéndole recuperarse o ser inspeccionado para depuración.
+
+---
+
+### Pregunta 3 (GitOps & Argo CD)
+**Pregunta**: Durante un despliegue crítico de la pasarela de pagos con Argo CD, el estado del despliegue queda permanentemente en `OutOfSync` debido a que un operador de seguridad muta dinámicamente el campo `spec.template.metadata.annotations`. ¿Cómo soluciona esta condición de drift sin deshabilitar la sincronización automática (`selfHeal`)?
+
+**Respuesta Técnica Senior (Solucionario)**:
+El problema ocurre porque Argo CD compara el objeto en Git contra el objeto en vivo en la API de Kubernetes. Al haber un Mutating Admission Webhook alterando las anotaciones, Argo CD detecta un drift constante.
+Para resolverlo sin perder la auto-reconciliación (`selfHeal`), se añade la sección `ignoreDifferences` en la especificación de la `Application` de Argo CD:
+
+```yaml
+spec:
+  ignoreDifferences:
+  - group: apps
+    kind: Deployment
+    jsonPointers:
+    - /spec/template/metadata/annotations
+```
+Esto le instruye a Argo CD que ignore las discrepancias en esa ruta JSON específica durante el cálculo del diff entre el estado deseado y el estado vivo.
+
+---
+
+### Pregunta 4 (Azure DevOps & CI/CD)
+**Pregunta**: ¿Cómo diseñaría un pipeline en Azure DevOps que garantice el cumplimiento normativo PCI-DSS / HIPAA para la promoción de artefactos entre ambientes de desarrollo y producción?
+
+**Respuesta Técnica Senior (Solucionario)**:
+1. **Segregación de Responsabilidades e Inmutabilidad**: Construcción del artefacto (imagen de contenedor) una sola vez en la etapa de Build, tageado con el `Build.BuildId` o hash de Git. La misma imagen probada en Dev es promovida a Staging y Prod sin re-compilar.
+2. **Quality Gates & DevSecOps**:
+   * Análisis estático de código (SAST) con SonarQube / Veracode en la etapa de compilación.
+   * Análisis de cumplimiento en el container registry (Quay/ACR) bloqueando imágenes con hallazgos críticos.
+3. **Control de Accesos y Aprobaciones Manuales**:
+   * Utilizar **Azure DevOps Environments** vinculados a la etapa de Producción.
+   * Habilitar "Approvals and Checks" requiriendo la firma digital/aprobación manual de los roles autorizados (Lead Architect / SecOps).
+4. **Secretos y Trazabilidad**:
+   * Inyección dinámica de credenciales desde **Azure Key Vault** en tiempo de ejecución.
+   * Registro completo de auditoría del pipeline en Azure DevOps vinculando el commit hash con el artefacto desplegado y las aprobaciones otorgadas.
+
+---
+
+## Glosario Técnico de Referencia Rápida y Comandos de Producción
+
+### Comandos de Diagnóstico Rápido en Kubernetes / OpenShift
+```bash
+# 1. Ver consumo de recursos en tiempo real por Pod y Nodo
+kubectl top nodes
+kubectl top pods -n digital-banking --sort-by=cpu
+
+# 2. Extraer manifiesto activo de un recurso omitiendo campos gestionados por K8s
+kubectl get deployment payment-api -n digital-banking -o yaml
+
+# 3. Monitoreo de eventos en tiempo real filtrando por advertencias/errores
+kubectl get events -n digital-banking --field-selector type=Warning --watch
+
+# 4. Iniciar un contenedor de depuración temporal en la red de un Pod problemático
+kubectl run debug-tools --rm -i --tty --image=busybox -n digital-banking -- sh
+
+# 5. Comandos equivalentes en Red Hat OpenShift
+oc status
+oc adm top nodes
+oc logs -f deployment/payment-api -n digital-banking
+oc get routes -n digital-banking
+```
+
+### Conceptos Clave
+* **GitOps**: Modelo operacional donde el estado deseado del sistema se mantiene bajo control de versiones en Git y un agente automatizado reconcilia el estado real con el deseado.
+* **SCC (Security Context Constraints)**: Mecanismo de seguridad nativo de OpenShift que define los límites de privilegios que un Pod puede solicitar al SO (Linux capabilities, SELinux context, UID ranges).
+* **Golden Signals**: Las cuatro métricas esenciales de monitoreo según el libro de SRE de Google: Latencia, Tráfico, Errores y Saturación.
+* **Shift-Left Security**: Práctica de integrar controles de calidad y análisis de seguridad desde las fases iniciales del ciclo de vida del desarrollo de software (CI/CD).
+
+---
+*Fin de las Notas de Clase — Preparado para la entrevista técnica de DevOps / Platform Engineer.*

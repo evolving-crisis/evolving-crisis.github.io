@@ -79,3 +79,17 @@
     ></iframe>
   </div>
 </header>
+
+<script>
+  window.addEventListener('message', event => {
+    if (event.origin !== window.location.origin ||
+        event.data?.type !== 'studyping:radio' ||
+        !['on', 'off'].includes(event.data.action)) return;
+
+    const studyPing = document.querySelector('.studyping-fullscreen iframe');
+    const radio = document.querySelector('.radio-chaito-header');
+    if (!studyPing || event.source !== studyPing.contentWindow || !radio) return;
+
+    radio.contentWindow.postMessage({ type: 'radio-chaito:command', action: event.data.action }, window.location.origin);
+  });
+</script>
