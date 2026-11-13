@@ -1,0 +1,38 @@
+---
+id: filoexponetypgs-02
+title: "02 - Sampling and Sequence Assembly"
+course: "Target Capture Phylogenomics"
+order: 20
+targetWPM: 30
+targetAccuracy: 95
+---
+
+## 2. Methods
+
+
+
+### 2.1. Sample choice, DNA extraction, target capture and sequencing
+
+
+
+A total of 88 samples were sequenced, including 87 from Detarioideae, and one *Cercis canadensis* from the closely related Dialioideae subfamily which was used as the outgroup. Only one sample per species was sampled as this was sufficient to generate an accurate species tree using the coalescent-based phylogenetic inference software ASTRAL, so sampling multiple individuals per species was not necessary. Of the 87 Detarioideae, 25 are from the *Sindora* clade, 47 from other genera in the Detarieae, and 15 from Schotieae, Barnebydendreae, Afzelieae, Amherstieae and Saracaeae.
+
+Different batches of samples were processed in various locations with the details summarised in Supplementary Table 1. For most samples, DNA from fresh, silica-gel dried or herbarium-sampled leaf material was extracted with the CTAB method. The fragment sizes of the genomic DNA extracts were assessed by gel electrophoresis, and where necessary (usually for fresh or recent silica-gel dried leaf material), the genomic DNA was sheared using a Covaris ME-220 focus-ultrasonicator (Covaris Inc., US) to a target fragment size of 350 bp following the manufacturer's protocol. DNA sequencing libraries were prepared with 250 ng of input DNA using the NEBNext Ultra II DNA Library Prep Kit for Illumina with unique dual index adaptors (New England Biolabs, Singapore & New England Biolabs, UK). Target capture was performed with the Detarioideae myBaits kit (Daciel-Arbor Biosciences, US) for 24 h at $60^{\circ}\text{C}$ to enable greater capture of outgroup samples and paralog recovery. For target capture reactions prepared in Singapore, the myBaits kit v.4.01 was used, while for reactions prepared in the UK, the v.5.03 kit was used. For reactions prepared in Belgium, the myBaits kit v.3.0.1 was used.
+
+The sequencing library preparation followed previously established protocols. Paired-end sequencing (150 bp) was performed on an Illumina NextSeq with reagent kit V2 at the GIGA platform (Liège, Belgium). An Illumina NovaSeq was used to generate 150 bp paired-end reads for libraries prepared in Singapore, sequenced by Novogene AIT, and in Exeter, sequenced by the University of Exeter Sequencing Facility.
+
+### 2.2. Sequence recovery and assembly
+
+
+
+#### 2.2.1. HybPiper
+
+
+
+Raw reads were trimmed using Trimmomatic v.0.39 with the settings `ILLUMINACLIP: TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:25`. A second round of adaptor removal was performed using CUTADAPT v1.14 using the script `more_tidying.sh`. HybPiper v.2.3.0 was used to assemble trimmed and adaptor-free reads using the Detarioideae bait reference fasta file, with the following options: `hybpiper assemble --run_intronerate --chimeric_stitched_contig_check --thresh 70`. The default option of BLAST v.2.13.0 was used for read mapping, with the default coverage cutoff value of 8, and the protein similarity percentage to pull loci of interest (`--thresh`) was raised to 70 from a default of 55 as the closely related Detarioideae sequences were expected to be highly similar to the Detarioideae bait reference. Supercontigs consisting of exons with flanking intron regions were recovered and gathered for downstream analyses. Selected gene alignments were visually checked to identify the presence of chimeric sequences, which have incorporated sequences from two or more gene copies into a single contig. However, these chimeric alignments were not removed to ensure that all analyses were an accurate representation of the pipelines' native ability to deal with paralogs rather than from manual efforts to further clean the alignments.
+
+#### 2.2.2. CAPTUS
+
+
+
+Raw reads were provided to the CAPTUS v1.0.1 pipeline for cleaning, de novo assembly, extraction of assembled sequences by gene, and sequence alignment, with parameters modified to match those used by HybPiper. At the step `captus assembly assemble`, the `-min_count` was increased to 8 from the default value of two to match the coverage cutoff in HybPiper. For the step `captus_assembly extract`, the same Detarioideae bait reference fasta file was used, and the protein similarity threshold (`--nuc_min_identity`) was increased to 70 to match that used in HybPiper. In the `captus_assembly align` step, the output containing genes together with their flanking regions (`-formats GF`) was used to match the HybPiper supercontigs. The outgroup *Cercis canadensis* was defined at this step to facilitate sequence alignment. Similar to the HybPiper alignments, selected CAPTUS alignments were also visually inspected for the presence of chimeric assemblies to assess the ability of the respective pipelines to keep paralog sequences separate.
