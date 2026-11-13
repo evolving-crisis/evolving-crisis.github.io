@@ -422,41 +422,6 @@ function evaluateObjective(spec, stats){
 const DEFAULT_LESSON_ID = 'evolving-crisis-code-intro';
 
 const DEFAULT_COURSES = [
-  {
-    title: 'Foundations',
-    lessons: [
-      {
-        id:'home-row', title:'Home Row Warm-Up',
-        text:"ask a lad; a sad flask falls; glass jars fall as a lad asks dad; add a flag; salsa lasts all day",
-        targetWPM:25, targetAccuracy:95
-      },
-      {
-        id:'number-fun', title:'Number Fun',
-        text:"There are infinite numbers out there, and you could keep counting forever without ever reaching the end. For now, let's warm up your fingers on the number row: 1 2 3 4 5 6 7 8 9 0, then back down again: 9 8 7 6 5 4 3 2 1 0.",
-        targetWPM:28, targetAccuracy:95
-      }
-    ]
-  },
-  {
-    title:'Classics',
-    lessons:[
-      {
-        id:'quick-fox', title:'Quick Brown Fox',
-        text:"The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!",
-        targetWPM:40, targetAccuracy:96
-      }
-    ]
-  },
-  {
-    title:'Speed Drills',
-    lessons:[
-      {
-        id:'common-words', title:'Common Words',
-        text:"the of and a to in is you that it he was for on are as with his they at be this from I have not but had what all were when we there can an your which their said if do will each about how up out them then she many some so these would other into has more her two like him see time could no make than first been its who now people my made over did down only way find use may water",
-        targetWPM:45, targetAccuracy:96
-      }
-    ]
-  }
 ];
 
 /* ---------------------------- storage ---------------------------- */
@@ -1636,7 +1601,7 @@ const App = {
 
   /* ----- sidebar ----- */
   closeLessonMenu(menu){
-    const menuList = Array.from(document.querySelectorAll('.lesson-menu-list'))
+    const menuList = Array.from(document.querySelectorAll('.lesson-menu-list, .course-menu-list'))
       .find(list => list.dataset.menuId === menu.dataset.menuId);
     if(menuList){
       menuList.hidePopover?.();
@@ -1646,7 +1611,7 @@ const App = {
     menu.classList.remove('open');
   },
   closeOpenLessonMenus(){
-    this.dom.courseList.querySelectorAll('.lesson-menu.open').forEach(menu => this.closeLessonMenu(menu));
+    this.dom.courseList.querySelectorAll('.lesson-menu.open, .course-menu.open').forEach(menu => this.closeLessonMenu(menu));
   },
   positionLessonMenu(menuList, trigger){
     const anchor = trigger.getBoundingClientRect();
@@ -1686,6 +1651,7 @@ const App = {
       const collapsed = this.collapsedCourses.has(courseKey(course.title));
       const head = document.createElement('div');
       head.className = 'course-head';
+      head.dataset.courseToggle = course.title;
       const h3 = document.createElement('h3');
       h3.textContent = course.title;
       const listId = `course-lessons-${slugify(course.title)}-${courseIndex}`;
@@ -1712,14 +1678,40 @@ const App = {
       progressFill.className = 'course-progress-fill';
       progress.appendChild(progressFill);
       summary.append(summaryText, progress);
-      const add = document.createElement('button');
-      add.type = 'button';
-      add.className = 'course-add';
-      add.dataset.courseNew = course.title;
-      add.title = `New lesson in ${course.title}`;
-      add.setAttribute('aria-label', `New lesson in ${course.title}`);
-      add.innerHTML = '<svg viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>';
-      head.append(h3, toggle, summary, add);
+      const headActions = document.createElement('div');
+      headActions.className = 'course-head-actions';
+      const courseMenu = document.createElement('span');
+      courseMenu.className = 'course-menu';
+      courseMenu.dataset.menuId = `course-${courseIndex}`;
+      const courseMenuTrigger = document.createElement('button');
+      courseMenuTrigger.type = 'button';
+      courseMenuTrigger.className = 'course-menu-trigger';
+      courseMenuTrigger.title = `Actions for ${course.title}`;
+      courseMenuTrigger.setAttribute('aria-label', `Actions for ${course.title}`);
+      courseMenuTrigger.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16" cy="10" r="1.25"/></svg>';
+      courseMenu.appendChild(courseMenuTrigger);
+      const courseMenuList = document.createElement('span');
+      courseMenuList.className = 'course-menu-list';
+      courseMenuList.setAttribute('popover', 'manual');
+      courseMenuList.dataset.menuId = courseMenu.dataset.menuId;
+      courseMenuList.dataset.courseTitle = course.title;
+      const courseActions = [
+        ['select-course', course.lessons.every(lesson => this.exportSelection.has(lesson.id)) ? 'Unselect all lessons' : 'Select all lessons', ''],
+        ['new-course-lesson', 'New lesson', ''],
+        ['rename-course', 'Rename course', ''],
+        ['delete-course', 'Delete course', 'danger']
+      ];
+      courseActions.forEach(([action, label, className]) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `course-menu-action ${className}`.trim();
+        button.dataset.action = action;
+        button.textContent = label;
+        courseMenuList.appendChild(button);
+      });
+      courseMenu.appendChild(courseMenuList);
+      headActions.appendChild(courseMenu);
+      head.append(toggle, h3, summary, headActions);
       this.updateCourseSummary(summary, course, stats);
       group.appendChild(head);
       const lessonList = document.createElement('div');
@@ -1757,6 +1749,7 @@ const App = {
           trigger.className = 'lesson-menu-trigger';
           trigger.title = 'Lesson actions';
           trigger.setAttribute('role', 'button');
+          trigger.tabIndex = 0;
           trigger.setAttribute('aria-label', `Actions for ${lesson.title}`);
           trigger.innerHTML = '<svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16" cy="10" r="1.25"/></svg>';
           menu.appendChild(trigger);
@@ -1943,7 +1936,7 @@ const App = {
     const lessonIds = new Set(lessons.map(l => l.id));
     const selected = Array.from(lessonIds).filter(id => this.exportSelection.has(id)).length;
     this.dom.exportLessonsBtn.textContent = selected ? `Export selected (${selected})` : 'Export selected';
-    this.dom.selectAllLessonsBtn.textContent = selected === lessonIds.size && selected ? 'Clear selection' : 'Select all';
+    this.dom.selectAllLessonsBtn.textContent = selected === lessonIds.size && selected ? 'Unselect all' : 'Select all';
   },
   toggleAllLessonSelection(){
     const ids = Array.from(new Set(this.getAllCourses().flatMap(course => course.lessons).map(l => l.id)));
@@ -1951,6 +1944,16 @@ const App = {
     ids.forEach(id => {
       if(allSelected) this.exportSelection.delete(id);
       else this.exportSelection.add(id);
+    });
+    this.renderSidebar();
+  },
+  toggleCourseSelection(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const allSelected = course.lessons.every(lesson => this.exportSelection.has(lesson.id));
+    course.lessons.forEach(lesson => {
+      if(allSelected) this.exportSelection.delete(lesson.id);
+      else this.exportSelection.add(lesson.id);
     });
     this.renderSidebar();
   },
@@ -4263,6 +4266,75 @@ const App = {
       if(next) this.loadLesson(next.lesson, next.courseTitle);
     }
   },
+  async renameCourse(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const nextTitle = await this.showActionModal({ title:'Rename course', label:'Course name', value:course.title });
+    if(nextTitle === null) return;
+    const value = nextTitle.trim();
+    if(!value){
+      await this.showNotice('Course name required', 'Enter a name for this course.');
+      return;
+    }
+    if(value === course.title) return;
+    const oldKey = courseKey(course.title);
+    const newKey = courseKey(value);
+    const customIds = new Set(this.customLessons.map(lesson => lesson.id));
+    let updatedCustomLesson = false;
+    course.lessons.forEach(lesson => {
+      if(customIds.has(lesson.id)){
+        const custom = this.customLessons.find(item => item.id === lesson.id);
+        if(custom){ custom.course = value; updatedCustomLesson = true; }
+      }else this.saveLessonMetadata(lesson.id, { course:value });
+    });
+    if(updatedCustomLesson) Storage.saveLessons(this.customLessons);
+    if(this.courseSequence.includes(oldKey)){
+      this.courseSequence = Array.from(new Set(this.courseSequence.map(key => key === oldKey ? newKey : key)));
+      this.savePref('courseSequence', this.courseSequence);
+    }
+    if(this.collapsedCourses.delete(oldKey)){
+      this.collapsedCourses.add(newKey);
+      this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
+    }
+    if(this.currentLesson && course.lessons.some(lesson => lesson.id === this.currentLesson.id)){
+      const found = this.findLesson(this.currentLesson.id);
+      if(found){
+        this.currentLesson = found.lesson;
+        this.dom.courseTag.textContent = found.courseTitle;
+      }
+    }
+    this.renderSidebar();
+  },
+  async deleteCourse(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    if(!await this.showActionModal({
+      title:'Delete course?',
+      message:`Delete "${course.title}" and all ${course.lessons.length} lessons in it? This cannot be undone.`,
+      input:false,
+      confirm:'Delete'
+    })) return;
+    const ids = new Set(course.lessons.map(lesson => lesson.id));
+    this.exportSelection.forEach(id => { if(ids.has(id)) this.exportSelection.delete(id); });
+    this.customLessons = this.customLessons.filter(lesson => !ids.has(lesson.id));
+    ids.forEach(id => this.deletedLessons.add(id));
+    Storage.saveDeletedLessons(Array.from(this.deletedLessons));
+    Storage.saveLessons(this.customLessons);
+    const courseKeyToDelete = courseKey(course.title);
+    if(this.courseSequence.includes(courseKeyToDelete)){
+      this.courseSequence = this.courseSequence.filter(key => key !== courseKeyToDelete);
+      this.savePref('courseSequence', this.courseSequence);
+    }
+    if(this.collapsedCourses.delete(courseKeyToDelete)){
+      this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
+    }
+    const deletedCurrentLesson = this.currentLesson && ids.has(this.currentLesson.id);
+    this.renderSidebar();
+    if(deletedCurrentLesson){
+      const next = this.getAllCourses().flatMap(item => item.lessons.map(lesson => ({ lesson, courseTitle:item.title })))[0];
+      if(next) this.loadLesson(next.lesson, next.courseTitle);
+    }
+  },
 
   /* ----- export / import of a visitor's own lessons and their marks -----
      GitHub Pages has no backend, so a visitor's custom lessons live only
@@ -4867,17 +4939,17 @@ const App = {
       if(e.target.closest('.lesson-export')){ e.stopPropagation(); return; }
       const courseToggle = e.target.closest('.course-toggle');
       if(courseToggle){ e.stopPropagation(); this.toggleCourse(courseToggle.dataset.courseToggle); return; }
-      const courseAdd = e.target.closest('.course-add');
-      if(courseAdd){ e.stopPropagation(); this.openModal({ course:courseAdd.dataset.courseNew }); return; }
-      const menuTrigger = e.target.closest('.lesson-menu-trigger');
+      const courseHead = e.target.closest('.course-head');
+      if(courseHead && !e.target.closest('button')){ this.toggleCourse(courseHead.dataset.courseToggle); return; }
+      const menuTrigger = e.target.closest('.lesson-menu-trigger, .course-menu-trigger');
       if(menuTrigger){
         e.stopPropagation();
-        const menu = menuTrigger.closest('.lesson-menu');
+        const menu = menuTrigger.closest('.lesson-menu, .course-menu');
         if(menu.classList.contains('open')){
           this.closeLessonMenu(menu);
         }else{
           this.closeOpenLessonMenus();
-          const menuList = menu.querySelector('.lesson-menu-list');
+          const menuList = menu.querySelector('.lesson-menu-list, .course-menu-list');
           document.body.appendChild(menuList);
           menuList.classList.add('open');
           menu.classList.add('open');
@@ -4894,11 +4966,28 @@ const App = {
         if(found){ this.loadLesson(found.lesson, found.courseTitle); this.closeDrawer(); }
       }
     });
+    d.courseList.addEventListener('keydown', (e) => {
+      const trigger = e.target.closest('.lesson-menu-trigger');
+      if(trigger && (e.key === 'Enter' || e.key === ' ')){
+        e.preventDefault();
+        trigger.click();
+      }
+    });
     document.addEventListener('click', (e) => {
-      const menuAction = e.target.closest('.lesson-menu-action');
+      const menuAction = e.target.closest('.lesson-menu-action, .course-menu-action');
       if(menuAction){
         e.stopPropagation();
         const menuList = menuAction.closest('.lesson-menu-list');
+        const courseMenuList = menuAction.closest('.course-menu-list');
+        if(courseMenuList){
+          const title = courseMenuList.dataset.courseTitle;
+          this.closeOpenLessonMenus();
+          if(menuAction.dataset.action === 'select-course') this.toggleCourseSelection(title);
+          else if(menuAction.dataset.action === 'new-course-lesson') this.openModal({ course:title });
+          else if(menuAction.dataset.action === 'rename-course') this.renameCourse(title);
+          else if(menuAction.dataset.action === 'delete-course') this.deleteCourse(title);
+          return;
+        }
         const menu = Array.from(this.dom.courseList.querySelectorAll('.lesson-menu'))
           .find(item => item.dataset.menuId === menuList.dataset.menuId);
         if(!menu) return;

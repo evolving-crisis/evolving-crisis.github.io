@@ -14,7 +14,7 @@ modules/studyping/
 ├── styles.css
 ├── app.js
 └── lessons/
-  index.json              <- manifest: which lesson files to load
+  index.json              <- generated manifest of lesson files
   evolving-crisis-code-fr.json
   guia-estudio-devops-unal.txt
 ```
@@ -122,8 +122,9 @@ in as a course. JSON lesson packs and Markdown lesson files are supported.
 Because Jekyll converts `.md` files into HTML, store raw Markdown lesson
 content in a `.txt` file so the app can fetch it unchanged. This is the "static
 lesson paths" tier: git-managed, versioned, and reviewable in a PR. To add a
-file, place it in `lessons/` and add its filename to `index.json`. Every
-visitor sees it on their next page load.
+file, place it in `lessons/`. Jekyll generates `index.json` from all `.json`
+and `.txt` files in this directory, including `.txt` files with front matter,
+so every visitor sees it on their next page load.
 
 Markdown lessons may start with YAML-style front matter to set their course and
 sorting metadata:
@@ -145,12 +146,11 @@ within that course. The title can also be taken from the first level-one
 heading. The Markdown body is converted to readable practice text: headings,
 lists, blockquotes, table separators, and code fences are handled, while inline
 formatting is preserved for the typing view. The DevOps guide in this folder
-demonstrates the format. Static hosting cannot discover files added to a
-directory, so each Markdown file still needs to be listed in `index.json`.
+demonstrates the format.
 
-Static hosting can't list a folder's contents for you (there's no directory
-index), which is why the manifest (`index.json`) exists — it's the only way
-the client-side code can know what pack files are there to fetch.
+Browsers cannot list a static directory, so Jekyll generates the manifest at
+build time. Other static hosts need to provide an equivalent generated
+`index.json`.
 
 Static lesson directories may also include a marks JSON file. Any manifest
 entry whose object contains a `marks` array is loaded as default marks during
@@ -479,13 +479,17 @@ easy to count before typing.
 
 Every lesson has the same drawer controls: select it for export and open the
 three-dot menu to rename it, assign it to another course, restore an overridden
-copy, or delete it. Lesson names wrap onto multiple lines instead of being
+copy, or delete it. The three-dot control has a larger click target for easier
+use. Lesson names wrap onto multiple lines instead of being
 elided, so long titles stay distinguishable. The **Shortcuts** section can be
 collapsed from its chevron (the choice is remembered), which hands the whole
 drawer height to the course list.
-Each course heading also has a + button that opens the new-lesson form with
-that course pre-filled, so a custom lesson can be added in place. Course
-headings can also be collapsed with their chevron; collapsed courses are
+The course chevron sits before the title, and clicking a course heading
+collapses or expands it. Use the course menu to add a lesson with that course
+pre-filled, rename or delete the course and all its lessons, or
+select/unselect the course's lessons for export. The
+**Select all** drawer control becomes **Unselect all** when every lesson is
+selected. Collapsed courses are
 remembered in this browser. Courses start collapsed by default, while the
 course containing the resumed lesson opens automatically.
 Lesson content remains editable in the typing area. Changes to built-in and

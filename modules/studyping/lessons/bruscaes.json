@@ -1,0 +1,14 @@
+{
+  "exportedAt": "2026-11-14T00:28:00.580Z",
+  "format": "studyping-lessons.v1",
+  "lessons": [
+    {
+      "id": "custom-mv8twdc7-8q27",
+      "title": "Introduction to the Animal Kingdom",
+      "text": "Animal Architecture and Body Plans",
+      "course": "chapter-three",
+      "targetWPM": 30,
+      "targetAccuracy": 95
+    }
+  ]
+}

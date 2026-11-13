@@ -1,8 +1,18 @@
+---
+---
 [
-  "evolving-crisis-code-fr.json",
-  "guia-estudio-devops-unal.txt",
-  "lesson-b.json",
-  "parcial-nopaseri.json",
-  "proyectornis.txt",
-  "studyping-marks.json"
+  {%- assign first_lesson_file = true -%}
+  {%- assign lesson_files = site.static_files | concat: site.pages -%}
+  {%- for file in lesson_files -%}
+    {%- if file.path contains 'modules/studyping/lessons/' -%}
+      {%- assign file_extension = file.name | split: '.' | last | downcase -%}
+      {%- if file_extension == 'txt' or file_extension == 'json' -%}
+        {%- unless file.name == 'index.json' -%}
+          {%- unless first_lesson_file -%},{%- endunless -%}
+          {{- file.name | jsonify -}}
+          {%- assign first_lesson_file = false -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
 ]
