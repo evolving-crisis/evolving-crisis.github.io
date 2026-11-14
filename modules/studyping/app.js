@@ -85,8 +85,10 @@ function parseMarkdownLessonFile(source, filename){
     targetWPM:optionalInt(metadata.targetWPM, 5, 200) ?? 30,
     targetAccuracy:optionalInt(metadata.targetAccuracy, 50, 100) ?? 95
   };
+  const courseId = normalizeCourseId(metadata.courseId);
   const order = optionalOrder(metadata.order);
   const courseOrder = optionalOrder(metadata.courseOrder);
+  if(courseId) lesson.courseId = courseId;
   if(order !== null) lesson.order = order;
   if(courseOrder !== null) lesson.courseOrder = courseOrder;
   return lesson;
@@ -135,6 +137,7 @@ function sourcePositionForRendered(parsed, position){
 }
 const slugify = (str) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'lesson';
 const courseKey = (title) => String(title || '').trim().toLowerCase();
+const normalizeCourseId = (value) => typeof value === 'string' && value.trim() ? value.trim() : null;
 const uid = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`;
 function formatTime(ms){
   const s = Math.floor(ms/1000);
@@ -277,6 +280,7 @@ function normalizeImportedLesson(raw){
     // `course` / targets are optional in an export: null means "leave the existing
     // value alone" when this lesson conflicts with one already in the app.
     course: typeof raw.course === 'string' && raw.course.trim() ? raw.course.trim() : null,
+    courseId: normalizeCourseId(raw.courseId),
     order: optionalOrder(raw.order),
     courseOrder: optionalOrder(raw.courseOrder),
     targetWPM: optionalInt(raw.targetWPM, 5, 200),
@@ -329,6 +333,9 @@ function compareImportedLesson(existing, existingCourseTitle, incoming){
   const existingCourse = existing.course || existingCourseTitle || 'My Lessons';
   if(incoming.course && incoming.course !== existingCourse){
     changes.push({ field:'Course', kind:'value', before:existingCourse, after:incoming.course });
+  }
+  if(incoming.courseId && incoming.courseId !== (normalizeCourseId(existing.courseId) || courseKey(existingCourse))){
+    changes.push({ field:'Course ID', kind:'value', before:normalizeCourseId(existing.courseId) || courseKey(existingCourse), after:incoming.courseId });
   }
   if(incoming.courseOrder !== null && incoming.courseOrder !== (existing.courseOrder ?? null)){
     changes.push({ field:'Course order', kind:'value', before:String(existing.courseOrder ?? 'automatic'), after:String(incoming.courseOrder) });
@@ -431,12 +438,13 @@ const Storage = {
   PREFS_KEY:'studyping.prefs.v1',
   MARKS_KEY:'studyping.marks.v1',
   OVERRIDES_KEY:'studyping.overrides.v1',
+  LESSON_ID_ALIASES_KEY:'studyping.lessonIdAliases.v1',
   DELETED_KEY:'studyping.deletedLessons.v1',
   POSITIONS_KEY:'studyping.positions.v1',
   migrateLegacyData(){
     try{
       const keys = [this.LESSONS_KEY, this.STATS_KEY, this.PREFS_KEY, this.MARKS_KEY,
-        this.OVERRIDES_KEY, this.DELETED_KEY, this.POSITIONS_KEY];
+        this.OVERRIDES_KEY, this.LESSON_ID_ALIASES_KEY, this.DELETED_KEY, this.POSITIONS_KEY];
       keys.forEach(key => {
         const legacyKey = key.replace(/^studyping\./, 'typingStudio.');
         if(localStorage.getItem(key) === null){
@@ -458,6 +466,17 @@ const Storage = {
   saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Studyping: could not save stats', e); } },
   loadOverrides(){ try{ const raw = localStorage.getItem(this.OVERRIDES_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ return {}; } },
   saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('Studyping: could not save edits', e); } },
+  loadLessonIdAliases(){
+    try{
+      const raw = localStorage.getItem(this.LESSON_ID_ALIASES_KEY);
+      const value = raw ? JSON.parse(raw) : {};
+      if(!value || typeof value !== 'object' || Array.isArray(value)) return {};
+      return Object.fromEntries(Object.entries(value).filter(([id, nextId]) =>
+        typeof id === 'string' && id && typeof nextId === 'string' && nextId
+      ));
+    }catch(e){ console.warn('Studyping: could not read lesson ID changes', e); return {}; }
+  },
+  saveLessonIdAliases(aliases){ try{ localStorage.setItem(this.LESSON_ID_ALIASES_KEY, JSON.stringify(aliases)); }catch(e){ console.warn('Studyping: could not save lesson ID changes', e); } },
   loadMarks(){ try{ const raw = localStorage.getItem(this.MARKS_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ return []; } },
   saveMarks(list){ try{ localStorage.setItem(this.MARKS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save marks', e); } },
   loadPrefs(){ try{ const raw = localStorage.getItem(this.PREFS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
@@ -1283,10 +1302,12 @@ const App = {
   mediaPendingSrc: '',  // data URL chosen from a file but not added yet
   mediaReturnToMarks: false,
   captures: { mark:null, mask:null }, // one open span per shortcut family: { start }. Both can be open at once.
+  deletionSelection: null,
   pillTimers: { mark:null, mask:null, edit:null },
   editing: false,    // template editing mode is active
   editStart: null,   // what the run looked like when the edit began: { text, pos, typed, wasState, states, badges }
   overrides: {},     // visitor's edits to built-in / static-pack lessons: lessonId -> text
+  lessonIdAliases: {}, // source lesson id -> visitor-selected id for static lessons
   templateUndo: [],
   templateRedo: [],
   editRenderFrame: null,
@@ -1325,6 +1346,7 @@ const App = {
     });
     this.deletedLessons = new Set(Storage.loadDeletedLessons());
     this.overrides = Storage.loadOverrides();
+    this.lessonIdAliases = Storage.loadLessonIdAliases();
     this.positions = Storage.loadPositions();
     try{
       const visits = JSON.parse(sessionStorage.getItem(SESSION_VISITS_KEY) || '[]');
@@ -1482,6 +1504,7 @@ const App = {
               if(typeof metadata.id === 'string' && metadata.id.trim()) lesson.id = metadata.id.trim();
               if(typeof metadata.title === 'string' && metadata.title.trim()) lesson.title = metadata.title.trim();
               if(typeof metadata.course === 'string' && metadata.course.trim()) lesson.course = metadata.course.trim();
+              if(normalizeCourseId(metadata.courseId)) lesson.courseId = normalizeCourseId(metadata.courseId);
               const order = optionalOrder(metadata.order);
               const courseOrder = optionalOrder(metadata.courseOrder);
               const targetWPM = optionalInt(metadata.targetWPM, 5, 200);
@@ -1491,7 +1514,9 @@ const App = {
               if(targetWPM !== null) lesson.targetWPM = targetWPM;
               if(targetAccuracy !== null) lesson.targetAccuracy = targetAccuracy;
             }
-            return { course:lesson.course, order:lesson.courseOrder, lessons:[lesson] };
+            const courseId = normalizeCourseId(metadata && metadata.courseId);
+            if(courseId) lesson.courseId = courseId;
+            return { course:lesson.course, courseId, order:lesson.courseOrder, lessons:[lesson] };
           }
           const pack = await r.json();
           if(!pack || typeof pack !== 'object' ||
@@ -1504,15 +1529,25 @@ const App = {
       }));
       this.staticPackCourses = packs.filter(p => p && Array.isArray(p.lessons)).map(p => ({
         title: p.course || 'More Lessons',
+        courseId: normalizeCourseId(p.courseId),
         order: optionalOrder(p.order),
         lessons: p.lessons
           .filter(l => l && typeof l === 'object' && l.text && l.title)
-          .map(l => ({
-            ...l,
-            id: l.id || uid('pack'),
-            course: l.course || p.course || 'More Lessons',
-            order: optionalOrder(l.order)
-          }))
+          .map(l => {
+            const course = l.course || p.course || 'More Lessons';
+            const inheritedCourseId = courseKey(course) === courseKey(p.course || 'More Lessons')
+              ? normalizeCourseId(p.courseId)
+              : null;
+            return {
+              ...l,
+              id: l.id || uid('pack'),
+              course,
+              ...(normalizeCourseId(l.courseId) || inheritedCourseId
+                ? { courseId:normalizeCourseId(l.courseId) || inheritedCourseId }
+                : {}),
+              order: optionalOrder(l.order)
+            };
+          })
       }));
       this.staticPackMarks = packs
         .filter(p => p && Array.isArray(p.marks))
@@ -1537,11 +1572,13 @@ const App = {
       ...(typeof ov.text === 'string' ? { text:ov.text, edited:true, originalText:l.text } : {}),
       ...(typeof ov.title === 'string' ? { title:ov.title } : {}),
       ...(typeof ov.course === 'string' ? { course:ov.course } : {}),
+      ...(normalizeCourseId(ov.courseId) ? { courseId:normalizeCourseId(ov.courseId) } : {}),
       ...(Number.isFinite(ov.targetWPM) ? { targetWPM:ov.targetWPM } : {}),
       ...(Number.isFinite(ov.targetAccuracy) ? { targetAccuracy:ov.targetAccuracy } : {}),
       ...(Number.isFinite(ov.order) ? { order:ov.order } : {}),
       ...(Number.isFinite(ov.courseOrder) ? { courseOrder:ov.courseOrder } : {}),
       metadataEdited: typeof ov.title === 'string' || typeof ov.course === 'string' ||
+        normalizeCourseId(ov.courseId) !== null ||
         Number.isFinite(ov.targetWPM) || Number.isFinite(ov.targetAccuracy) ||
         Number.isFinite(ov.order) || Number.isFinite(ov.courseOrder)
     };
@@ -1554,12 +1591,19 @@ const App = {
   getCanonicalLessons(){
     const chosen = new Map();
     let order = 0;
-    const consider = (kind, priority, raw, sourceCourseTitle, sourceCourseOrder = null) => {
-      const lesson = this.withOverride(raw);
+    const consider = (kind, priority, raw, sourceCourseTitle, sourceCourseOrder = null, sourceCourseId = null) => {
+      const sourceId = raw.id;
+      const id = kind === 'custom' ? sourceId : (this.lessonIdAliases[sourceId] || sourceId);
+      const source = id === sourceId ? raw : { ...raw, id };
+      const lesson = this.withOverride(source);
       if(!lesson || !lesson.id) return;
+      const matchingSourceCourse = courseKey(lesson.course || sourceCourseTitle) === courseKey(sourceCourseTitle);
       const entry = {
-        kind, priority, raw, lesson, sourceCourseTitle,
+        kind, priority, raw, sourceId, lesson, sourceCourseTitle,
         courseTitle: lesson.course || sourceCourseTitle || 'My Lessons',
+        sourceCourseId:matchingSourceCourse ? normalizeCourseId(sourceCourseId) : null,
+        courseId:normalizeCourseId(lesson.courseId) ||
+          (matchingSourceCourse ? normalizeCourseId(sourceCourseId) : null),
         courseOrder: lesson.courseOrder ?? sourceCourseOrder,
         order: order++
       };
@@ -1570,7 +1614,7 @@ const App = {
       }
     };
     DEFAULT_COURSES.forEach(course => course.lessons.forEach(l => consider('builtin', 1, l, course.title, optionalOrder(course.order))));
-    this.staticPackCourses.forEach(course => course.lessons.forEach(l => consider('static', 2, l, course.title, course.order)));
+    this.staticPackCourses.forEach(course => course.lessons.forEach(l => consider('static', 2, l, course.title, course.order, course.courseId)));
     this.customLessons.forEach(l => consider('custom', 3, l, l.course || 'My Lessons', optionalOrder(l.courseOrder)));
     return Array.from(chosen.values()).sort((a, b) => a.order - b.order);
   },
@@ -1581,8 +1625,9 @@ const App = {
       if(this.deletedLessons.has(lesson.id)) return;
       const title = lesson.course || entry.courseTitle || 'My Lessons';
       const key = title.toLowerCase();
-      if(!map.has(key)) map.set(key, { title, order:entry.courseOrder, sourceOrder:entry.order, lessons:[] });
+      if(!map.has(key)) map.set(key, { title, courseId:entry.courseId || courseKey(title), order:entry.courseOrder, sourceOrder:entry.order, lessons:[] });
       const group = map.get(key);
+      if(entry.courseId && (!group.courseId || group.courseId === courseKey(group.title))) group.courseId = entry.courseId;
       if(group.order === null && entry.courseOrder !== null) group.order = entry.courseOrder;
       group.lessons.push({ lesson, order:lesson.order ?? null, sourceOrder:entry.order });
     });
@@ -1597,6 +1642,7 @@ const App = {
       })
       .map(course => ({
         title:course.title,
+        courseId:course.courseId || courseKey(course.title),
         order:course.order,
         lessons:course.lessons
           .sort((a, b) => compareOrdered(a, b))
@@ -1684,6 +1730,13 @@ const App = {
       summary.dataset.courseSummary = course.title;
       const summaryText = document.createElement('span');
       summaryText.className = 'course-summary-text';
+      const courseIdButton = document.createElement('button');
+      courseIdButton.type = 'button';
+      courseIdButton.className = 'course-id-copy';
+      courseIdButton.title = 'Click to copy course ID';
+      const summaryStats = document.createElement('span');
+      summaryStats.className = 'course-summary-stats';
+      summaryText.append(courseIdButton, document.createTextNode(' · '), summaryStats);
       const progress = document.createElement('span');
       progress.className = 'course-progress';
       progress.setAttribute('role', 'progressbar');
@@ -1713,6 +1766,8 @@ const App = {
       const courseActions = [
         ['select-course', course.lessons.every(lesson => this.exportSelection.has(lesson.id)) ? 'Unselect all lessons' : 'Select all lessons', ''],
         ['new-course-lesson', 'New lesson', ''],
+        ['edit-course-id', 'Edit course ID', ''],
+        ['generate-course-id', 'Generate course ID', ''],
         ['rename-course', 'Rename course', ''],
         ['delete-course', 'Delete course', 'danger']
       ];
@@ -1755,6 +1810,15 @@ const App = {
         titleSpan.className = 'lt-title';
         titleSpan.textContent = lesson.title;
         titleSpan.title = lesson.title;
+        const idCopy = document.createElement('span');
+        idCopy.className = 'lesson-id-copy';
+        idCopy.setAttribute('role', 'button');
+        idCopy.tabIndex = 0;
+        idCopy.dataset.lessonId = lesson.id;
+        idCopy.title = 'Click to copy lesson ID';
+        idCopy.setAttribute('aria-label', `Copy lesson ID ${lesson.id}`);
+        idCopy.textContent = `${lesson.id}`;
+        titleSpan.append(document.createTextNode(' '), idCopy);
         btn.appendChild(titleSpan);
         {
           const menu = document.createElement('span');
@@ -1784,7 +1848,15 @@ const App = {
           setOrder.className = 'lesson-menu-action';
           setOrder.dataset.action = 'set-order';
           setOrder.textContent = 'Set lesson order';
-          menuList.append(rename, assign, setOrder);
+          const editId = document.createElement('span');
+          editId.className = 'lesson-menu-action';
+          editId.dataset.action = 'edit-id';
+          editId.textContent = 'Edit lesson ID';
+          const generateId = document.createElement('span');
+          generateId.className = 'lesson-menu-action';
+          generateId.dataset.action = 'generate-id';
+          generateId.textContent = 'Generate lesson ID';
+          menuList.append(rename, editId, generateId, assign, setOrder);
           // Restore only exists when an override is actually stored. Pack exports
           // can carry an `edited` flag of their own, but there is nothing to restore
           // until this browser has saved an edit.
@@ -1846,8 +1918,13 @@ const App = {
     const text = node.querySelector('.course-summary-text');
     const progress = node.querySelector('.course-progress');
     const fill = node.querySelector('.course-progress-fill');
-    const label = `${completed}/${total} complete · Avg ${avgWpm === null ? '—' : `${avgWpm} WPM`} · ${avgAccuracy === null ? '—' : `${avgAccuracy}% acc`}`;
-    text.textContent = label;
+    const courseId = normalizeCourseId(course.courseId) || courseKey(course.title);
+    const idButton = text.querySelector('.course-id-copy');
+    idButton.textContent = `${courseId}`;
+    idButton.dataset.courseTitle = course.title;
+    idButton.setAttribute('aria-label', `Copy course ID ${courseId}`);
+    text.querySelector('.course-summary-stats').textContent =
+      `${completed}/${total} complete · Avg ${avgWpm === null ? '—' : `${avgWpm} WPM`} · ${avgAccuracy === null ? '—' : `${avgAccuracy}% acc`}`;
     progress.setAttribute('aria-valuenow', String(completed));
     progress.setAttribute('aria-label', `${course.title}: ${completed} of ${total} lessons completed`);
     fill.style.width = `${total ? completed / total * 100 : 0}%`;
@@ -2151,6 +2228,7 @@ const App = {
     return this.pendingDeletions.reduce((total, range) => total + this.countWordsInRange(range.start, range.end), 0);
   },
   remapPendingDeletions(before, after){
+    this.deletionSelection = null;
     if(!this.pendingDeletions.length || before === after) return;
     const prefix = commonPrefix(before, after);
     const sharedLength = Math.min(before.length, after.length);
@@ -2195,6 +2273,13 @@ const App = {
     if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     const text = this.engine.text;
     const current = this.engine.pos;
+    if(!this.deletionSelection || this.deletionSelection.endpoint !== current){
+      this.deletionSelection = {
+        anchor:current,
+        endpoint:current,
+        baseRanges:this.pendingDeletions.map(range => ({ ...range }))
+      };
+    }
     let target = current;
     if(direction === 'forward'){
       while(target < text.length && /\s/.test(text[target])) target++;
@@ -2205,9 +2290,14 @@ const App = {
       while(target > 0 && !/\s/.test(text[target - 1])) target--;
     }
     if(target === current) return;
-    const start = direction === 'forward' ? current : target;
-    const end = direction === 'forward' ? target : current;
-    this.addPendingDeletion(start, end);
+    const selection = this.deletionSelection;
+    selection.endpoint = target;
+    this.pendingDeletions = selection.baseRanges.map(range => ({ ...range }));
+    const start = Math.min(selection.anchor, target);
+    const end = Math.max(selection.anchor, target);
+    if(start < end) this.addPendingDeletion(start, end);
+    else if(this.pendingDeletions.length) this.textView.setDeletePreviews(this.pendingDeletions);
+    else this.textView.clearDeletePreviews();
     this.moveCaretTo(target);
     this.showPendingDeletionStatus();
   },
@@ -2218,6 +2308,7 @@ const App = {
   clearPendingDeletions(){
     if(!this.pendingDeletions.length) return;
     this.pendingDeletions = [];
+    this.deletionSelection = null;
     this.textView.clearDeletePreviews();
   },
   commitPendingDeletions(){
@@ -2375,6 +2466,7 @@ const App = {
        (this.state !== 'running' && this.state !== 'ready' && this.state !== 'finished' &&
         !(fromEscapeSwitch && this.state === 'paused' && this.pauseReason === 'blur'))) return;
     this.commandMode = true;
+    this.deletionSelection = null;
     this.clearCommandBuffer();
     if(this.state === 'running') this.pauseTyping('command');
     this.updateStats();
@@ -2389,6 +2481,7 @@ const App = {
     this.stopReadingClock();
     this.stopTicker();
     this.commandMode = false;
+    this.deletionSelection = null;
     this.clearCommandBuffer();
     if(this.pendingDeletions.length){
       const words = this.countPendingDeletionWords();
@@ -2434,6 +2527,7 @@ const App = {
     e.preventDefault();
     const key = e.key;
     if(key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta') return true;
+    if(key !== 'N' && key !== 'B') this.deletionSelection = null;
     const navigationKey = !this.pendingCommand && (key === 'n' || key === 'b');
     if(!navigationKey){
       const wasReading = this.readingStartedAt !== null;
@@ -3933,6 +4027,7 @@ const App = {
           if(order !== null) next.order = order;
           const courseOrder = optionalOrder(v.courseOrder);
           if(courseOrder !== null) next.courseOrder = courseOrder;
+          if(normalizeCourseId(v.courseId)) next.courseId = normalizeCourseId(v.courseId);
           const wpm = optionalInt(v.targetWPM, 5, 200);
           const acc = optionalInt(v.targetAccuracy, 50, 100);
           if(wpm !== null) next.targetWPM = wpm;
@@ -3944,6 +4039,20 @@ const App = {
     Storage.saveOverrides(this.overrides);
     this.renderSidebar();
     return n;
+  },
+  importLessonIdAliases(obj, reservedIds = []){
+    if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return 0;
+    const reserved = new Set(reservedIds);
+    let imported = 0;
+    for(const [sourceId, nextId] of Object.entries(obj)){
+      if(typeof sourceId !== 'string' || !sourceId || typeof nextId !== 'string' || !nextId.trim()) continue;
+      const entry = this.getCanonicalLessons().find(item => item.kind !== 'custom' && item.sourceId === sourceId);
+      if(!entry || entry.lesson.id === nextId.trim()) continue;
+      if(reserved.has(nextId.trim())) continue;
+      if(this.lessonIdInUse(nextId.trim(), entry.lesson.id)) continue;
+      if(this.changeLessonId(entry.lesson.id, nextId.trim())) imported++;
+    }
+    return imported;
   },
   async restoreLesson(id){
     if(this.overrides[id] === undefined) return;
@@ -4207,6 +4316,159 @@ const App = {
     if(lesson) Storage.saveLessons(this.customLessons);
     this.renderSidebar();
   },
+  async copyLessonId(id){
+    const entry = this.findLessonEntry(id);
+    if(!entry) return;
+    this.showPill('edit', await this.copyText(entry.lesson.id)
+      ? `Copied lesson ID: ${entry.lesson.id}`
+      : 'Could not copy lesson ID', 1400);
+  },
+  async editLessonId(id){
+    const entry = this.findLessonEntry(id);
+    if(!entry) return;
+    const value = await this.showActionModal({
+      title:'Edit lesson ID',
+      message:'Changing this ID migrates saved scores, marks, positions, and overrides. Static-pack changes are local until exported.',
+      label:'Lesson ID',
+      value:entry.lesson.id
+    });
+    if(value === null) return;
+    const nextId = value.trim();
+    if(!nextId){
+      await this.showNotice('Lesson ID required', 'Enter a non-empty ID.');
+      return;
+    }
+    if(nextId === entry.lesson.id) return;
+    if(this.lessonIdInUse(nextId, entry.lesson.id)){
+      await this.showNotice('Lesson ID already used', `Another lesson or saved record already uses "${nextId}".`);
+      return;
+    }
+    this.changeLessonId(entry.lesson.id, nextId);
+  },
+  lessonIdInUse(id, exceptId){
+    if(id === exceptId) return false;
+    if(this.lessonIdAliases[id] === exceptId) return false;
+    if(this.findLessonEntry(id)) return true;
+    const stats = Storage.loadStats();
+    return Object.prototype.hasOwnProperty.call(stats, id) ||
+      Object.prototype.hasOwnProperty.call(this.positions, id) ||
+      Object.prototype.hasOwnProperty.call(this.overrides, id) ||
+      this.deletedLessons.has(id) ||
+      this.marks.some(mark => mark.lessonId === id) ||
+      this.sessionLessonVisits.has(id) ||
+      this.exportSelection.has(id) ||
+      this.templateUndo.some(entry => entry.lessonId === id) ||
+      this.templateRedo.some(entry => entry.lessonId === id);
+  },
+  generateTitleBasedId(title, existingIds){
+    const words = String(title).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[a-z0-9]+/g) || ['lesson'];
+    const fragment = word => {
+      const length = Math.min(word.length, 2 + Math.floor(Math.random() * 3));
+      const start = Math.floor(Math.random() * (word.length - length + 1));
+      return word.slice(start, start + length);
+    };
+    const parts = words.map(fragment);
+    if(parts.length === 1){
+      const word = words[0];
+      parts.push(word.length > 3 ? fragment(word) : 'id');
+    }
+    if(words.every((word, index) => parts[index] === word)){
+      parts.push(Math.random().toString(36).slice(2, 4).padEnd(2, '0'));
+    }
+    const base = parts.join('-');
+    let candidate = base, suffix = 2;
+    while(existingIds.has(candidate)) candidate = `${base}-${suffix++}`;
+    return candidate;
+  },
+  generateLessonId(title, exceptId){
+    const existingIds = new Set(this.getCanonicalLessons()
+      .map(entry => entry.lesson.id).filter(id => id !== exceptId));
+    const stats = Storage.loadStats();
+    [Object.keys(stats), Object.keys(this.positions), Object.keys(this.overrides),
+      Array.from(this.deletedLessons), this.marks.map(mark => mark.lessonId),
+      Array.from(this.sessionLessonVisits), Array.from(this.exportSelection),
+      this.templateUndo.map(entry => entry.lessonId), this.templateRedo.map(entry => entry.lessonId)]
+      .forEach(ids => ids.forEach(id => { if(id !== exceptId) existingIds.add(id); }));
+    return this.generateTitleBasedId(title, existingIds);
+  },
+  generateAndSaveLessonId(id){
+    const entry = this.findLessonEntry(id);
+    if(!entry) return;
+    const nextId = this.generateLessonId(entry.lesson.title, entry.lesson.id);
+    if(this.changeLessonId(entry.lesson.id, nextId)){
+      this.showPill('edit', `Generated lesson ID: ${nextId}`, 1600);
+    }
+  },
+  changeLessonId(id, nextId){
+    const entry = this.findLessonEntry(id);
+    if(!entry || !nextId || this.lessonIdInUse(nextId, id)) return false;
+    if(entry.kind === 'custom'){
+      const custom = this.customLessons.slice().reverse().find(lesson => lesson.id === id);
+      if(!custom) return false;
+      custom.id = nextId;
+      Storage.saveLessons(this.customLessons);
+    }else if(entry.sourceId === nextId){
+      delete this.lessonIdAliases[entry.sourceId];
+    }else{
+      this.lessonIdAliases[entry.sourceId] = nextId;
+    }
+    Object.keys(this.lessonIdAliases).forEach(sourceId => {
+      if(this.lessonIdAliases[sourceId] === id) this.lessonIdAliases[sourceId] = nextId;
+    });
+    if(this.overrides[id] !== undefined){
+      this.overrides[nextId] = this.overrides[id];
+      delete this.overrides[id];
+      Storage.saveOverrides(this.overrides);
+    }
+    const stats = Storage.loadStats();
+    if(Object.prototype.hasOwnProperty.call(stats, id)){
+      stats[nextId] = stats[id];
+      delete stats[id];
+      Storage.saveStats(stats);
+    }
+    if(Object.prototype.hasOwnProperty.call(this.positions, id)){
+      this.positions[nextId] = this.positions[id];
+      delete this.positions[id];
+      Storage.savePositions(this.positions);
+    }
+    let deletedChanged = false;
+    if(this.deletedLessons.delete(id)){
+      this.deletedLessons.add(nextId);
+      deletedChanged = true;
+    }
+    if(deletedChanged) Storage.saveDeletedLessons(Array.from(this.deletedLessons));
+    let marksChanged = false;
+    this.marks.forEach(mark => {
+      if(mark.lessonId === id){
+        mark.lessonId = nextId;
+        marksChanged = true;
+      }
+    });
+    if(marksChanged) Storage.saveMarks(this.marks);
+    if(this.exportSelection.delete(id)) this.exportSelection.add(nextId);
+    if(this.sessionLessonVisits.delete(id)){
+      this.sessionLessonVisits.add(nextId);
+      try{ sessionStorage.setItem(SESSION_VISITS_KEY, JSON.stringify([...this.sessionLessonVisits])); }catch(e){ console.warn('Studyping: could not save lesson visit state', e); }
+    }
+    [this.templateUndo, this.templateRedo].forEach(history => {
+      history.forEach(item => { if(item.lessonId === id) item.lessonId = nextId; });
+    });
+    const prefs = Storage.loadPrefs();
+    if(prefs.lastLessonId === id){
+      prefs.lastLessonId = nextId;
+      Storage.savePrefs(prefs);
+    }
+    Storage.saveLessonIdAliases(this.lessonIdAliases);
+    if(this.currentLesson && this.currentLesson.id === id){
+      const refreshed = this.findLesson(nextId);
+      if(refreshed) this.currentLesson = refreshed.lesson;
+      this.savePref('lastLessonId', nextId);
+    }
+    this.updateGlobalStats();
+    this.renderSidebar();
+    this.bus.dispatchEvent(new CustomEvent('lessonIdChanged', { detail:{ previousId:id, lessonId:nextId } }));
+    return true;
+  },
   async assignLessonCourse(id){
     const lesson = this.customLessons.find(l => l.id === id);
     const found = this.findLesson(id);
@@ -4216,10 +4478,15 @@ const App = {
     if(course === null) return;
     const value = course.trim() || 'My Lessons';
     if(value === target.course) return;
+    const destinationCourse = this.getAllCourses().find(item => courseKey(item.title) === courseKey(value));
+    const destinationCourseId = destinationCourse
+      ? (normalizeCourseId(destinationCourse.courseId) || courseKey(destinationCourse.title))
+      : courseKey(value);
     if(lesson) {
       lesson.course = value;
+      lesson.courseId = destinationCourseId;
       Storage.saveLessons(this.customLessons);
-    } else this.saveLessonMetadata(id, { course:value });
+    } else this.saveLessonMetadata(id, { course:value, courseId:destinationCourseId });
     if(this.currentLesson && this.currentLesson.id === id){
       const refreshed = this.findLesson(id);
       if(refreshed){
@@ -4320,6 +4587,60 @@ const App = {
     }
     this.renderSidebar();
   },
+  async copyCourseId(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const courseId = normalizeCourseId(course.courseId) || courseKey(course.title);
+    this.showPill('edit', await this.copyText(courseId) ? `Copied course ID: ${courseId}` : 'Could not copy course ID', 1400);
+  },
+  async editCourseId(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const value = await this.showActionModal({
+      title:'Edit course ID',
+      message:'The ID is included in selected-lesson exports. Leave blank to use the normalized course title.',
+      label:'Course ID',
+      value:normalizeCourseId(course.courseId) || courseKey(course.title)
+    });
+    if(value === null) return;
+    this.saveCourseId(course.title, normalizeCourseId(value) || courseKey(course.title));
+  },
+  generateCourseId(title){
+    const otherIds = new Set(this.getAllCourses()
+      .filter(course => courseKey(course.title) !== courseKey(title))
+      .map(course => normalizeCourseId(course.courseId) || courseKey(course.title)));
+    return this.generateTitleBasedId(title, otherIds);
+  },
+  generateAndSaveCourseId(title){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const courseId = this.generateCourseId(course.title);
+    this.saveCourseId(course.title, courseId);
+    this.showPill('edit', `Generated course ID: ${courseId}`, 1600);
+  },
+  saveCourseId(title, value){
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
+    if(!course) return;
+    const courseId = normalizeCourseId(value) || courseKey(course.title);
+    const customIds = new Set(this.customLessons.map(lesson => lesson.id));
+    let lessonsChanged = false, overridesChanged = false;
+    course.lessons.forEach(lesson => {
+      if(customIds.has(lesson.id)){
+        const custom = this.customLessons.slice().reverse().find(item => item.id === lesson.id);
+        if(custom){ custom.courseId = courseId; lessonsChanged = true; }
+      }else{
+        const existing = this.overrides[lesson.id];
+        const metadata = typeof existing === 'string'
+          ? { text:existing }
+          : existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {};
+        this.overrides[lesson.id] = { ...metadata, courseId };
+        overridesChanged = true;
+      }
+    });
+    if(lessonsChanged) Storage.saveLessons(this.customLessons);
+    if(overridesChanged) Storage.saveOverrides(this.overrides);
+    this.renderSidebar();
+  },
   async deleteCourse(title){
     const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(title));
     if(!course) return;
@@ -4384,6 +4705,7 @@ const App = {
           title:lesson.title,
           text:lesson.text,
           course:lesson.course || course.title,
+          courseId:course.courseId,
           targetWPM:lesson.targetWPM,
           targetAccuracy:lesson.targetAccuracy,
           ...(lesson.order != null ? { order:lesson.order } : {}),
@@ -4448,14 +4770,19 @@ const App = {
     const list = Array.isArray(data) ? data : (data && Array.isArray(data.lessons) ? data.lessons : []);
     const markList = data && Array.isArray(data.marks) ? data.marks : [];
     const ovr = data && data.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides) ? data.overrides : {};
+    const idAliases = data && data.lessonIdAliases && typeof data.lessonIdAliases === 'object' && !Array.isArray(data.lessonIdAliases) ? data.lessonIdAliases : {};
     const deletedList = data && Array.isArray(data.deletedLessons) ? data.deletedLessons : [];
-    if(!list.length && !Object.keys(ovr).length && !deletedList.length){
+    if(!list.length && !Object.keys(ovr).length && !Object.keys(idAliases).length && !deletedList.length){
       throw new Error(markList.length
         ? 'That file contains marks, not lessons. Use Import marks to add them.'
         : 'That file did not look like a Studyping lessons export.');
     }
-    // Restore deletions from the file before adding lessons, so a lesson in the
-    // same file is not hidden by an id that the export also lists as deleted.
+    // Apply aliases before deletions so a deleted lesson keeps its changed ID.
+    const aliasCount = Object.keys(idAliases).length
+      ? this.importLessonIdAliases(idAliases, list.map(lesson => lesson && lesson.id))
+      : 0;
+    // Restore deletions before adding lessons, so a lesson in the same file is
+    // not hidden by an id that the export also lists as deleted.
     deletedList.forEach(id => { if(typeof id === 'string' && id) this.deletedLessons.add(id); });
     if(deletedList.length) Storage.saveDeletedLessons(Array.from(this.deletedLessons));
 
@@ -4474,7 +4801,8 @@ const App = {
     } else {
       message = 'No lesson changes were imported.';
     }
-    await this.showNotice('Import complete', message + markNote);
+    const aliasNote = aliasCount ? ` Also imported ${plural(aliasCount, 'lesson ID change')}.` : '';
+    await this.showNotice('Import complete', message + aliasNote + markNote);
   },
   describeImportResult(result){
     const changed = result.added + result.updated + result.versions;
@@ -4595,6 +4923,7 @@ const App = {
       id: asNewVersion ? uid('custom') : incoming.id,
       title: incoming.title,
       course: incoming.course || (base ? (base.course || existing.courseTitle) : 'My Lessons'),
+      ...(incoming.courseId ? { courseId:incoming.courseId } : base && normalizeCourseId(base.courseId) ? { courseId:base.courseId } : {}),
       text: incoming.text,
       targetWPM: incoming.targetWPM !== null ? incoming.targetWPM
         : (base && base.targetWPM != null ? base.targetWPM : 30),
@@ -4617,7 +4946,12 @@ const App = {
       if(!target) return;
       target.title = incoming.title;
       target.text = incoming.text;
-      if(incoming.course) target.course = incoming.course;
+      if(incoming.course && incoming.course !== (target.course || entry.courseTitle)){
+        const destinationCourse = this.getAllCourses().find(course => courseKey(course.title) === courseKey(incoming.course));
+        target.course = incoming.course;
+        target.courseId = incoming.courseId || destinationCourse?.courseId || courseKey(incoming.course);
+      }
+      if(incoming.courseId) target.courseId = incoming.courseId;
       if(incoming.order !== null) target.order = incoming.order;
       if(incoming.courseOrder !== null) target.courseOrder = incoming.courseOrder;
       if(incoming.targetWPM !== null) target.targetWPM = incoming.targetWPM;
@@ -4631,7 +4965,7 @@ const App = {
     // them writes the same kind of override as an in-place edit: same id, stats
     // and marks stay attached, and the original remains one click away.
     const raw = entry.raw;
-    const id = raw.id;
+    const id = entry.lesson.id;
     const current = this.overrides[id];
     const ov = current == null ? {} : (typeof current === 'string' ? { text:current } : { ...current });
     const originalText = normalizeLessonText(String(raw.text || ''));
@@ -4640,8 +4974,16 @@ const App = {
     const originalCourse = raw.course || entry.sourceCourseTitle || 'My Lessons';
     if(incoming.course){
       if(incoming.course !== originalCourse) ov.course = incoming.course; else delete ov.course;
+      if(incoming.course !== entry.courseTitle && !incoming.courseId){
+        const destinationCourse = this.getAllCourses().find(course => courseKey(course.title) === courseKey(incoming.course));
+        ov.courseId = destinationCourse?.courseId || courseKey(incoming.course);
+      }
     } else if(ov.course === originalCourse){
       delete ov.course;
+    }
+    const originalCourseId = normalizeCourseId(raw.courseId) || entry.sourceCourseId || courseKey(originalCourse);
+    if(incoming.courseId){
+      if(incoming.courseId !== originalCourseId) ov.courseId = incoming.courseId; else delete ov.courseId;
     }
     const originalWpm = raw.targetWPM != null ? raw.targetWPM : 30;
     if(incoming.targetWPM !== null){
@@ -4952,6 +5294,10 @@ const App = {
     });
     d.courseList.addEventListener('click', (e) => {
       if(e.target.closest('.lesson-export')){ e.stopPropagation(); return; }
+      const lessonIdCopy = e.target.closest('.lesson-id-copy');
+      if(lessonIdCopy){ e.preventDefault(); e.stopPropagation(); this.copyLessonId(lessonIdCopy.dataset.lessonId); return; }
+      const courseIdButton = e.target.closest('.course-id-copy');
+      if(courseIdButton){ e.stopPropagation(); this.copyCourseId(courseIdButton.dataset.courseTitle); return; }
       const courseToggle = e.target.closest('.course-toggle');
       if(courseToggle){ e.stopPropagation(); this.toggleCourse(courseToggle.dataset.courseToggle); return; }
       const courseHead = e.target.closest('.course-head');
@@ -4982,6 +5328,12 @@ const App = {
       }
     });
     d.courseList.addEventListener('keydown', (e) => {
+      const lessonIdCopy = e.target.closest('.lesson-id-copy');
+      if(lessonIdCopy && (e.key === 'Enter' || e.key === ' ')){
+        e.preventDefault();
+        lessonIdCopy.click();
+        return;
+      }
       const trigger = e.target.closest('.lesson-menu-trigger');
       if(trigger && (e.key === 'Enter' || e.key === ' ')){
         e.preventDefault();
@@ -4999,6 +5351,8 @@ const App = {
           this.closeOpenLessonMenus();
           if(menuAction.dataset.action === 'select-course') this.toggleCourseSelection(title);
           else if(menuAction.dataset.action === 'new-course-lesson') this.openModal({ course:title });
+          else if(menuAction.dataset.action === 'edit-course-id') this.editCourseId(title);
+          else if(menuAction.dataset.action === 'generate-course-id') this.generateAndSaveCourseId(title);
           else if(menuAction.dataset.action === 'rename-course') this.renameCourse(title);
           else if(menuAction.dataset.action === 'delete-course') this.deleteCourse(title);
           return;
@@ -5009,6 +5363,8 @@ const App = {
         const id = menu.dataset.menuId;
         this.closeLessonMenu(menu);
         if(menuAction.dataset.action === 'rename') this.renameLesson(id);
+        else if(menuAction.dataset.action === 'edit-id') this.editLessonId(id);
+        else if(menuAction.dataset.action === 'generate-id') this.generateAndSaveLessonId(id);
         else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
         else if(menuAction.dataset.action === 'set-order') this.setLessonOrder(id);
         else if(menuAction.dataset.action === 'restore') this.restoreLesson(id);
@@ -5279,6 +5635,7 @@ window.Studyping = {
       id,
       title,
       course: source.course || 'My Lessons',
+      ...(normalizeCourseId(source.courseId) ? { courseId:normalizeCourseId(source.courseId) } : {}),
       text,
       targetWPM: wpm !== null ? wpm : 30,
       targetAccuracy: acc !== null ? acc : 95,
@@ -5321,12 +5678,13 @@ window.Studyping = {
   },
   setTheme(t){ App.setTheme(t); },
   exportData(){
-    return JSON.stringify({ lessons: App.customLessons, stats: Storage.loadStats(), marks: App.marks, overrides: App.overrides, deletedLessons:Array.from(App.deletedLessons) }, null, 2);
+    return JSON.stringify({ lessons: App.customLessons, stats: Storage.loadStats(), marks: App.marks, overrides: App.overrides, lessonIdAliases:App.lessonIdAliases, deletedLessons:Array.from(App.deletedLessons) }, null, 2);
   },
   importData(json, options = {}){
     try{
       const data = typeof json === 'string' ? JSON.parse(json) : json;
       const conflictMode = options && typeof options === 'object' ? options.conflicts : undefined;
+      if(data.lessonIdAliases) App.importLessonIdAliases(data.lessonIdAliases, Array.isArray(data.lessons) ? data.lessons.map(lesson => lesson && lesson.id) : []);
       if(Array.isArray(data.deletedLessons)){
         data.deletedLessons.forEach(id => { if(typeof id === 'string' && id) App.deletedLessons.add(id); });
         Storage.saveDeletedLessons(Array.from(App.deletedLessons));

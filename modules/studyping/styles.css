@@ -247,6 +247,12 @@
     display:block; overflow-wrap:anywhere; color:var(--ink-faint);
     font-size:.62rem; font-weight:500; line-height:1.35; font-variant-numeric:tabular-nums;
   }
+  .course-id-copy{
+    padding:0; border:0; background:transparent; color:var(--brass);
+    font-family:var(--font-mono); font-size:inherit; font-weight:600; cursor:copy; overflow-wrap:anywhere;
+  }
+  .course-id-copy:hover{ text-decoration:underline; }
+  .course-id-copy:focus-visible{ outline:2px solid var(--brass); outline-offset:1px; }
   .course-progress{ display:block; height:3px; margin-top:.16rem; overflow:hidden; border-radius:999px; background:var(--rule); }
   .course-progress-fill{ display:block; width:0; height:100%; border-radius:inherit; background:var(--moss); transition:width .45s ease; }
   .course-lessons{
@@ -267,6 +273,12 @@
     flex:1; min-width:0; white-space:normal; overflow:visible; text-overflow:clip;
     overflow-wrap:break-word; overflow-wrap:anywhere; line-height:1.4; text-wrap:pretty;
   }
+  .lesson-id-copy{
+    display:inline-block; color:var(--brass); font-family:var(--font-mono);
+    font-size:.66rem; font-weight:600; cursor:copy; overflow-wrap:anywhere;
+  }
+  .lesson-id-copy:hover{ text-decoration:underline; }
+  .lesson-id-copy:focus-visible{ outline:2px solid var(--brass); outline-offset:1px; }
   .lesson-export{ flex-shrink:0; accent-color:var(--brass); margin-top:.18rem; }
   .lesson-meta{ font-size:.72rem; color:var(--brass); font-weight:600; flex-shrink:0; margin-top:.12rem; }
   .lesson-menu{ position:relative; flex-shrink:0; display:flex; align-items:center; }
