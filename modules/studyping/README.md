@@ -147,6 +147,34 @@ origin, not a path, so projects hosted under the same `username.github.io`
 origin share the browser's storage area; the Studyping key prefix helps avoid
 collisions.
 
+The Courses drawer has an **Export my stats** button. It downloads a
+`studyping-user-stats.v1` JSON file containing lesson aggregates, completed
+run-by-run results, checkpoint speeds, pause intervals, course/lesson IDs,
+and session summaries. The local user ID is derived from coarse browser-family,
+platform, language, and timezone signals combined with a one-time random value.
+Only the opaque ID is exported: neither the raw signals nor the random value is
+included. The ID is stored locally, not sent anywhere, and is not an account or
+a reliable cross-device identifier; clearing site storage creates a new one.
+The current ID appears in the header before global stats: click it to copy, or
+use the refresh button to generate a new ID from the current browser context.
+Changing it relabels saved local runs to the new ID; if relinking cannot be
+saved, Studyping retries it on the next visit.
+A session ID is generated per browser tab session. The export does not include
+lesson text, individual typed characters, or browser/device details. Run history
+begins when this feature is deployed; older activity is represented only by
+existing lesson aggregates.
+
+**Import other stats** accepts one stats export and stores it in a separate
+`studyping.otherUserStats.v1` collection. Imported stats never affect this
+browser's own scores, averages, lessons, or run history. The user ID is the
+deduplication key: re-importing the same user's file updates matching records
+and retains previously imported sections that are absent from the new file.
+Course IDs are treated as data, not checked against the current course list,
+so deleted, renamed, and not-yet-loaded courses remain available for later
+comparison. Malformed optional sections are skipped with a notice; invalid
+files and storage/quota errors are reported without replacing saved peer data.
+Imports do not include or retain top-level browser/device metadata.
+
 Visitors can:
 
 - Create, rename, edit, reorder, or delete lessons in the drawer.
@@ -158,6 +186,10 @@ Visitors can:
 - Export and import marks and masks separately. Older lesson exports that
   bundle marks remain readable, but marks are imported through the dedicated
   **Import marks** control.
+- Export detailed local practice statistics and pseudonymous IDs as JSON; this
+  does not include raw browser/device details.
+- Import another user's stats JSON into a separate local collection for future
+  comparisons. It is not merged into the current user's own stats.
 - Export their browser data with `Studyping.exportData()` and restore it with
   `Studyping.importData()`.
 
@@ -243,7 +275,16 @@ Inline editing keeps the typing field focused, supports selection, clipboard,
 undo/redo, and movement by visible lines, and pauses the clock. Leaving the
 editor returns to the mode that was active before editing. The cursor resumes
 at the same character, or at the first changed character if the edit altered
-already-typed text. Marks follow edited text where possible.
+already-typed text. Marks follow edited text where possible. Ordinary
+same-length edits update their visible characters in place; edits that change
+whitespace, length, or Markdown formatting rebuild the display so word and
+source-position mappings remain accurate. This avoids replacing thousands of
+character elements for each keystroke in long plain-text lessons.
+
+The grayscale theme uses a small set of high-contrast ink and paper tones, with
+shape/underline cues as well as color-independent correctness feedback. Devices
+that report a slow display update use a static stroke cue instead of per-key
+motion, and disable transitions and backdrop blur.
 
 ### Marks, masks, and figures
 
@@ -292,7 +333,9 @@ Studyping.on("lessonComplete", event => {
 ```
 
 The API also exposes `loadLesson`, `courses`, `marks`, `getState`,
-`getGlobalStats`, `setSoundEnabled`, `setTheme`, `exportData`, and `importData`.
+`getGlobalStats`, `exportStats`, `setSoundEnabled`, `setTheme`, `exportData`,
+and `importData`. `importOtherUserStats(json)` stores a stats export separately
+from local results; `getOtherUserStats()` returns those imported snapshots.
 Events include `start`, `keystroke`, `error`, `wordComplete`, `checkpoint`,
 `lessonLoaded`, `lessonComplete`, `lessonAdded`, `lessonEdited`, `ready`,
 `paused`, `resumed`, `markAdded`, and `markRemoved`. Use `off(event, handler)`

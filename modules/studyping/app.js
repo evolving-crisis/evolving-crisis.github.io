@@ -139,6 +139,46 @@ const slugify = (str) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/
 const courseKey = (title) => String(title || '').trim().toLowerCase();
 const normalizeCourseId = (value) => typeof value === 'string' && value.trim() ? value.trim() : null;
 const uid = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`;
+const generatedId = (prefix) => `${prefix}-${window.crypto && typeof window.crypto.randomUUID === 'function'
+  ? window.crypto.randomUUID()
+  : uid(prefix).slice(prefix.length + 1)}`;
+function visitorIdSignals(){
+  const nav = window.navigator;
+  const brands = Array.from(nav.userAgentData && nav.userAgentData.brands || [])
+    .map(item => item.brand)
+    .filter(brand => brand && !/not.?a.?brand/i.test(brand))
+    .sort();
+  const userAgent = nav.userAgent || '';
+  const browserFamily = brands.length ? brands.join('+')
+    : /Edg\//.test(userAgent) ? 'Edge'
+    : /Firefox\//.test(userAgent) ? 'Firefox'
+    : /Chrome\//.test(userAgent) ? 'Chrome'
+    : /Safari\//.test(userAgent) ? 'Safari'
+    : 'Other';
+  return {
+    browserFamily,
+    platform:(nav.userAgentData && nav.userAgentData.platform) || nav.platform || 'unknown',
+    language:nav.language || 'unknown',
+    timezone:Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown'
+  };
+}
+async function derivedVisitorId(){
+  const source = JSON.stringify({ signals:visitorIdSignals(), nonce:generatedId('seed') });
+  if(window.crypto && window.crypto.subtle && typeof TextEncoder !== 'undefined'){
+    try{
+      const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
+      const shortHash = Array.from(new Uint8Array(digest).slice(0, 12), byte => byte.toString(16).padStart(2, '0')).join('');
+      return `ty${shortHash}perr`;
+    }catch(e){ console.warn('Studyping: secure visitor ID hashing is unavailable; using the local fallback hash', e); }
+  }
+  let first = 2166136261, second = 0x811c9dc5;
+  for(let i = 0; i < source.length; i++){
+    const code = source.charCodeAt(i);
+    first = Math.imul(first ^ code, 16777619) >>> 0;
+    second = Math.imul(second ^ code, 2246822519) >>> 0;
+  }
+  return `user-${first.toString(16).padStart(8, '0')}${second.toString(16).padStart(8, '0')}`;
+}
 function formatTime(ms){
   const s = Math.floor(ms/1000);
   const m = Math.floor(s/60);
@@ -155,6 +195,151 @@ function finiteStat(value){
     return Number.isFinite(n) ? n : null;
   }
   return null;
+}
+const isRecord = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+const PEER_STATS_SECTIONS = [
+  'summary', 'courses', 'runSummary', 'courseStats',
+  'lessonRunStats', 'lessonStats', 'sessions', 'runs'
+];
+function normalizePeerStatsExport(raw){
+  if(!isRecord(raw)) throw new Error('The file must contain one stats export object.');
+  const identity = isRecord(raw.identity) ? raw.identity : {};
+  const userId = typeof identity.userId === 'string' ? identity.userId.trim()
+    : typeof raw.userId === 'string' ? raw.userId.trim() : '';
+  if(!userId || userId.length > 160) throw new Error('The stats export is missing a valid user ID.');
+  const format = typeof raw.format === 'string' ? raw.format : '';
+  if(format && !format.startsWith('studyping-user-stats.')){
+    throw new Error(`Unsupported stats format "${format}".`);
+  }
+  if(!format && !PEER_STATS_SECTIONS.some(section => Object.prototype.hasOwnProperty.call(raw, section))){
+    throw new Error('The file does not look like a Studyping stats export.');
+  }
+
+  const record = {
+    userId,
+    format:format || 'studyping-user-stats.unknown',
+    importedAt:new Date().toISOString(),
+    ...(typeof raw.exportedAt === 'string' ? { sourceExportedAt:raw.exportedAt } : {}),
+    identity:{
+      ...(typeof identity.firstSeenAt === 'string' ? { firstSeenAt:identity.firstSeenAt } : {}),
+      ...(typeof identity.idStrategy === 'string' ? { idStrategy:identity.idStrategy } : {})
+    },
+    ...(isRecord(raw.app) ? {
+      app:{
+        ...(typeof raw.app.name === 'string' ? { name:raw.app.name } : {}),
+        ...(Number.isFinite(raw.app.statsSchemaVersion) ? { statsSchemaVersion:raw.app.statsSchemaVersion } : {})
+      }
+    } : {})
+  };
+  const warnings = [];
+  let acceptedSections = 0;
+  PEER_STATS_SECTIONS.forEach(section => {
+    if(!Object.prototype.hasOwnProperty.call(raw, section)) return;
+    const value = raw[section];
+    if(section === 'summary' || section === 'runSummary'){
+      if(!isRecord(value)){ warnings.push(section); return; }
+      record[section] = value;
+    }else if(section === 'courses' || section === 'sessions' || section === 'runs'){
+      if(!Array.isArray(value)){ warnings.push(section); return; }
+      const entries = value.filter(isRecord);
+      if(entries.length !== value.length) warnings.push(section);
+      record[section] = section === 'runs'
+        ? entries.map(run => ({ ...run, userId }))
+        : entries;
+    }else if(section === 'courseStats'){
+      if(Array.isArray(value)){
+        const entries = value.filter(isRecord);
+        if(entries.length !== value.length) warnings.push(section);
+        record[section] = entries;
+      }else if(isRecord(value)){
+        record[section] = value;
+      }else{
+        warnings.push(section);
+        return;
+      }
+    }else if(section === 'lessonRunStats' || section === 'lessonStats'){
+      if(!isRecord(value) && !Array.isArray(value)){ warnings.push(section); return; }
+      record[section] = value;
+    }
+    acceptedSections++;
+  });
+  if(acceptedSections === 0){
+    throw new Error('The stats export contains no valid data sections.');
+  }
+  return { record, warnings };
+}
+function mergeImportedEntries(previous, incoming, keyFor){
+  const merged = Array.isArray(previous) ? previous.map(item => ({ ...item })) : [];
+  incoming.forEach(item => {
+    const key = keyFor(item) || JSON.stringify(item);
+    const index = merged.findIndex(existing => (keyFor(existing) || JSON.stringify(existing)) === key);
+    if(index < 0){
+      merged.push({ ...item });
+    }else{
+      const current = merged[index];
+      merged[index] = {
+        ...current,
+        ...item,
+        ...(isRecord(current.stats) || isRecord(item.stats)
+          ? { stats:{ ...(isRecord(current.stats) ? current.stats : {}), ...(isRecord(item.stats) ? item.stats : {}) } }
+          : {})
+      };
+    }
+  });
+  return merged;
+}
+function mergeImportedMap(previous, incoming){
+  if(Array.isArray(incoming)){
+    return Array.isArray(previous)
+      ? mergeImportedEntries(previous, incoming, item => item.id || item.lessonId)
+      : incoming.length ? incoming : previous;
+  }
+  if(!isRecord(incoming)) return previous;
+  const merged = Object.assign(Object.create(null), isRecord(previous) ? previous : {});
+  Object.entries(incoming).forEach(([key, value]) => {
+    merged[key] = isRecord(merged[key]) && isRecord(value)
+      ? { ...merged[key], ...value }
+      : value;
+  });
+  return merged;
+}
+function mergePeerStats(existing, incoming){
+  const previousImportCount = Number.isSafeInteger(existing.importCount) && existing.importCount > 0
+    ? existing.importCount
+    : 0;
+  const merged = { ...existing, ...incoming, importCount:previousImportCount + 1 };
+  ['identity', 'app', 'summary', 'runSummary'].forEach(key => {
+    if(isRecord(existing[key]) && isRecord(incoming[key])){
+      merged[key] = { ...existing[key], ...incoming[key] };
+    }
+  });
+  if(Object.prototype.hasOwnProperty.call(incoming, 'courses')){
+    merged.courses = mergeImportedEntries(existing.courses, incoming.courses,
+      item => item.courseId || item.id || (typeof item.title === 'string' ? item.title.toLowerCase() : null));
+  }
+  if(Object.prototype.hasOwnProperty.call(incoming, 'sessions')){
+    merged.sessions = mergeImportedEntries(existing.sessions, incoming.sessions,
+      item => item.sessionId || item.startedAt);
+  }
+  if(Object.prototype.hasOwnProperty.call(incoming, 'runs')){
+    merged.runs = mergeImportedEntries(existing.runs, incoming.runs,
+      item => item.runId || [item.sessionId, item.lessonId, item.startedAt, item.completedAt]
+        .filter(value => typeof value === 'string' && value).join('|') || null);
+  }
+  if(Object.prototype.hasOwnProperty.call(incoming, 'courseStats')){
+    if(Array.isArray(incoming.courseStats)){
+      merged.courseStats = mergeImportedEntries(existing.courseStats, incoming.courseStats,
+        item => item.courseId || item.id || (typeof item.title === 'string' ? item.title.toLowerCase() : null));
+    }else{
+      merged.courseStats = mergeImportedMap(existing.courseStats, incoming.courseStats);
+    }
+  }
+  ['lessonStats', 'lessonRunStats'].forEach(key => {
+    if(Object.prototype.hasOwnProperty.call(incoming, key)){
+      merged[key] = mergeImportedMap(existing[key], incoming[key]);
+    }
+  });
+  return merged;
 }
 function collectGlobalStats(raw){
   const entries = Array.isArray(raw)
@@ -435,6 +620,10 @@ const DEFAULT_COURSES = [
 const Storage = {
   LESSONS_KEY:'studyping.customLessons.v1',
   STATS_KEY:'studyping.stats.v1',
+  RUN_HISTORY_KEY:'studyping.runHistory.v1',
+  OTHER_USER_STATS_KEY:'studyping.otherUserStats.v1',
+  IDENTITY_KEY:'studyping.identity.v1',
+  SESSION_ID_KEY:'studyping.sessionId.v1',
   PREFS_KEY:'studyping.prefs.v1',
   MARKS_KEY:'studyping.marks.v1',
   OVERRIDES_KEY:'studyping.overrides.v1',
@@ -464,6 +653,129 @@ const Storage = {
   saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save custom lessons', e); } },
   loadStats(){ try{ const raw = localStorage.getItem(this.STATS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
   saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Studyping: could not save stats', e); } },
+  loadRunHistory(){
+    try{
+      const raw = localStorage.getItem(this.RUN_HISTORY_KEY);
+      const value = raw ? JSON.parse(raw) : [];
+      return Array.isArray(value) ? value.filter(run => run && typeof run === 'object' && !Array.isArray(run)) : [];
+    }catch(e){ console.warn('Studyping: could not read run history', e); return []; }
+  },
+  saveRunHistory(runs){
+    try{ localStorage.setItem(this.RUN_HISTORY_KEY, JSON.stringify(runs)); return true; }
+    catch(e){ console.warn('Studyping: could not save run history; export may not include the latest run', e); return false; }
+  },
+  reassignRunHistoryUserId(previousId, nextId){
+    if(!previousId || !nextId || previousId === nextId) return true;
+    let raw;
+    try{ raw = localStorage.getItem(this.RUN_HISTORY_KEY); }
+    catch(e){ console.warn('Studyping: could not read run history while changing user ID', e); return false; }
+    if(raw === null) return true;
+    let runs;
+    try{ runs = JSON.parse(raw); }
+    catch(e){ console.warn('Studyping: could not parse run history while changing user ID', e); return false; }
+    if(!Array.isArray(runs)){
+      console.warn('Studyping: run history has an unsupported shape; user ID change will retry on next visit');
+      return false;
+    }
+    let changed = false;
+    const updated = runs.map(run => {
+      if(!isRecord(run) || run.userId !== previousId) return run;
+      changed = true;
+      return { ...run, userId:nextId };
+    });
+    return !changed || this.saveRunHistory(updated);
+  },
+  saveIdentity(identity){
+    try{ localStorage.setItem(this.IDENTITY_KEY, JSON.stringify(identity)); return true; }
+    catch(e){ console.warn('Studyping: could not save visitor ID', e); return false; }
+  },
+  loadOtherUserStats(){
+    let raw;
+    try{ raw = localStorage.getItem(this.OTHER_USER_STATS_KEY); }
+    catch(e){
+      const error = new Error('Other-user stats could not be read from local storage.');
+      error.cause = e;
+      throw error;
+    }
+    if(raw === null) return [];
+    let records;
+    try{ records = JSON.parse(raw); }
+    catch(e){
+      const error = new Error('The saved other-user stats are unreadable. They were left unchanged.');
+      error.cause = e;
+      throw error;
+    }
+    if(!Array.isArray(records)) throw new Error('Saved other-user stats have an unsupported storage shape.');
+    const ids = new Set();
+    records.forEach(record => {
+      if(!isRecord(record) || typeof record.userId !== 'string' || !record.userId || !isRecord(record.identity)){
+        throw new Error('Saved other-user stats contain an invalid record. They were left unchanged.');
+      }
+      if(ids.has(record.userId)) throw new Error('Saved other-user stats contain duplicate user IDs. They were left unchanged.');
+      ids.add(record.userId);
+    });
+    return records;
+  },
+  saveOtherUserStats(records){
+    let serialized;
+    try{ serialized = JSON.stringify(records); }
+    catch(e){
+      const error = new Error('Other-user stats could not be serialized.');
+      error.cause = e;
+      throw error;
+    }
+    try{ localStorage.setItem(this.OTHER_USER_STATS_KEY, serialized); }
+    catch(e){
+      const error = new Error('Other-user stats could not be saved. Browser storage may be full or unavailable.');
+      error.cause = e;
+      throw error;
+    }
+  },
+  async loadOrCreateIdentity(){
+    let value = null;
+    let raw = null;
+    try{
+      raw = localStorage.getItem(this.IDENTITY_KEY);
+    }catch(e){
+      console.warn('Studyping: could not read visitor ID; using a temporary ID for this page', e);
+      const now = new Date().toISOString();
+      return { userId:await derivedVisitorId(), firstSeenAt:now, idGeneratedAt:now, idStrategy:'coarse-derived.v1', persistent:false };
+    }
+    if(raw){
+      try{ value = JSON.parse(raw); }
+      catch(e){ console.warn('Studyping: saved visitor ID is invalid; generating a new one', e); }
+    }
+    if(value && value.idStrategy === 'coarse-derived.v1' &&
+       typeof value.userId === 'string' && value.userId &&
+       typeof value.firstSeenAt === 'string'){
+        return value;
+    }
+    const now = new Date().toISOString();
+    const identity = {
+      userId:await derivedVisitorId(),
+      firstSeenAt:value && typeof value.firstSeenAt === 'string' ? value.firstSeenAt : now,
+      idGeneratedAt:now,
+      idStrategy:'coarse-derived.v1',
+      ...(value && typeof value.userId === 'string' && value.userId
+        ? { previousUserId:value.userId }
+        : {})
+    };
+    if(!this.saveIdentity(identity)) identity.persistent = false;
+    return identity;
+  },
+  loadOrCreateSessionId(){
+    try{
+      const existing = sessionStorage.getItem(this.SESSION_ID_KEY);
+      if(existing) return { sessionId:existing, startedAt:sessionStorage.getItem(`${this.SESSION_ID_KEY}.startedAt`) || null };
+      const session = { sessionId:generatedId('session'), startedAt:new Date().toISOString() };
+      sessionStorage.setItem(this.SESSION_ID_KEY, session.sessionId);
+      sessionStorage.setItem(`${this.SESSION_ID_KEY}.startedAt`, session.startedAt);
+      return session;
+    }catch(e){
+      console.warn('Studyping: could not persist session ID; using a temporary ID for this page', e);
+      return { sessionId:generatedId('session'), startedAt:new Date().toISOString(), persistent:false };
+    }
+  },
   loadOverrides(){ try{ const raw = localStorage.getItem(this.OVERRIDES_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ return {}; } },
   saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('Studyping: could not save edits', e); } },
   loadLessonIdAliases(){
@@ -587,6 +899,7 @@ class TypingEngine extends EventTarget{
     this.keystrokes = 0;
     this.correctKeystrokes = 0;
     this.errorEvents = 0;
+    this.backspaces = 0;
     this.finished = false;
     this.wordsCompleted = 0;
     this.lastCheckpointWords = 0;
@@ -638,6 +951,7 @@ class TypingEngine extends EventTarget{
   backspace(){
     if(this.pos <= 0 || this.finished) return;
     this.pos--;
+    this.backspaces++;
     this.dispatchEvent(new CustomEvent('backspace', { detail:{ index:this.pos } }));
   }
   skipToNextWord(){
@@ -680,13 +994,13 @@ class TypingEngine extends EventTarget{
     this.dispatchEvent(new CustomEvent('complete', { detail:this.getStats() }));
   }
   getStats(){
-    if(this.startTime === null) return { wpm:0, accuracy:100, elapsedMs:0, keystrokes:0, errors:0 };
+    if(this.startTime === null) return { wpm:0, accuracy:100, elapsedMs:0, keystrokes:0, errors:0, backspaces:0 };
     const now = this.finished ? this.endTime : (this.pausedAt !== null ? this.pausedAt : performance.now());
     const elapsedMs = Math.max(0, now - this.startTime - this.pausedDuration);
     const minutes = elapsedMs/60000;
     const wpm = minutes > 0 ? Math.round((this.correctKeystrokes/5)/minutes) : 0;
     const accuracy = this.keystrokes > 0 ? Math.round((this.correctKeystrokes/this.keystrokes)*100) : 100;
-    return { wpm, accuracy, elapsedMs, keystrokes:this.keystrokes, errors:this.errorEvents };
+    return { wpm, accuracy, elapsedMs, keystrokes:this.keystrokes, errors:this.errorEvents, backspaces:this.backspaces };
   }
 }
 
@@ -988,13 +1302,19 @@ class TextView{
     el.classList.add('landing'); // hide the real glyph until the ghost has landed on it
     const sh = (getComputedStyle(c).getPropertyValue('--strike-shadow') || '').trim() || 'rgba(0,0,0,.35)';
     const tilt = correct ? 0 : -12; // a miss lands crooked
-    const anim = ghost.animate([
+    const grayTheme = document.documentElement.dataset.theme === 'gray';
+    const frames = grayTheme ? [
+      { offset:0, opacity:0, transform:'translateY(-.08em) scaleY(.88)', textShadow:`0 .08em 0 ${sh}`, easing:'ease-out' },
+      { offset:.42, opacity:1 },
+      { offset:1, opacity:1, transform:'translateY(0) scaleY(1)', textShadow:'0 0 0 transparent' }
+    ] : [
       { offset:0,   opacity:0, filter:'blur(3px)',   transform:`translateY(-.2em) scale(2.6) rotate(${tilt}deg)`, textShadow:`0 .6em .75em ${sh}`, easing:'cubic-bezier(.45,0,.9,.55)' },
       { offset:.3,  opacity:1 },
       { offset:.62, filter:'blur(0px)',   transform:'translateY(0) scale(1.06) rotate(0deg)',    textShadow:`0 .12em .2em ${sh}`,  easing:'ease-out' },
       { offset:.8,                        transform:'translateY(.03em) scale(.95) rotate(0deg)', textShadow:`0 .03em .05em ${sh}`, easing:'ease-out' },
       { offset:1,   opacity:1, filter:'blur(0px)', transform:'translateY(0) scale(1) rotate(0deg)',   textShadow:'0 0 0 transparent' }
-    ], { duration:250, fill:'both' });
+    ];
+    const anim = ghost.animate(frames, { duration:grayTheme ? 150 : 250, fill:'both' });
     const entry = { ghost, anim, el };
     this.strikes.set(idx, entry);
     const done = () => {
@@ -1266,6 +1586,13 @@ const App = {
   keyboardView: null,
   statsView: null,
   customLessons: [],
+  identity: null,
+  sessionIdentity: null,
+  runStartedAt: null,
+  runStartedPerf: null,
+  runCheckpoints: [],
+  runPauses: [],
+  activeRunPause: null,
   staticPackCourses: [], // courses fetched from ./lessons/*.json — see fetchStaticPacks()
   staticPackMarks: [],   // default marks fetched from the same static lesson directory
   state: 'idle', // idle | ready | running | paused | finished
@@ -1281,6 +1608,7 @@ const App = {
   exportSelection: new Set(),
   importConflict: null, // pending { info, resolve, previousFocus } while the import dialog is open
   importing: false,     // one file import at a time (each conflict waits for a click)
+  importingStats: false,
   markRanges: [],    // the current lesson's marks, resolved to { id, s, e }
   maskRanges: [],    // masks that are ACTIVE this run (hidden behind tape)
   soonRanges: [],    // masks created during this run: already typed, they take effect next run
@@ -1334,6 +1662,14 @@ const App = {
 
   async init(){
     Storage.migrateLegacyData();
+    this.identity = await Storage.loadOrCreateIdentity();
+    if(this.identity.previousUserId && this.identity.persistent !== false){
+      if(Storage.reassignRunHistoryUserId(this.identity.previousUserId, this.identity.userId)){
+        delete this.identity.previousUserId;
+        Storage.saveIdentity(this.identity);
+      }
+    }
+    this.sessionIdentity = Storage.loadOrCreateSessionId();
     this.customLessons = Storage.loadLessons();
     const prefs = Storage.loadPrefs();
     this.marks = Storage.loadMarks().map(m => {
@@ -1372,6 +1708,7 @@ const App = {
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
       globalStats: qs('#globalStats'), globalWpm: qs('#gStatWpm'), globalAcc: qs('#gStatAcc'), globalRuns: qs('#gStatRuns'),
+      userIdCopyBtn: qs('#userIdCopyBtn'), userIdValue: qs('#userIdValue'), userIdRegenerateBtn: qs('#userIdRegenerateBtn'),
       sessionProgress: qs('#sessionProgress'), sessionProgressFill: qs('#sessionProgressFill'), sessionProgressPct: qs('#sessionProgressPct'),
       soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
       restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
@@ -1409,6 +1746,8 @@ const App = {
       objectivesList: qs('#objectivesList'), retryBtn: qs('#retryBtn'), nextLessonBtn: qs('#nextLessonBtn'), closeCompleteBtn: qs('#closeCompleteBtn'),
       confettiLayer: qs('#confettiLayer'),
       exportLessonsBtn: qs('#exportLessonsBtn'), selectAllLessonsBtn: qs('#selectAllLessonsBtn'),
+      exportStatsBtn: qs('#exportStatsBtn'),
+      importOtherStatsBtn: qs('#importOtherStatsBtn'), importOtherStatsFileInput: qs('#importOtherStatsFileInput'),
       importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput'),
       importConflictScrim: qs('#importConflictScrim'), importConflictIntro: qs('#importConflictIntro'),
       importConflictBody: qs('#importConflictBody'), importConflictApplyAll: qs('#importConflictApplyAll'),
@@ -1441,6 +1780,7 @@ const App = {
     this.applyKeyboardCollapsed();
 
     this.wireEvents();
+    this.updateUserIdDisplay();
     this.updateMaskToggleBtn();
     this.updateFiguresToggleBtn();
     this.applyMediaDeckCollapsed();
@@ -2150,6 +2490,11 @@ const App = {
 
   /* ----- engine event handlers ----- */
   onStart(){
+    this.runStartedAt = new Date().toISOString();
+    this.runStartedPerf = performance.now();
+    this.runCheckpoints = [];
+    this.runPauses = [];
+    this.activeRunPause = null;
     this.state = 'running';
     this.pauseReason = null;
     this.lastKeyAt = performance.now();
@@ -2833,6 +3178,13 @@ const App = {
   },
   onCheckpoint(e){
     const { wpm, charIndex } = e.detail;
+    if(this.runStartedPerf !== null){
+      this.runCheckpoints.push({
+        elapsedMs:Math.round(performance.now() - this.runStartedPerf),
+        charIndex,
+        wpm
+      });
+    }
     const target = this.currentLesson.targetWPM || 30;
     let label = '', good = false;
     if(wpm >= target*1.2){ label = 'Great!'; good = true; }
@@ -2846,6 +3198,7 @@ const App = {
     if(this.captures.mask) this.commitCapture('mask');
     this.state = 'finished';
     this.stopReadingClock();
+    this.saveRunRecord(e.detail);
     delete this.positions[this.currentLesson.id];
     Storage.savePositions(this.positions);
     this.stopTicker();
@@ -2861,6 +3214,39 @@ const App = {
     this.renderSidebarBest(this.currentLesson.id);
     this.syncMediaDeck();
     this.bus.dispatchEvent(new CustomEvent('lessonComplete', { detail:{ lessonId:this.currentLesson.id, stats:e.detail, recall } }));
+  },
+
+  saveRunRecord(stats){
+    if(!this.currentLesson || !this.runStartedAt) return;
+    const course = this.getAllCourses().find(item => courseKey(item.title) === courseKey(this.currentCourseTitle));
+    const run = {
+      runId:generatedId('run'),
+      userId:this.identity.userId,
+      sessionId:this.sessionIdentity.sessionId,
+      startedAt:this.runStartedAt,
+      completedAt:new Date().toISOString(),
+      courseId:course ? course.courseId : courseKey(this.currentCourseTitle),
+      courseTitle:this.currentCourseTitle,
+      lessonId:this.currentLesson.id,
+      lessonTitle:this.currentLesson.title,
+      targetWpm:this.currentLesson.targetWPM ?? null,
+      targetAccuracy:this.currentLesson.targetAccuracy ?? null,
+      stats:{
+        wpm:stats.wpm,
+        accuracy:stats.accuracy,
+        elapsedMs:stats.elapsedMs,
+        readingTimeMs:this.readingTimeMs,
+        keystrokes:stats.keystrokes,
+        correctKeystrokes:Math.max(0, stats.keystrokes - stats.errors),
+        errors:stats.errors,
+        backspaces:stats.backspaces
+      },
+      checkpoints:this.runCheckpoints.slice(),
+      pauses:this.runPauses.slice()
+    };
+    const runs = Storage.loadRunHistory();
+    runs.push(run);
+    Storage.saveRunHistory(runs);
   },
 
   updateProgress(){
@@ -2971,6 +3357,7 @@ const App = {
     this.engine.pause(at);
     this.state = 'paused';
     this.pauseReason = reason;
+    this.activeRunPause = { startedAt:new Date().toISOString(), reason };
     this.stopTicker();
     this.updateStats();
     this.updateOverlay();
@@ -2979,6 +3366,15 @@ const App = {
   resumeTyping(){
     if(this.state !== 'paused' || this.editing || this.commandMode) return;
     this.engine.resume();
+    if(this.activeRunPause){
+      const resumedAt = new Date().toISOString();
+      this.runPauses.push({
+        ...this.activeRunPause,
+        resumedAt,
+        durationMs:Math.max(0, Date.parse(resumedAt) - Date.parse(this.activeRunPause.startedAt))
+      });
+      this.activeRunPause = null;
+    }
     this.state = 'running';
     this.pauseReason = null;
     this.lastKeyAt = performance.now(); // fresh start for the idle watchdog
@@ -3123,6 +3519,63 @@ const App = {
     this.dom.completeOverlay.classList.remove('open');
     this.dom.confettiLayer.innerHTML = '';
   },
+  updateUserIdDisplay(){
+    const userId = this.identity ? this.identity.userId : '';
+    this.dom.userIdValue.textContent = userId;
+    this.dom.userIdCopyBtn.title = userId ? 'Click to copy your user ID' : 'User ID unavailable';
+    this.dom.userIdCopyBtn.setAttribute('aria-label', userId ? `Copy user ID ${userId}` : 'User ID unavailable');
+    this.dom.userIdRegenerateBtn.disabled = !userId || this.regeneratingUserId === true;
+  },
+  async copyUserId(){
+    const userId = this.identity && this.identity.userId;
+    if(!userId) return;
+    this.showPill('edit', await this.copyText(userId)
+      ? `Copied user ID: ${userId}`
+      : 'Could not copy user ID', 1600);
+  },
+  async regenerateUserId(){
+    const previousUserId = this.identity && this.identity.userId;
+    if(!previousUserId || this.regeneratingUserId) return;
+    this.regeneratingUserId = true;
+    this.updateUserIdDisplay();
+    try{
+      let nextUserId;
+      try{
+        nextUserId = await derivedVisitorId();
+        if(nextUserId === previousUserId) nextUserId = await derivedVisitorId();
+      }catch(e){
+        console.warn('Studyping: could not generate a new user ID', e);
+        await this.showNotice('Could not generate user ID', 'A new ID could not be generated from this browser context.');
+        return;
+      }
+      const identity = {
+        ...this.identity,
+        userId:nextUserId,
+        idGeneratedAt:new Date().toISOString(),
+        previousUserId,
+        persistent:true
+      };
+      if(!Storage.saveIdentity(identity)){
+        await this.showNotice('Could not save user ID', 'The existing ID was kept because browser storage could not save the replacement.');
+        return;
+      }
+      this.identity = identity;
+      if(!Storage.reassignRunHistoryUserId(previousUserId, nextUserId)){
+        await this.showNotice('User ID changed', 'The new ID is saved. Local run history could not be relinked yet; Studyping will retry on the next visit.');
+        return;
+      }
+      delete identity.previousUserId;
+      if(!Storage.saveIdentity(identity)){
+        identity.previousUserId = previousUserId;
+        await this.showNotice('User ID changed', 'The new ID and local run history are saved. Cleanup will retry on the next visit.');
+        return;
+      }
+      this.showPill('edit', 'Generated a new user ID from this browser context', 1800);
+    }finally{
+      this.regeneratingUserId = false;
+      this.updateUserIdDisplay();
+    }
+  },
   updateGlobalStats(){
     if(!this.dom.globalStats) return;
     const stats = collectGlobalStats(Storage.loadStats());
@@ -3212,10 +3665,10 @@ const App = {
       ? parseInlineMarkdown(this.dom.captureInput.value).text
       : (this.engine ? this.engine.text : '');
   },
-  applyAnnotations(){
+  applyAnnotations(parsedEdit = null){
     // Resolve this lesson's marks and masks to character ranges. A mask made during THIS run is
     // already typed, so it only takes effect from the next run ("soon"). Masks lift while editing.
-    const parsedEdit = this.editing ? parseInlineMarkdown(this.dom.captureInput.value) : null;
+    if(this.editing && !parsedEdit) parsedEdit = this._editMarkdown;
     const text = parsedEdit ? parsedEdit.text : this.displayText();
     const lesson = this.currentLesson;
     const mine = lesson ? this.marks.filter(m => m.lessonId === lesson.id) : [];
@@ -3898,6 +4351,7 @@ const App = {
     d.captureInput.setSelectionRange(sourcePosition, sourcePosition);
     this._editShown = this.lessonSource;
     this._editMarkdown = this.lessonMarkdown;
+    this._editKeep = eng.pos;
     this._vx = null;
     this._lines = null;
     this.textView.build(this.lessonSource, true);
@@ -3941,9 +4395,9 @@ const App = {
     this.shadowValue = typed;
     this._lines = null;
     this.editStart = null;
+    this._editKeep = null;
     this.applyAnnotations();
     tv.moveCaret(pos);
-    this.updateStats();
     this.updateProgress();
     this.hintNext();
     if(es.wasCommandMode && es.wasState === 'paused'){
@@ -3965,6 +4419,7 @@ const App = {
       if(this.commandMode) this.showPill('edit', 'COMMAND mode · t for typing mode · i to edit');
     }
     this.updateOverlay();
+    this.updateTypingPosition();
     this.focusInput();
     if(changed){
       this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
@@ -4078,25 +4533,41 @@ const App = {
   },
   rebuildForEdit(val){
     const es = this.editStart, tv = this.textView;
-    const previous = this._editShown;
-    if(previous !== val){
-      const previousText = parseInlineMarkdown(previous).text;
-      const nextMarkdown = parseInlineMarkdown(val);
-      this.remapCapturesForTextChange(previousText, nextMarkdown.text);
-      this.remapPendingDeletions(previousText, nextMarkdown.text);
-      this._editMarkdown = nextMarkdown;
-    } else {
-      this._editMarkdown = parseInlineMarkdown(val);
-    }
-    this._editShown = val;
+    const previousMarkdown = this._editMarkdown;
+    const nextMarkdown = parseInlineMarkdown(val);
+    this.remapCapturesForTextChange(previousMarkdown.text, nextMarkdown.text);
+    this.remapPendingDeletions(previousMarkdown.text, nextMarkdown.text);
     // The typed prefix keeps its green / red only up to the first character that differs from where
     // the edit began — so undoing the change brings every colour back.
-    const keep = Math.min(es.pos, commonPrefix(es.text, this._editMarkdown.text));
+    const keep = Math.min(es.pos, commonPrefix(es.text, nextMarkdown.text));
+    const plainText = previousMarkdown.formats.length === 0 && nextMarkdown.formats.length === 0;
+    if(plainText && this._editShown.length === val.length && keep === this._editKeep){
+      const prefix = commonPrefix(this._editShown, val);
+      const suffix = commonSuffix(this._editShown, val);
+      const oldEnd = this._editShown.length - suffix;
+      const newEnd = val.length - suffix;
+      let stableLayout = true;
+      for(let i = prefix; i < oldEnd; i++){
+        if(/\s/.test(this._editShown[i]) || /\s/.test(val[i])){ stableLayout = false; break; }
+      }
+      if(stableLayout){
+        for(let i = prefix; i < newEnd; i++) tv.charEls[i].textContent = val[i];
+        this._editMarkdown = nextMarkdown;
+        this._editShown = val;
+        this._lines = null;
+        this.renderPendingDeletions();
+        this.applyAnnotations(nextMarkdown);
+        return;
+      }
+    }
+    this._editMarkdown = nextMarkdown;
+    this._editShown = val;
     tv.build(val, true);
     tv.restore(es, keep, this._editMarkdown.sourceIndices);
+    this._editKeep = keep;
     this.renderPendingDeletions();
     this._lines = null;
-    this.applyAnnotations();
+    this.applyAnnotations(nextMarkdown);
   },
   remapCapturesForTextChange(previous, next){
     let prefix = 0;
@@ -4691,6 +5162,177 @@ const App = {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  },
+  buildStatsExport(){
+    const runs = Storage.loadRunHistory();
+    const courses = this.getAllCourses().map(course => ({
+      courseId:course.courseId || courseKey(course.title),
+      title:course.title,
+      lessonIds:course.lessons.map(lesson => lesson.id)
+    }));
+    const sessions = new Map();
+    runs.forEach(run => {
+      if(typeof run.sessionId !== 'string' || !run.sessionId) return;
+      let session = sessions.get(run.sessionId);
+      if(!session){
+        session = {
+          sessionId:run.sessionId,
+          firstRunAt:run.startedAt,
+          lastRunAt:run.completedAt,
+          runCount:0,
+          totalTypingTimeMs:0,
+          courseIds:[],
+          lessonIds:[]
+        };
+        sessions.set(run.sessionId, session);
+      }
+      session.runCount++;
+      session.totalTypingTimeMs += finiteStat(run.stats && run.stats.elapsedMs) || 0;
+      if(run.startedAt && (!session.firstRunAt || run.startedAt < session.firstRunAt)) session.firstRunAt = run.startedAt;
+      if(run.completedAt && (!session.lastRunAt || run.completedAt > session.lastRunAt)) session.lastRunAt = run.completedAt;
+      if(run.courseId && !session.courseIds.includes(run.courseId)) session.courseIds.push(run.courseId);
+      if(run.lessonId && !session.lessonIds.includes(run.lessonId)) session.lessonIds.push(run.lessonId);
+    });
+    if(!sessions.has(this.sessionIdentity.sessionId)){
+      sessions.set(this.sessionIdentity.sessionId, {
+        sessionId:this.sessionIdentity.sessionId,
+        startedAt:this.sessionIdentity.startedAt,
+        runCount:0,
+        totalTypingTimeMs:0,
+        courseIds:[],
+        lessonIds:[]
+      });
+    }
+    const courseStats = new Map(courses.map(course => [course.courseId, course]));
+    runs.forEach(run => {
+      if(!run.courseId || courseStats.has(run.courseId)) return;
+      courseStats.set(run.courseId, {
+        courseId:run.courseId,
+        title:run.courseTitle || run.courseId,
+        lessonIds:[]
+      });
+    });
+
+    return {
+      format:'studyping-user-stats.v1',
+      exportedAt:new Date().toISOString(),
+      app:{ name:'Studyping', statsSchemaVersion:1, historyNote:'Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates.' },
+      identity:{
+        userId:this.identity.userId,
+        firstSeenAt:this.identity.firstSeenAt,
+        idGeneratedAt:this.identity.idGeneratedAt,
+        idStrategy:this.identity.idStrategy,
+        persistent:this.identity.persistent !== false,
+        currentSessionId:this.sessionIdentity.sessionId,
+        currentSessionStartedAt:this.sessionIdentity.startedAt,
+        sessionPersistent:this.sessionIdentity.persistent !== false
+      },
+      summary:collectGlobalStats(Storage.loadStats()),
+      courses,
+      runSummary:this.summarizeRuns(runs),
+      courseStats:Array.from(courseStats.values(), course => ({
+        courseId:course.courseId,
+        title:course.title,
+        ...this.summarizeRuns(runs.filter(run => run.courseId === course.courseId))
+      })),
+      lessonRunStats:Object.fromEntries(Array.from(
+        runs.reduce((groups, run) => {
+          if(!run.lessonId) return groups;
+          if(!groups.has(run.lessonId)) groups.set(run.lessonId, []);
+          groups.get(run.lessonId).push(run);
+          return groups;
+        }, new Map()),
+        ([lessonId, lessonRuns]) => [lessonId, {
+          title:lessonRuns[lessonRuns.length - 1].lessonTitle || lessonId,
+          courseIds:Array.from(new Set(lessonRuns.map(run => run.courseId).filter(Boolean))),
+          ...this.summarizeRuns(lessonRuns)
+        }]
+      )),
+      lessonStats:Storage.loadStats(),
+      sessions:Array.from(sessions.values()),
+      runs
+    };
+  },
+  summarizeRuns(runs){
+    const totals = runs.reduce((result, run) => {
+      const stats = run.stats || {};
+      result.typingTimeMs += finiteStat(stats.elapsedMs) || 0;
+      result.readingTimeMs += finiteStat(stats.readingTimeMs) || 0;
+      result.keystrokes += finiteStat(stats.keystrokes) || 0;
+      result.correctKeystrokes += finiteStat(stats.correctKeystrokes) || 0;
+      result.errors += finiteStat(stats.errors) || 0;
+      result.backspaces += finiteStat(stats.backspaces) || 0;
+      const wpm = finiteStat(stats.wpm);
+      const accuracy = finiteStat(stats.accuracy);
+      if(wpm !== null){ result.wpmTotal += wpm; result.wpmCount++; }
+      if(accuracy !== null){ result.accuracyTotal += accuracy; result.accuracyCount++; }
+      return result;
+    }, {
+      typingTimeMs:0, readingTimeMs:0, keystrokes:0, correctKeystrokes:0,
+      errors:0, backspaces:0, wpmTotal:0, wpmCount:0, accuracyTotal:0, accuracyCount:0
+    });
+    return {
+      runCount:runs.length,
+      totalTypingTimeMs:totals.typingTimeMs,
+      totalReadingTimeMs:totals.readingTimeMs,
+      keystrokes:totals.keystrokes,
+      correctKeystrokes:totals.correctKeystrokes,
+      errors:totals.errors,
+      backspaces:totals.backspaces,
+      averageWpm:totals.wpmCount ? Math.round(totals.wpmTotal / totals.wpmCount) : null,
+      averageAccuracy:totals.accuracyCount ? Math.round(totals.accuracyTotal / totals.accuracyCount) : null
+    };
+  },
+  exportStats(){
+    const data = this.buildStatsExport();
+    this.downloadJson(JSON.stringify(data, null, 2), `studyping-stats-${new Date().toISOString().slice(0,10)}.json`);
+  },
+  importOtherUserStats(json){
+    const raw = typeof json === 'string' ? JSON.parse(json) : json;
+    const normalized = normalizePeerStatsExport(raw);
+    if(normalized.record.userId === this.identity.userId){
+      throw new Error('This export has the same user ID as this browser. Only other users’ stats can be imported.');
+    }
+    const records = Storage.loadOtherUserStats();
+    const index = records.findIndex(record => record.userId === normalized.record.userId);
+    const peer = mergePeerStats(index < 0 ? {} : records[index], normalized.record);
+    if(index < 0) records.push(peer);
+    else records[index] = peer;
+    Storage.saveOtherUserStats(records);
+    return {
+      status:index < 0 ? 'added' : 'updated',
+      userId:peer.userId,
+      runCount:Array.isArray(peer.runs) ? peer.runs.length : 0,
+      courseCount:Array.isArray(peer.courses) ? peer.courses.length : 0,
+      warnings:normalized.warnings
+    };
+  },
+  async importOtherUserStatsFromFile(file){
+    if(this.importingStats){
+      await this.showNotice('Stats import in progress', 'Another stats file is already being imported.');
+      return;
+    }
+    this.importingStats = true;
+    try{
+      if(file.size > 10 * 1024 * 1024){
+        throw new Error('Stats files larger than 10 MB are not supported.');
+      }
+      const result = this.importOtherUserStats(await this.readTextFile(file));
+      const action = result.status === 'added' ? 'Added' : 'Updated';
+      let message = `${action} other-user stats for ${result.userId}. They are stored separately from this browser’s own stats.`;
+      message += ` Saved ${result.runCount} run${result.runCount === 1 ? '' : 's'} and ${result.courseCount} course entr${result.courseCount === 1 ? 'y' : 'ies'}.`;
+      if(result.warnings.length){
+        message += ` Ignored malformed optional section${result.warnings.length === 1 ? '' : 's'}: ${result.warnings.join(', ')}.`;
+      }
+      await this.showNotice('Other-user stats imported', message);
+    }catch(err){
+      console.warn('Studyping: other-user stats import failed', err);
+      await this.showNotice('Stats import failed', err && err.message
+        ? err.message
+        : 'That file could not be imported as Studyping user stats.');
+    }finally{
+      this.importingStats = false;
+    }
   },
   async exportLessons(){
     if(this.editing){
@@ -5376,6 +6018,13 @@ const App = {
     });
 
     d.newLessonBtn.addEventListener('click', () => this.openModal());
+    d.exportStatsBtn.addEventListener('click', () => this.exportStats());
+    d.importOtherStatsBtn.addEventListener('click', () => d.importOtherStatsFileInput.click());
+    d.importOtherStatsFileInput.addEventListener('change', () => {
+      const file = d.importOtherStatsFileInput.files[0];
+      if(file) this.importOtherUserStatsFromFile(file);
+      d.importOtherStatsFileInput.value = '';
+    });
     d.exportLessonsBtn.addEventListener('click', () => this.exportLessons());
     d.selectAllLessonsBtn.addEventListener('click', () => this.toggleAllLessonSelection());
     d.importLessonsBtn.addEventListener('click', () => d.importFileInput.click());
@@ -5399,6 +6048,8 @@ const App = {
     d.restartBtn.addEventListener('mousedown', (e) => e.preventDefault());
     d.typeBtn.addEventListener('click', () => this.activateTyping());
     d.restartBtn.addEventListener('click', () => this.restart());
+    d.userIdCopyBtn.addEventListener('click', () => this.copyUserId());
+    d.userIdRegenerateBtn.addEventListener('click', () => this.regenerateUserId());
     d.soundBtn.addEventListener('click', () => this.toggleSound());
     d.themeBtn.addEventListener('click', () => this.toggleTheme());
     d.maskToggleBtn.addEventListener('click', () => this.toggleMasks());
@@ -5606,6 +6257,9 @@ document.addEventListener('DOMContentLoaded', () => App.init());
      Studyping.courses()                 // -> [{ title, lessons:[...] }]
      Studyping.getState()                // -> { lessonId, state, stats }
      Studyping.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
+     Studyping.exportStats()             // -> detailed local stats export JSON
+     Studyping.importOtherUserStats(json) // -> store one user's stats separately
+     Studyping.getOtherUserStats()        // -> imported users' stats snapshots
      Studyping.on('checkpoint', fn)      // events: start, keystroke, error,
      Studyping.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
                                              //   lessonComplete, lessonAdded, lessonEdited,
@@ -5671,6 +6325,9 @@ window.Studyping = {
     };
   },
   getGlobalStats(){ return collectGlobalStats(Storage.loadStats()); },
+  exportStats(){ return JSON.stringify(App.buildStatsExport(), null, 2); },
+  importOtherUserStats(json){ return App.importOtherUserStats(json); },
+  getOtherUserStats(){ return JSON.parse(JSON.stringify(Storage.loadOtherUserStats())); },
   on(evt, fn){ App.bus.addEventListener(evt, fn); },
   off(evt, fn){ App.bus.removeEventListener(evt, fn); },
   setSoundEnabled(v){

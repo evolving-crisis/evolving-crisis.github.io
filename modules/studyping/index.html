@@ -26,6 +26,15 @@
       </div>
     </div>
     <div class="topbar-dashboard">
+      <div class="user-id-control" aria-label="Local user ID">
+        <button class="user-id-copy" id="userIdCopyBtn" type="button" title="Click to copy your user ID">
+          <code class="user-id-value" id="userIdValue"></code>
+        </button>
+        <button class="user-id-regenerate" id="userIdRegenerateBtn" type="button"
+                aria-label="Generate a new user ID" title="Generate a new ID from this browser's coarse context">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 5v4h-4"/><path d="M4.6 8a5.8 5.8 0 0 1 9.9-2L16 8M4 15v-4h4"/><path d="M15.4 12a5.8 5.8 0 0 1-9.9 2L4 12"/></svg>
+        </button>
+      </div>
       <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global typing stats">
         <span class="gs-label">Global</span>
         <span class="gs-metric">
@@ -135,10 +144,13 @@
         <div class="course-list" id="courseList"></div>
         <button class="new-lesson-btn" id="newLessonBtn">+ New custom lesson</button>
         <div class="drawer-tools">
+          <button class="text-btn stats-export-btn" id="exportStatsBtn" title="Download your local run history, course and lesson statistics, and pseudonymous IDs; raw browser details are not included">Export my stats</button>
+          <button class="text-btn" id="importOtherStatsBtn" title="Add another user's stats to a separate local collection for future comparisons">Import other stats</button>
           <button class="text-btn" id="exportLessonsBtn">Export selected</button>
           <button class="text-btn" id="selectAllLessonsBtn">Select all</button>
           <button class="text-btn" id="importLessonsBtn">Import lessons</button>
           <input type="file" id="importFileInput" accept="application/json" hidden>
+          <input type="file" id="importOtherStatsFileInput" accept="application/json" hidden>
         </div>
         <div class="drawer-prefs">
           <button class="text-btn" id="marksOpenBtn">Marks &amp; masks<span class="count-badge empty" id="marksCount">0</span></button>
