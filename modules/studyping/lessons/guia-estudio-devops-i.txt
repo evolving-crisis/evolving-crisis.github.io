@@ -1,25 +1,14 @@
 
 ---
-id: devops-platform-engineering-unal
-title: "NOTAS DE CLASE: INGENIERÍA DE PLATAFORMAS, DEVOPS Y TROUBLESHOOTING DE PRODUCCIÓN"
+id: devops-platform-engineering
+title: "INGENIERÍA DE PLATAFORMAS, DEVOPS Y TROUBLESHOOTING DE PRODUCCIÓN"
 course: "Programmers practice"
 targetWPM: 30
 targetAccuracy: 95
 ---
 
-# NOTAS DE CLASE: INGENIERÍA DE PLATAFORMAS, DEVOPS Y TROUBLESHOOTING DE PRODUCCIÓN
-*Documento de Trabajo e Investigación Aplicada — Estilo Notas de Clase UNAL / Cuadernos de Ingeniería*
-*Preparación para la Entrevista Técnica Senior de DevOps & Platform Engineer (Ascendion / Digital Banking)*
-
 ---
 
-## Prólogo Académico & Filosofía de Ingeniería de Plataformas
-
-Esta guía de estudio está estructurada bajo el rigor conceptual y pedagógico característico de las **Notas de Clase de la Universidad Nacional de Colombia (UNAL)**. El objetivo es ofrecer un compendio autocontenido, analítico y sintético que conecte la teoría de sistemas distribuidos con la realidad operativa de la infraestructura enterprise de misión crítica.
-
-El hilo conductor de este material parte de una premisa fundamental: **la complejidad moderna de Kubernetes y OpenShift no elimina los fundamentos del sistema operativo, sino que los abstrae**. Quien administró servidores Red Hat Enterprise Linux (RHEL) a bajo nivel en la Universidad Nacional —configurando el kernel, el stack de red con iptables, resoluciones DNS con BIND y la gestión manual de certificados SSL— posee la visión analítica necesaria para diagnosticar fallos complejos en clusters multicloud contemporáneos. 
-
-A lo largo de estos módulos, transitaremos de la fluidez conceptual a ejemplos específicos con herramientas enterprise (**Red Hat OpenShift, Kubernetes, Argo CD, Azure DevOps Pipelines, Red Hat Quay, Prometheus, Grafana, Splunk y New Relic**), aplicados a sectores con alta exigencia de disponibilidad y cumplimiento normativo como banca digital (SFFCU), procesamiento de pagos (PayU Latam), tecnología médica (BrightInsight / PSL) y sistemas farmacéuticos (Globant Argentina).
 
 ---
 ## Módulo 1: Linux Enterprise (RHEL), Kubernetes & Red Hat OpenShift en Producción
@@ -423,12 +412,11 @@ La observabilidad se fundamenta en los tres pilares principales: **Métricas, Lo
   4. **Acción Remedial Inmediata**: Ajuste de los `cpu limits` en aplicaciones Java (siguiendo las recomendaciones modernas de SRE para prevenir throttling innecesario) manteniendo únicamente el `cpu request` e incrementando el `memory limit`.
 
 ---
-## Módulo 6: Banco de Preguntas Avanzadas para Entrevista Técnica Senior (Solucionario UNAL)
+## Módulo 6:
 
-### Pregunta 1 (Linux & Storage)
-**Pregunta**: ¿Qué ocurre a nivel de sistema operativo cuando un proceso dentro de un contenedor en OpenShift genera un error `No space left on device` (ENOSPC), pero al ejecutar `df -h` se observa que el sistema de archivos tiene 40% de capacidad disponible? Explique la causa raíz y cómo resolverlo.
+### (Linux & Storage)
+¿Qué ocurre a nivel de sistema operativo cuando un proceso dentro de un contenedor en OpenShift genera un error `No space left on device` (ENOSPC), pero al ejecutar `df -h` se observa que el sistema de archivos tiene 40% de capacidad disponible? Explique la causa raíz y cómo resolverlo.
 
-**Respuesta Técnica Senior (Solucionario)**:
 El síntoma describe el **agotamiento de Inodos (Inodes)** en el sistema de archivos (ext4/xfs). Cada archivo, directorio o socket en Linux requiere un inodo que almacene los metadatos. Si una aplicación genera millones de archivos pequeños (por ejemplo, archivos de sesión o temporales no limpiados), se pueden agotar todos los inodos disponibles antes de consumir el espacio en disco en bytes.
 * **Comando de Verificación**: `df -i` para inspeccionar el uso de inodos.
 * **Diagnóstico e Identificación de Directorios**:
@@ -439,10 +427,9 @@ El síntoma describe el **agotamiento de Inodos (Inodes)** en el sistema de arch
 
 ---
 
-### Pregunta 2 (Kubernetes & Networking)
-**Pregunta**: Explique la diferencia conceptual y de flujo de red entre una `LivenessProbe` y una `ReadinessProbe`. ¿Qué sucede exactamente en el plano de control (Control Plane) y en iptables/kube-proxy cuando la `ReadinessProbe` de un Pod falla?
+### 2 (Kubernetes & Networking)
+Explique la diferencia conceptual y de flujo de red entre una `LivenessProbe` y una `ReadinessProbe`. ¿Qué sucede exactamente en el plano de control (Control Plane) y en iptables/kube-proxy cuando la `ReadinessProbe` de un Pod falla?
 
-**Respuesta Técnica Senior (Solucionario)**:
 * **LivenessProbe**: Determina si el proceso dentro del contenedor está vivo. Si la prueba falla consecutivamente según el `failureThreshold`, el **Kubelet reinicia el contenedor** de forma local. No afecta directamente las reglas de enrutamiento a menos que el pod muera.
 * **ReadinessProbe**: Determina si el Pod está listo para recibir tráfico de red. Si la prueba falla:
   1. El Kubelet actualiza el estado del Pod a `Ready = False`.
@@ -452,10 +439,9 @@ El síntoma describe el **agotamiento de Inodos (Inodes)** en el sistema de arch
 
 ---
 
-### Pregunta 3 (GitOps & Argo CD)
-**Pregunta**: Durante un despliegue crítico de la pasarela de pagos con Argo CD, el estado del despliegue queda permanentemente en `OutOfSync` debido a que un operador de seguridad muta dinámicamente el campo `spec.template.metadata.annotations`. ¿Cómo soluciona esta condición de drift sin deshabilitar la sincronización automática (`selfHeal`)?
+### (GitOps & Argo CD)
+Durante un despliegue crítico de la pasarela de pagos con Argo CD, el estado del despliegue queda permanentemente en `OutOfSync` debido a que un operador de seguridad muta dinámicamente el campo `spec.template.metadata.annotations`. ¿Cómo soluciona esta condición de drift sin deshabilitar la sincronización automática (`selfHeal`)?
 
-**Respuesta Técnica Senior (Solucionario)**:
 El problema ocurre porque Argo CD compara el objeto en Git contra el objeto en vivo en la API de Kubernetes. Al haber un Mutating Admission Webhook alterando las anotaciones, Argo CD detecta un drift constante.
 Para resolverlo sin perder la auto-reconciliación (`selfHeal`), se añade la sección `ignoreDifferences` en la especificación de la `Application` de Argo CD:
 
@@ -471,10 +457,9 @@ Esto le instruye a Argo CD que ignore las discrepancias en esa ruta JSON especí
 
 ---
 
-### Pregunta 4 (Azure DevOps & CI/CD)
-**Pregunta**: ¿Cómo diseñaría un pipeline en Azure DevOps que garantice el cumplimiento normativo PCI-DSS / HIPAA para la promoción de artefactos entre ambientes de desarrollo y producción?
+### (Azure DevOps & CI/CD)
+¿Cómo diseñaría un pipeline en Azure DevOps que garantice el cumplimiento normativo PCI-DSS / HIPAA para la promoción de artefactos entre ambientes de desarrollo y producción?
 
-**Respuesta Técnica Senior (Solucionario)**:
 1. **Segregación de Responsabilidades e Inmutabilidad**: Construcción del artefacto (imagen de contenedor) una sola vez en la etapa de Build, tageado con el `Build.BuildId` o hash de Git. La misma imagen probada en Dev es promovida a Staging y Prod sin re-compilar.
 2. **Quality Gates & DevSecOps**:
    * Análisis estático de código (SAST) con SonarQube / Veracode en la etapa de compilación.
@@ -519,4 +504,3 @@ oc get routes -n digital-banking
 * **Shift-Left Security**: Práctica de integrar controles de calidad y análisis de seguridad desde las fases iniciales del ciclo de vida del desarrollo de software (CI/CD).
 
 ---
-*Fin de las Notas de Clase — Preparado para la entrevista técnica de DevOps / Platform Engineer.*

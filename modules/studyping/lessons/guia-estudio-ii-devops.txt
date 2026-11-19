@@ -1,0 +1,267 @@
+# NOTAS DE CLASE II: TROUBLESHOOTING AVANZADO DE ALMACENAMIENTO, LINUX ENTERPRISE (RHEL/FEDORA) Y RESILIENCIA EN PRODUCCIÓN
+
+Sistemas Operativos Avanzados & Ingeniería de Plataformas (Enfoque Práctico SRE)  
+Diagnóstico en Fedora Asahi Linux (Upstream) & Servidores Red Hat Enterprise Linux (RHEL 8/9) en Producción (PayU Latam, BrightInsight, Digital Banking).
+
+---
+
+
+Durante mis años administrando la infraestructura de servidores Red Hat en la Universidad Nacional de Colombia (UNAL), aprendí una máxima fundamental de la ingeniería de sistemas: *un servidor no falla cuando se queda sin CPU; un servidor entra en pánico y destruye servicios cuando se queda sin espacio en disco o sin inodos*. 
+
+Hoy en día, al trabajar en Fedora Asahi Linux (la distribución upstream directa de Red Hat Enterprise Linux optimizada para arquitectura Apple Silicon ARM64), la similitud arquitectónica con RHEL 8 y RHEL 9 es prácticamente total. Fedora es el laboratorio donde Red Hat prueba el kernel, `systemd`, `podman`, `selinux` y los subsistemas de almacenamiento que luego componen el estándar enterprise de Fortune 500.
+
+Cuando tu laptop Fedora Asahi o un servidor RHEL de producción en un pasarela de pagos como **PayU Latam** o en una plataforma bancaria como **SFFCU** reporta un disco lleno al 98%, no basta con ejecutar comandos de limpieza a ciegas. Un verdadero Senior Engineer demuestra dominancia y madurez técnica entendiendo la capa interna del sistema de archivos, distinguiendo entre bloques e inodos, identificando descriptores de archivos fantasma retenidos en memoria kernel, y gestionando la cuota de logs y capas de contenedores sin tumbar los servicios activos.
+
+---
+
+### 1.1. Diagnóstico Inicial: Bloques vs. Inodos (`df -h` vs. `df -i`)
+
+El primer error de un administrador junior ante una alerta de *Disk Storage Exhaustion* es verificar únicamente el espacio en megabytes/gigabytes. En sistemas POSIX y Linux Enterprise, el espacio en disco está acotado por dos métricas independientes:
+
+1. **Bloques de Datos (Data Blocks):** El volumen real de datos almacenados en bytes.
+2. **Inodos (Index Nodes):** Las estructuras de datos del sistema de archivos que almacenan la metadata de cada archivo (propietario, permisos, timestamps, punteros a bloques de datos).
+
+```bash
+# Diagnóstico de Bloques de Datos en MB/GB
+df -h -T
+
+# Diagnóstico de Agotamiento de Inodos (Critical Check)
+df -i
+```
+
+#### Análisis de Escenario de Producción: El Problema de los Micro-Archivos
+Si `df -h` muestra 40% de espacio disponible pero las aplicaciones retornan `No space left on device (ENOSPC)`, el 99% de las veces el volumen ha agotado sus **inodos**. Esto ocurre con frecuencia en:
+- Servidores web con sesiones PHP/Node.js guardadas como archivos de texto en `/var/lib/php/sessions` o `/tmp`.
+- Directorios de caché de Git/CI-CD o volúmenes de `overlay2` en Podman/Docker con millones de archivos pequeños no recolectados.
+
+---
+
+### 1.2. Localización Rápida de Hinchazón (`du`, `ncdu` / `gdu`)
+
+Una vez determinado si el problema es de bloques o de inodos, debemos aislar qué directorio está consumiendo la cuota.
+
+```bash
+# Navegación jerárquica de mayor consumo desde la raíz (omitiendo montajes virtuales /proc y /sys)
+sudo du -h --max-depth=1 / 2>/dev/null | sort -hr | head -n 15
+
+# Identificación específica en /var (foco principal en RHEL)
+sudo du -h --max-depth=1 /var 2>/dev/null | sort -hr
+
+# Herramientas interactivas de alta velocidad (disponibles en Fedora y EPEL RHEL)
+sudo gdu /      # Escrito en Go, ultra rápido para SSDs/NVMe
+sudo ncdu /var   # Basado en ncurses, estándar en sysadmin
+```
+
+---
+
+### 1.3. El Enigma de los Descriptores de Archivo Fantasma (`lsof +L1`)
+
+Este es un escenario clásico en entrevistas técnicas avanzadas de Ascendion / RHEL: **"Eliminé un archivo de log de 50 GB con `rm -rf /var/log/app.log`, pero `df -h` sigue mostrando el disco al 100% de ocupación. ¿Qué sucedió y cómo se soluciona sin reiniciar el servidor?"**
+
+#### Explicación Teórica (Kernel POSIX)
+En Linux, la orden `rm` no borra inmediatamente los bloques de datos del disco; lo que hace es desvincular (*unlink*) la entrada del directorio. Si un proceso activo (por ejemplo, Nginx, Java Spring Boot o PostgreSQL) mantiene abierto un descriptor de archivo (*file descriptor*) hacia ese archivo, el Kernel de Linux **no liberará los bloques de datos** hasta que el proceso se cierre o libere el descriptor.
+
+#### Diagnóstico y Resolución
+```bash
+# 1. Identificar archivos eliminados pero retenidos en memoria por procesos activos (Deleted Unlinked Files)
+sudo lsof +L1
+
+# O mediante filtrado de lsof buscando la palabra 'deleted'
+sudo lsof | grep -i deleted
+
+# Salida típica:
+# java  14205  payu  10u  REG  253,0  53687091200  402104 /var/log/payu/trace.log (deleted)
+
+# 2. Solución SIN reiniciar el servicio ni el servidor (Truncado a través de /proc)
+# El PID es 14205 y el descriptor de archivo (FD) es 10 (10u)
+sudo cp /dev/null /proc/14205/fd/10
+```
+
+Al truncar `/proc/<PID>/fd/<FD>` escribiendo el dispositivo nulo `/dev/null`, el kernel vacía instantáneamente los bloques retenidos en el sistema de archivos liberando el espacio de inmediato sin interrumpir el proceso de producción.
+
+---
+
+## Módulo 2: Saneamiento de Contenedores y Rutinas de Runtime (Podman, Docker & Overlay2)
+
+Tanto en Fedora Asahi Linux como en Red Hat Enterprise Linux 8/9, el motor por defecto de contenedores es **Podman** (daemonless y rootless). Los contenedores y las imágenes acumuladas suelen ser los principales devoradores de disco en `/var/lib/containers` (o `~/.local/share/containers` en modo rootless).
+
+### 2.1. Diagnóstico de Almacenamiento en Podman / Docker
+
+```bash
+# Inspección del consumo del motor de contenedores
+podman system df
+
+# Para entornos Docker heredados:
+docker system df
+```
+
+### 2.2. Garbaging Collection y Pruning Avanzado
+
+Para liberar espacio en tu laptop Fedora Asahi y en servidores de Build de CI/CD (Azure DevOps / GitHub Actions Runners):
+
+```bash
+# Reclamación total de imágenes no utilizadas, contenedores detenidos, cachés de build y volúmenes huérfanos
+podman system prune -a --volumes -f
+
+# Limpieza de capas no referenciadas en el storage driver overlay2
+podman image prune -a
+
+# Inspección de volúmenes persistentes olvidados
+podman volume ls -qf dangling=true | xargs -r podman volume rm
+```
+
+#### Regla de Producción en DevSecOps
+En registries como **Red Hat Quay** o en nodos de OpenShift/Kubernetes, nunca debes borrar manualmente los subdirectorios de `/var/lib/containers/storage/overlay`. Siempre utiliza las herramientas de la CLI (`podman`, `crictl` o `crictl rmi --prune`) para evitar la corrupción de la base de datos de capas de almacenamiento (*storage metadata corruption*).
+
+---
+
+## Módulo 3: Gobernanza de Systemd Journal, Auditoría y Logs del Sistema
+
+En RHEL y Fedora, el demonio `systemd-journald` captura los logs del kernel, servicios del sistema y la salida estándar de todos los servicios gestionados por `systemd`. Si no se configura un límite estricto, `/var/log/journal` puede crecer decenas de gigabytes.
+
+### 3.1. Diagnóstico y Purga Dinámica de Journalctl
+
+```bash
+# Verificar cuánto espacio consume el journal activo
+journalctl --disk-usage
+
+# Purgar logs manteniendo únicamente los últimos 500 MB
+sudo journalctl --vacuum-size=500M
+
+# Purgar logs manteniendo únicamente los últimos 2 días
+sudo journalctl --vacuum-time=2d
+```
+
+### 3.2. Configuración Permanente en `/etc/systemd/journald.conf`
+
+Para evitar que el journal vuelva a saturar el disco en tu sistema Fedora Asahi o en imágenes base de RHEL, edita `/etc/systemd/journald.conf`:
+
+```ini
+[Journal]
+SystemMaxUse=1G
+SystemKeepFree=2G
+MaxRetentionSec=1month
+```
+Aplica los cambios sin reiniciar el sistema con: `sudo systemctl restart systemd-journald`.
+
+---
+
+## Módulo 4: Archivos de Sistema Enterprise (XFS vs. Btrfs en Fedora Asahi) y LVM
+
+### 4.1. Fedora Asahi Linux (Btrfs): Subvolúmenes y Snapshots
+
+Fedora Asahi utiliza **Btrfs** por defecto, un sistema de archivos *Copy-on-Write* (CoW) moderno que soporta subvolúmenes y snapshots instantáneos.
+
+```bash
+# Diagnóstico de espacio real en Btrfs (incluyendo overhead de metadata)
+sudo btrfs filesystem usage /
+
+# Listar subvolúmenes y snapshots que puedan estar reteniendo bloques antiguos
+sudo btrfs subvolume list /
+
+# Eliminar snapshots antiguos no deseados
+sudo btrfs subvolume delete /.snapshots/snapshot-name
+
+# Desfragmentación y balanceo en caliente (libera bloques CoW fragmentados)
+sudo btrfs balance start -dusage=50 /
+```
+
+### 4.2. RHEL Enterprise (XFS + LVM): Redimensión en Caliente
+
+En Red Hat Enterprise Linux en producción, la norma estándar es **LVM** sobre **XFS**.
+
+#### Característica Crítica de XFS
+> **Nota de Examen / Entrevista:** Los volúmenes en formato **XFS SE PUEDEN EXPANDIR en caliente**, pero **NUNCA SE PUEDEN REDUCIR (shrink)**. Intentar reducir un sistema de archivos XFS destruirá la estructura de datos.
+
+#### Playbook CLI para Expandir un Volumen LVM/XFS en Producción (ej: `/var` lleno):
+
+```bash
+# 1. Verificar espacio disponible en el Volume Group (VG)
+sudo vgs
+
+# 2. Extender el Logical Volume (LV) agregando 20 GB del espacio libre del VG
+sudo lvextend -L +20G /dev/mapper/rhel-var
+
+# 3. Expandir el sistema de archivos XFS en caliente (sin desmontar ni pausar servicios)
+sudo xfs_growfs /var
+
+# Si el sistema de archivos fuera ext4 (en lugar de XFS):
+# sudo resize2fs /dev/mapper/rhel-var
+```
+
+---
+
+## Módulo 5: Playbook de Respuesta a Incidentes P0: Crisis de Disco en Producción
+
+Cuando se recibe un incidente de alerta P0 (`CRITICAL: Disk Space /var 99% Full`):
+
+```
++-------------------------------------------------------------------------------+
+|                        PLAYBOOK DE INCIDENTES P0: DISK FULL                    |
++-------------------------------------------------------------------------------+
+|                                                                               |
+| [PASO 1: ESTABILIZACIÓN RÁPIDA (Mitigación Primaria en < 2 min)]              |
+|   1. Vacuum de Journalctl: sudo journalctl --vacuum-size=200M                 |
+|   2. Limpieza de paquetes dnf/rpm cache: sudo dnf clean all                   |
+|   3. Prune seguro de contenedores: podman system prune -f                     |
+|                                                                               |
+| [PASO 2: DIAGNÓSTICO PROFUNDO DE CAUSA RAÍZ]                                  |
+|   1. Check de Inodos: df -i                                                   |
+|   2. Check de Archivos Eliminados en Uso: sudo lsof +L1                       |
+|   3. Búsqueda de Archivos de Log Gigantes:                                    |
+|      find /var/log -type f -name "*.log" -size +1G                            |
+|                                                                               |
+| [PASO 3: REMEDIACIÓN SIN INTERRUPCIÓN]                                        |
+|   1. Si hay handles abiertos: sudo cp /dev/null /proc/<PID>/fd/<FD>           |
+|   2. Si el volumen LVM tiene margen: sudo lvextend -r -L +10G /dev/vg/lv_var  |
+|                                                                               |
+| [PASO 4: ACCIÓN PREVENTIVA / POST-MORTEM]                                     |
+|   1. Validar política de logrotate en /etc/logrotate.d/                        |
+|   2. Ajustar alianzas de monitoreo Prometheus (alertmanager rule threshold).  |
++-------------------------------------------------------------------------------+
+```
+
+---
+
+## Módulo 6: Banco de Preguntas 
+
+###(Inodos vs. Bloques)
+** "Un desarrollador reporta que su aplicación no puede escribir en `/tmp/app.lock`, arrojando `ENOSPC`. Corres `df -h` y ves que la partición raíz tiene 150 GB libres de 200 GB. ¿Qué revisas inmediatamente y cómo lo solucionas?"*
+
+*"El código de error `ENOSPC` (No space left on device) no solo ocurre por falta de bloques de datos, sino por **agotamiento de inodos**. Correría inmediatamente `df -i /tmp`. Si el uso de inodos está al 100%, buscaría el directorio exacto que contiene acumulación masiva de archivos diminutos usando `find /tmp -type f | cut -d/ -f2-3 | sort | uniq -c | sort -n`. Una vez identificado el origen (por ejemplo, sesiones de aplicación abandonadas o archivos temporales no cerrados), removería los archivos acumulados mediante `find /tmp/unwanted_dir -type f -delete` (el cual es mucho más eficiente en uso de memoria que `rm -rf` cuando hay millones de archivos) y configuraría una tarea cron o un timer de systemd `systemd-tmpfiles` para purgar archivos temporales de más de 24 horas."*
+
+---
+
+### (Unlinked File Descriptors)
+ *"Ejecutaste `rm /var/log/custom-app.log` para liberar espacio de emergencia en un servidor RHEL, pero el comando `df -h` no refleja la liberación de los 40 GB que pesaba ese archivo. No puedes reiniciar la aplicación porque está en hora pico transaccional (ej. PayU Latam). ¿Cómo liberas el disco en vivo?"*
+
+*"Esto ocurre porque el proceso de la aplicación mantiene abierto el descriptor de archivo (unlinked file descriptor), impidiendo que el kernel libere los bloques de datos. Para remediarlo sin reiniciar el servicio:
+1. Identifico el PID del proceso y el número de descriptor de archivo ejecutando `sudo lsof +L1 | grep custom-app.log` o `sudo lsof | grep deleted`.
+2. Obtengo el PID (ejemplo `8834`) y el FD (ejemplo `4`).
+3. Vacío el contenido del archivo directamente desde el sistema de archivos de procesos del kernel ejecutando: `sudo cp /dev/null /proc/8834/fd/4` o `sudo echo "" > /proc/8834/fd/4`. Esto trunca el archivo a 0 bytes en caliente y libera los 40 GB instantáneamente manteniendo la estabilidad de la transacción."*
+
+---
+
+### (LVM & XFS Expansion)
+*"Necesitas extender la partición de `/var` en un cluster de Kubernetes RHEL/OpenShift. El sistema utiliza LVM con XFS. Explícame el procedimiento exacto y qué precauciones debes tener."*
+
+*"La regla de oro en RHEL con XFS es que **XFS solo se puede expandir en caliente, nunca reducir**. El procedimiento seguro en producción consta de tres pasos:
+1. Verificar que el Volume Group tenga espacio extents libre mediante `sudo vgs` o `sudo vgdisplay`.
+2. Extender el volumen lógico (Logical Volume) asignando el espacio adicional o el 100% del espacio libre del VG usando `sudo lvextend -l +100%FREE /dev/mapper/rhel-var`.
+3. Notificar al sistema de archivos XFS para que ocupe el nuevo espacio del volumen lógico ejecutando `sudo xfs_growfs /var`. Al usarse `xfs_growfs`, el proceso se realiza en caliente con los Pods y contenedores operando normalmente sin downtime."*
+
+---
+
+## Glosario Técnico y Comandos de Supervivencia Rápida
+
+| Comando / Herramienta | Función Principal en Producción RHEL / Fedora |
+| :--- | :--- |
+| `df -h` / `df -i` | Diagnóstico de espacio en bloques / inodos por punto de montaje. |
+| `lsof +L1` | Identificación de descriptores de archivos eliminados pero abiertos en RAM. |
+| `journalctl --vacuum-size=X` | Recolección de basura e higienización del log del sistema. |
+| `podman system prune -a` | Purga masiva de capas de imágenes, contenedores y volúmenes dangling. |
+| `btrfs balance start` | Reorganización y liberación de bloques fragmentados en Fedora Asahi. |
+| `lvextend` + `xfs_growfs` | Expansión en caliente de almacenamiento LVM en servidores RHEL. |
+| `gdu` / `ncdu` | Exploración interactiva ultra rápida de directorios pesados. |
+
+---
