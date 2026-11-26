@@ -1,0 +1,26 @@
+Order, Family, Genus, Species, English common name, Spanish common name
+Passeriformes, Thamnophilidae, Gymnopithys, Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco
+Passeriformes, Grallariidae, Grallaria, Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre
+Passeriformes, Furnariidae, Margarornis, Margarornis squamiger, Pearled Treerunner, Subepalo Perlado
+Passeriformes, Furnariidae, Xiphorhynchus, Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva
+Passeriformes, Pipridae, Lepidothrix, Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul
+Passeriformes, Cotingidae, Cephalopterus, Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado
+Passeriformes, Tyrannidae, Tyrannus, Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental
+Passeriformes, Vireonidae, Hylophilus, Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro
+Passeriformes, Donacobiidae, Donacobius, Donacobius atricapilla, Black-capped Donacobius, Angú
+Passeriformes, Hirundinidae, Pygochelidon, Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera
+Passeriformes, Hirundinidae, Stelgidopteryx, Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa
+Passeriformes, Polioptilidae, Ramphocaenus, Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo
+Passeriformes, Troglodytidae, Cantorchilus, Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro
+Passeriformes, Turdidae, Catharus, Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson
+Passeriformes, Turdidae, Turdus, Turdus serranus, Glossy-black Thrush, Mirlo Serrano
+Passeriformes, Passerellidae, Arremon, Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño
+Passeriformes, Icteridae, Psarocolius, Psarocolius decumanus, Crested Oropendola, Cacique Crestado
+Passeriformes, Icteridae, Hypopyrrhus, Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo
+Passeriformes, Icteridae, Leistes, Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja
+Passeriformes, Parulidae, Myioborus, Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada
+Passeriformes, Cardinalidae, Pheucticus, Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado
+Passeriformes, Thraupidae, Chlorophanes, Chlorophanes spiza, Green Honeycreeper, Mielero Verde
+Passeriformes, Thraupidae, Chrysothlypis, Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca
+Passeriformes, Thraupidae, Sporophila, Sporophila corvina, Variable Seedeater, Semillero Corvino
+Passeriformes, Thraupidae, Tangara, Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas

@@ -1,9 +1,9 @@
-# Studyping
+# Pomoudying
 
-Studyping is a static typing-practice app: HTML, CSS, JavaScript, and lesson
+Pomoudying is a static typing-practice app: HTML, CSS, JavaScript, and lesson
 files, with no application build or server-side code. It lives in the Evolving
 Crisis repository as a self-contained module and is shown by the site's
-[Studyping page](../../studyping.markdown).
+[Pomoudying page](../../pomoudying.markdown).
 
 The app has grown beyond a typing field: it now includes saved progress,
 lesson editing and import/export, command-mode navigation, marks and masks,
@@ -15,7 +15,7 @@ together and how to add content without coupling it to the app internals.
 Serve this directory over HTTP while developing:
 
 ```sh
-cd modules/studyping
+cd modules/pomoudying
 python3 -m http.server 8000
 ```
 
@@ -24,7 +24,7 @@ not a reliable test: browsers generally block the `fetch()` requests needed to
 load the lesson manifest and packs.
 
 The Evolving Crisis site publishes the module at
-`/modules/studyping/` and embeds it on `/studyping/`. Keep asset and lesson
+`/modules/pomoudying/` and embeds it on `/pomoudying/`. Keep asset and lesson
 paths relative (`./styles.css`, `lessons/index.json`, and so on) so the app
 works beneath that subpath. Jekyll publishes the static files; it does not
 build the app itself. To host the module elsewhere, serve this directory as
@@ -140,15 +140,15 @@ the visitor's saved version takes precedence.
 ### Visitor data, editing, and exchange
 
 Scores, preferences, custom lessons, marks, masks, and other browser changes
-are stored locally under namespaced `studyping.*` keys. Visitor data is not
+are stored locally under namespaced `pomoudying.*` keys. Visitor data is not
 sent to a server. This keeps the module infrastructure-free, but browser data
 does not follow a visitor to another device. `localStorage` is scoped to an
 origin, not a path, so projects hosted under the same `username.github.io`
-origin share the browser's storage area; the Studyping key prefix helps avoid
+origin share the browser's storage area; the Pomoudying key prefix helps avoid
 collisions.
 
 The Courses drawer has an **Export my stats** button. It downloads a
-`studyping-user-stats.v1` JSON file containing lesson aggregates, completed
+`pomoudying-user-stats.v1` JSON file containing lesson aggregates, completed
 run-by-run results, checkpoint speeds, pause intervals, course/lesson IDs,
 and session summaries. The local user ID is derived from coarse browser-family,
 platform, language, and timezone signals combined with a one-time random value.
@@ -158,14 +158,14 @@ a reliable cross-device identifier; clearing site storage creates a new one.
 The current ID appears in the header before global stats: click it to copy, or
 use the refresh button to generate a new ID from the current browser context.
 Changing it relabels saved local runs to the new ID; if relinking cannot be
-saved, Studyping retries it on the next visit.
+saved, Pomoudying retries it on the next visit.
 A session ID is generated per browser tab session. The export does not include
 lesson text, individual typed characters, or browser/device details. Run history
 begins when this feature is deployed; older activity is represented only by
 existing lesson aggregates.
 
 **Import other stats** accepts one stats export and stores it in a separate
-`studyping.otherUserStats.v1` collection. Imported stats never affect this
+`pomoudying.otherUserStats.v1` collection. Imported stats never affect this
 browser's own scores, averages, lessons, or run history. The user ID is the
 deduplication key: re-importing the same user's file updates matching records
 and retains previously imported sections that are absent from the new file.
@@ -175,11 +175,37 @@ comparison. Malformed optional sections are skipped with a notice; invalid
 files and storage/quota errors are reported without replacing saved peer data.
 Imports do not include or retain top-level browser/device metadata.
 
+The Courses drawer's **Open stats arcade** shows imported snapshots separately
+from local practice. Stats exports in `lessons/` are discovered through the
+generated lesson manifest and loaded automatically on refresh; they are not
+treated as lesson packs. These archive files are public static assets, so only
+add exports you intend to publish. The dashboard combines archive and
+browser-imported records with the same pseudonymous ID into one row, and keeps
+reported course IDs even if their lessons have since disappeared or changed
+names. Counts and histories are self-reported snapshots, not a live user
+database: overlapping exports, retired IDs, and inconsistent totals are
+expected archive artifacts.
+
 Visitors can:
 
+- Search course and lesson titles from the Courses drawer.
 - Create, rename, edit, reorder, or delete lessons in the drawer.
+- Duplicate an existing lesson from its actions menu to create a customizable
+  local copy.
 - Edit text in place with `i` in Command mode. Edits to static or built-in
   lessons are saved as local overrides; the original can be restored.
+- Custom lessons also accept Markdown headings, lists, blockquotes, tables,
+  fenced code, and inline formatting. The editor keeps the Markdown source;
+  block syntax is omitted from the typing passage just as it is for `.txt`
+  lessons in the lesson folder.
+- **Export session changes** downloads the latest versions of lessons created
+  or edited in the current browser-tab session, including local overrides of
+  static lessons. The changed lesson IDs persist across reloads in that tab and
+  reset when its browser session ends.
+- Export selected or session-changed lessons as JSON or as a Markdown bundle.
+  Markdown bundles use `.txt` so Jekyll does not render their source as HTML;
+  use **Import lessons** to import either bundle format or a single `.md`/`.txt`
+  lesson.
 - Export selected lessons to JSON and import them in another browser. Repeated
   imports of identical content are skipped. Conflicts can be updated, skipped,
   or kept as a second lesson with a new ID.
@@ -190,8 +216,25 @@ Visitors can:
   does not include raw browser/device details.
 - Import another user's stats JSON into a separate local collection for future
   comparisons. It is not merged into the current user's own stats.
-- Export their browser data with `Studyping.exportData()` and restore it with
-  `Studyping.importData()`.
+- Browse the stats arcade for imported users, reported practice, and course
+  records retained from the static archive.
+- Export their browser data with `Pomoudying.exportData()` and restore it with
+  `Pomoudying.importData()`.
+
+The header separates **Global stats** (averages, completed runs, and overall
+lesson-results coverage), **Session stats** (live speed, accuracy, elapsed
+time, errors, and typing/reading split for the active run), and **Current
+lesson stats**. The current-lesson card combines position and estimated time
+left in the selected lesson with its saved best speed, accuracy, and completed
+runs. The **Lessons with results** bar counts currently
+available canonical lessons with recognizable saved activity, out of all
+available canonical lessons across custom, static, and built-in sources. Hidden
+lessons and orphaned stats are excluded. The **Lesson position** bar tracks the
+cursor's location through the active lesson. Its percentage is not the
+percentage of text typed, nor a measure of saved results or completed lessons.
+The stats arcade is a separate, playful roll-up of imported snapshots; its
+course archive intentionally includes records for lessons that are no longer
+available.
 
 Deleting a shared or built-in lesson only hides it in that browser. Browser
 edits, aliases, and deletions do not modify repository content. There is no
@@ -239,12 +282,14 @@ attempts. The live dashboard shows session speed, accuracy, elapsed time,
 errors, cursor progress, typing-versus-reading time, and estimated typing time
 remaining. Reading time counts successful `n`/`b` word-navigation intervals;
 idle command time and inline editing are excluded.
+Previous/Next controls beside the keyboard toggle navigate through lessons in
+the drawer's course and lesson order, wrapping at either end.
 
 ### Typing and Command modes
 
 Typing mode accepts lesson characters, including `Enter` and `Tab`. Press
 `Esc` to pause and enter Command mode; press `t` or use the Type button to
-return to typing. An **Esc commands** switch can disable Studyping's Escape
+return to typing. An **Esc commands** switch can disable Pomoudying's Escape
 handling. Escape dismisses an open dialog, completion card, or drawer before
 changing modes, and is not captured from unrelated interactive controls.
 
@@ -257,7 +302,8 @@ of history. Uppercase commands are case-sensitive.
 | `n` / `b` | Move to the next / previous word |
 | `N` / `B` | Queue the next / previous word for deletion; reversing direction adjusts the same selection |
 | `D` / `q` | Delete queued ranges / clear the queue |
-| `dw`, `x`, `Backspace` | Delete the current word, character, or previous word |
+| `dw` / `d3w` | Delete the current word or the next 3 words (`d<number>w` accepts any positive count) |
+| `x`, `Backspace` | Delete the character or previous word |
 | `cw` | Delete the current word and begin editing in its place |
 | `u` / `r` | Undo / redo a template edit |
 | `:1234` then `Enter` | Jump to character position 1234 (zero-based) |
@@ -316,10 +362,10 @@ holds the verdict until the composed character is known.
 
 ## Integration API
 
-The browser API is available as `window.Studyping`:
+The browser API is available as `window.Pomoudying`:
 
 ```js
-Studyping.addLesson({
+Pomoudying.addLesson({
   title: "My Drill",
   course: "My Lessons",
   text: "A short practice passage.",
@@ -327,7 +373,7 @@ Studyping.addLesson({
   targetAccuracy: 96
 });
 
-Studyping.on("lessonComplete", event => {
+Pomoudying.on("lessonComplete", event => {
   console.log(event.detail.stats);
 });
 ```
@@ -351,4 +397,4 @@ to remove a listener. `TypingStudio` remains an alias for older integrations.
 - **A change is visible only in one browser:** app edits are local overrides;
   update the source pack to publish a change to everyone.
 - **A path breaks after deployment:** use relative URLs so assets continue to
-  resolve under `/modules/studyping/`.
+  resolve under `/modules/pomoudying/`.

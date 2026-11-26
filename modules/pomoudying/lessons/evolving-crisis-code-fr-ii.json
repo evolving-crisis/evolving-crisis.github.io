@@ -1,0 +1,95 @@
+{
+  "course": "Comprendre Evolving Crisis",
+  "courseId": "evolving-crisis-code-fr",
+  "order": 1,
+  "lessons": [
+    {
+      "id": "evolving-crisis-code-intro",
+      "title": "01 · D'un exercice à un système",
+      "order": 1,
+      "targetWPM": 24,
+      "targetAccuracy": 94,
+      "text": "Une revue de code commence par le système présent, pas par le souvenir d'une version plus simple. Studyping reste une page statique, mais ses responsabilités se sont étendues : charger des cours, mémoriser une progression, modifier le texte, importer des données, annoter des passages et mesurer une séance. Chaque ajout répond à un besoin et crée de nouveaux points de contact. C'est ici que les crises de conception apparaissent : deux fonctions raisonnables peuvent se gêner lorsqu'elles partagent le focus, le curseur ou le stockage. La question utile n'est donc pas « cette fonctionnalité marche-t-elle seule ? », mais « que peut-elle perturber autour d'elle ? ». Ce parcours lit l'application comme une suite de compromis vérifiables, non comme un récit imaginaire de commits."
+    },
+    {
+      "id": "evolving-crisis-code-startup",
+      "title": "02 · Le démarrage a un contrat",
+      "order": 2,
+      "targetWPM": 26,
+      "targetAccuracy": 95,
+      "text": "Au démarrage, init lit les préférences, charge le manifeste lessons/index.json, récupère les packs, puis choisit la leçon à afficher. L'ordre est important : rendre l'interface avant la fin du chargement peut présenter une liste vide ou sélectionner la mauvaise leçon. Une dernière leçon mémorisée passe avant DEFAULT_LESSON_ID ; ce dernier sert au premier choix, puis la première leçon disponible constitue le recours final. Le manifeste existe parce qu'un hébergement statique ne sait pas énumérer un dossier. Dans ce dépôt, DEFAULT_COURSES est vide : si le manifeste ou le pack échoue, il n'y a pas de contenu intégré de secours. Revue : tester le chemin heureux ne suffit pas ; vérifier aussi les fichiers manquants, la réponse HTTP et l'ordre réel des opérations."
+    },
+    {
+      "id": "evolving-crisis-code-boundaries",
+      "title": "03 · Des responsabilités dans un seul fichier",
+      "order": 3,
+      "targetWPM": 27,
+      "targetAccuracy": 95,
+      "text": "app.js n'est pas découpé en modules ES, mais il n'est pas pour autant une fonction géante. TypingEngine tient le texte, le curseur et les mesures ; TextView dessine le texte ; KeyboardView et StatsView rendent leurs vues ; App orchestre les événements et les services du navigateur. Cette organisation sépare des responsabilités sans ajouter de chaîne de compilation. Elle a aussi un coût : les composants partagent un même fichier et leurs contrats restent conventionnels. En revue, chercher où une donnée est calculée, où elle est stockée et qui la rend aide à éviter un deuxième état caché dans le DOM. Un découpage devient utile quand il clarifie ces frontières, pas seulement quand le fichier paraît long."
+    },
+    {
+      "id": "evolving-crisis-code-events",
+      "title": "04 · Un moteur, plusieurs réactions",
+      "order": 4,
+      "targetWPM": 28,
+      "targetAccuracy": 95,
+      "text": "TypingEngine publie des événements tels que start, keystroke, error, checkpoint et complete. App s'abonne au moteur, met à jour le rendu et republie des événements utiles aux intégrations. Ce flux évite de faire dépendre le calcul de frappe de chaque panneau de l'interface. Il impose toutefois une discipline : l'événement doit décrire un fait déjà survenu, et son détail doit rester assez clair pour ses abonnés. Si une même saisie met à jour le moteur, le DOM et le stockage par des chemins concurrents, une crise de synchronisation guette. Revue : suivre une frappe correcte et une erreur de bout en bout ; vérifier qui change le curseur, qui peint le caractère et quand les statistiques deviennent visibles."
+    },
+    {
+      "id": "evolving-crisis-code-text",
+      "title": "05 · Le texte est plus que des glyphes",
+      "order": 5,
+      "targetWPM": 29,
+      "targetAccuracy": 95,
+      "text": "Un texte d'exercice contient des caractères, mais aussi des retours de ligne, des tabulations, des accents composés et parfois une syntaxe Markdown. Le moteur normalise les chaînes en NFC afin qu'un accent saisi comme un seul caractère corresponde à la leçon. Pendant une composition au clavier, le résultat reste provisoire jusqu'à l'arrivée de la lettre qui ferme l'accent. L'édition dans la page ajoute une autre contrainte : après une modification, le curseur doit reprendre à un endroit compréhensible, notamment si du texte déjà saisi a changé. Revue : ne pas confondre position visible et position dans la source formatée. Les transformations doivent préserver le lien entre le texte rendu, le modèle et les annotations."
+    },
+    {
+      "id": "evolving-crisis-code-storage",
+      "title": "06 · Persister sans serveur",
+      "order": 6,
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "text": "Les packs dans le dépôt sont la source partagée ; localStorage conserve les choix privés du navigateur : cours personnalisés, préférences, résultats, marques et remplacements. Les clés studyping.* isolent les données de l'application, mais ne les synchronisent pas entre appareils. L'export et l'import forment donc une passerelle explicite. Un import ne doit pas créer silencieusement deux leçons portant le même identifiant : les contenus identiques sont ignorés et les conflits proposent une décision. C'est un compromis utile entre une page sans serveur et la portabilité des données. Revue : distinguer « enregistré dans ce navigateur » de « publié pour tout le monde ». Si un changement doit devenir partagé, il appartient au pack versionné, pas au stockage local."
+    },
+    {
+      "id": "evolving-crisis-code-identity",
+      "title": "07 · Les identifiants portent la mémoire",
+      "order": 7,
+      "targetWPM": 31,
+      "targetAccuracy": 95,
+      "text": "Un identifiant de leçon relie le contenu à ses scores, sa position, ses annotations et ses remplacements. Changer seulement le titre est sans danger pour ces liens ; changer l'identifiant demande de migrer la mémoire associée. Les alias enregistrés localement permettent de renommer une leçon statique sans modifier le fichier du dépôt. Le cours a lui aussi un identifiant distinct de son titre : il peut garder une identité stable même si son nom change. Le tri, lui, utilise des ordres explicites ou une séquence de cours enregistrée par la personne. Revue : vérifier les collisions, les exports et le prochain chargement après un renommage. Une étiquette lisible et une clé durable sont deux responsabilités différentes."
+    },
+    {
+      "id": "evolving-crisis-code-commands",
+      "title": "08 · Des commandes comme transactions",
+      "order": 8,
+      "targetWPM": 32,
+      "targetAccuracy": 95,
+      "text": "Le mode Commande transforme le clavier en interface d'édition. N et B placent des suppressions en attente ; D les applique ensemble, tandis que q abandonne la sélection. Les opérations x, dw et Backspace modifient directement le modèle. L'historique conserve un nombre et une taille bornés d'étapes ; u et r restaurent le texte et la position. Ces détails font d'une suppression une petite transaction plutôt qu'une mutation invisible. Revue : suivre le texte, le curseur, les marques ouvertes et les plages en attente pendant une édition. Une annulation qui restaure les caractères mais pas le contexte n'est pas une vraie restauration. Le mode Typing demeure séparé pour que Entrée et Tab restent des caractères de la leçon."
+    },
+    {
+      "id": "evolving-crisis-code-memory",
+      "title": "09 · Se souvenir sans révéler",
+      "order": 9,
+      "targetWPM": 33,
+      "targetAccuracy": 96,
+      "text": "Une marque conserve un passage à relire ; un masque le cache pour le rappeler de mémoire. Les deux partagent le stockage, mais pas le rendu ni l'objectif. Une réponse fausse sous un masque ne doit pas révéler le caractère attendu par une animation ou une indication du clavier. Les marques peuvent aussi porter des figures : quand une figure prend la scène principale, la zone de frappe passe en incrustation. Ici, un détail d'architecture évite une crise de focus : le champ de saisie reste hors de la scène déplacée dans le DOM, sinon le déplacement pourrait le flouter et interrompre le chronomètre. Revue : désactiver chaque option, vérifier les transitions et s'assurer qu'un masque ne fuit jamais sa réponse."
+    },
+    {
+      "id": "evolving-crisis-code-time",
+      "title": "10 · Mesurer le temps équitablement",
+      "order": 10,
+      "targetWPM": 34,
+      "targetAccuracy": 96,
+      "text": "Une vitesse n'a de sens que si le temps mesuré correspond au travail demandé. Studyping met en pause la séance quand l'onglet est masqué, quand la fenêtre perd le focus, quand le champ de saisie est flouté ou après trente secondes d'inactivité. Le temps passé loin de la page ne pénalise pas le résultat ; reprendre demande une action explicite et la touche de réveil n'est pas saisie. Le tableau distingue également les intervalles de frappe et de lecture : la navigation entre mots peut compter comme lecture, mais l'attente et l'édition sont exclues. Revue : tester les changements de visibilité, le retour de focus et les compositions de clavier. Les statistiques sont une règle produit, pas une simple formule."
+    },
+    {
+      "id": "evolving-crisis-code-review",
+      "title": "11 · Revue finale : contenir la complexité",
+      "order": 11,
+      "targetWPM": 35,
+      "targetAccuracy": 96,
+      "text": "La crise récurrente d'une application qui grandit n'est pas le nombre de fonctionnalités, mais leurs interactions. Un import touche les identifiants ; une édition touche le curseur et les marques ; une figure touche la disposition et le focus ; une pause touche le temps et la reprise. La réponse n'est pas de masquer ces liens, mais de rendre les responsabilités observables et les transitions explicites. Avant d'ajouter un bouton, nommez l'état qu'il change, l'événement qui le déclenche, le rendu qui en dépend et la donnée qui survit au rechargement. Puis vérifiez le cas d'échec et le chemin de retour. Une bonne évolution laisse l'application plus facile à raisonner, même si elle possède davantage de capacités."
+    }
+  ]
+}

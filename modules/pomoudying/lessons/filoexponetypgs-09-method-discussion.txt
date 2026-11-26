@@ -1,0 +1,34 @@
+---
+id: filoexponetypgs-09
+title: "09 - Discussion: Comparing Paralog Methods"
+course: "Target Capture Phylogenomics"
+order: 90
+targetWPM: 30
+targetAccuracy: 95
+---
+
+## 4. Discussion
+
+
+
+### 4.1. Comparing paralogs flagged across methods
+
+
+
+We used the *Sindora glabra* reference genome to verify the paralog status of the genes studied and compared other similarity-based methods of paralog detection using this information. We consider this reference genome approach to be the most objective and replicable benchmark currently available, but it may be the case that the paralog status of different species may differ from the reference, especially as species are more evolutionarily distant from it, or that paralogous gene copies may not have been successfully recovered. To mitigate this issue of phylogenetic distance from our *Sindora glabra* reference genome, we limited our comparisons of paralogs identified to taxa within the *Sindora* clade. The reference genome approach contrasts with the other methods of paralog detection studied here, which make use of "in-silico" characteristics such as heterozygosity or gene tree topologies. Other studies comparing the accuracy of paralog detection methods used visual observation of gene alignments to estimate the true paralog status, which has the potential to introduce a certain degree of subjectivity in the paralog assignments.
+
+#### 4.1.1. Built-in paralog identification scripts from assembly pipelines
+
+
+
+CAPTUS flagged more potential paralogs than HybPiper (Figs. 3 & 4), but not all of these may be true paralogs, because they may instead be alleles. The greater recovery of genes with paralogs in CAPTUS could be due to the completely de novo read assembly compared to HybPiper's partially reference-guided approach. CAPTUS may therefore allow more divergent or low coverage paralog sequences to be recovered, reducing the incidence of "artifactual orthologs" where the "differential assembly of copies in a multicopy gene results in the recovery of non-orthologous sequences for a given locus across taxa". In HybPiper, the paralog reads may also have been sequenced but incorporated into the sequences of the main copies, generating chimeric sequences in the process (Supplementary Fig. 10A). Chimeric sequences refer to assemblies which contain sequence data from more than one gene copy, for instance by stitched contigs where exons of different copies are combined to produce the final assembly, and alternatively by "over-lumping", where two or more copies of the same gene or exon are used to produce the final assembly which contains sequence variation from each copy used. Chimeric sequences were also present in the CAPTUS output, but to a lesser extent than HybPiper (Supplementary Fig. 10B).
+
+#### 4.1.2. PPD-based methods
+
+
+
+When compared to the paralogs flagged using HybPiper and CAPTUS, PPD run on the HybPiper assembled sequences was the most accurate in terms of its similarity to the results of the reference genome-guided BLAST search, although this was followed closely by CAPTUS. The similarity in accuracy was unexpected given the large difference in number of paralogous genes flagged by PPD and CAPTUS (41 vs 195) from samples within the *Sindora* clade. The PPD method was less sensitive than CAPTUS because it did not find as many genes with paralogs, but was highly specific. That is, genes identified as paralogous through PPD were also found to be paralogous based on the BLAST search. CAPTUS, on the other hand, found many putatively paralogous genes, but some of these were not identified as paralogous according to the BLAST search. While some of them could be orthologous genes rather than genes with paralogs, it is also possible that these "false positives" from CAPTUS were in fact paralogs in non-*Sindora* taxa because the BLAST search is based only on the single reference species *Sindora glabra*.
+
+While PPD was more accurate in terms of similarity in paralog flagging to the BLAST search compared to HybPiper and CAPTUS, we had to modify several of the PPD running parameters to suit our two study groups of the *Sindora* clade and the Detarioideae subfamily. Both of these have a broader taxonomic spread than the genus-level analyses carried out in the original PPD paper. Firstly, we modified the `bwa-mem` $k$-value from the default of 100 to 19, which allowed more potentially paralogous genes to be flagged (Table 3), by allowing reads from both the main gene copy and also the paralogs to be mapped. Higher values of $k$ (such as $k=100$) might be useful for paralogs which differ in just a few nucleotides, whereas the paralogs within the Detarioideae or the *Sindora* clade exhibit larger differences (e.g., longer indels or more SNPs) where paralog reads could be excluded with such a high $k$ value. *Castanea* (Fagaceae), previously used as an exemplar, is a genus with a history of small-scale genome duplications, whereas in Detarioideae there is a whole genome duplication event common to the entire subfamily. The difference in time scale for these duplication events, and the selection pressures exerted on the duplicated genes, would differ between *Castanea* and Detarioideae, resulting in different paralog characteristics.
+
+PPD can be an effective method for finding paralogous genes provided that the parameters are suited to the taxonomic span of the dataset and with a suitable `bwa mem` $k$ value for the nature of paralogs present in the data. With the default parameters, the pipeline did not manage to identify any paralogs at all (Table 3), which was unusual given that both the default HybPiper and CAPTUS pipelines identified much higher numbers of genes with paralogs. We suggest that as a first pass, the number of paralogs identified from HybPiper or CAPTUS can be used to guide the optimisation of parameters for running PPD.

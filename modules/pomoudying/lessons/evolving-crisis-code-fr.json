@@ -1,0 +1,62 @@
+{
+  "course": "Comprendre Evolving Crisis",
+  "order": 1,
+  "lessons": [
+    {
+      "id": "evolving-crisis-code-intro",
+      "title": "01 · Le plan du module",
+      "order": 1,
+      "targetWPM": 24,
+      "targetAccuracy": 94,
+      "text": "Bienvenue dans une visite guidée du module Studyping. Son but est simple : pratiquer la frappe tout en lisant du code réel. Le projet est un site statique : HTML décrit la structure, CSS décrit l'apparence, JavaScript décrit le comportement, et les fichiers JSON portent les leçons. Il n'y a pas de serveur applicatif ni d'étape de compilation. Cette contrainte est un choix pédagogique : chaque fichier reste lisible, copiable et modifiable. Défi : repérer la frontière entre contenu et programme. Ici, une leçon est une donnée ; l'application qui l'affiche est le programme."
+    },
+    {
+      "id": "evolving-crisis-code-html",
+      "title": "02 · La structure HTML",
+      "order": 2,
+      "targetWPM": 26,
+      "targetAccuracy": 95,
+      "text": "Dans index.html, la page commence par un en-tête, une navigation, une zone de travail et un tiroir de cours. Les identifiants donnent à JavaScript des points d'ancrage stables : app, drawer, stage, textDisplay et caret. Les classes décrivent plutôt le style partagé : topbar, icon-btn et lesson-head. Cette séparation est importante. Un id sert au comportement et une classe sert souvent à l'apparence. Interlude de frappe : <main id=\"stage\" class=\"stage\"><div id=\"textDisplay\" class=\"text-display\"></div></main> Remarquez la petite décision d'accessibilité : les boutons ont une aria-label quand leur icône seule ne suffit pas."
+    },
+    {
+      "id": "evolving-crisis-code-css",
+      "title": "03 · Le design qui s'adapte",
+      "order": 3,
+      "targetWPM": 27,
+      "targetAccuracy": 95,
+      "text": "Le fichier styles.css organise une interface dense sans framework. Les variables de couleur rendent le thème cohérent ; flex et grid répartissent l'espace ; les media queries adaptent le tiroir et la barre supérieure aux petits écrans. Le choix du CSS natif réduit les dépendances et permet de comprendre le rendu. Le défi consiste à préserver la hiérarchie visuelle quand la fenêtre rétrécit. Interlude de frappe : .stage { display: grid; min-width: 0; } @media (max-width: 800px) { .drawer { position: fixed; } } Une règle courte peut protéger toute une interface contre le débordement horizontal."
+    },
+    {
+      "id": "evolving-crisis-code-state",
+      "title": "04 · L'état et le cycle de vie",
+      "order": 4,
+      "targetWPM": 29,
+      "targetAccuracy": 95,
+      "text": "Dans app.js, l'objet d'état centralise la leçon courante, la position du curseur, les erreurs, le chronomètre et le mode de commande. Les fonctions lisent cet état puis rendent l'interface à partir de lui. Cette approche évite de laisser des valeurs contradictoires dans plusieurs éléments HTML. Au démarrage, init charge les préférences, récupère les packs JSON, choisit la leçon et dessine la barre latérale. Le défi est l'ordre des opérations : afficher trop tôt une leçon par défaut provoquerait un clignotement et pourrait écraser le choix attendu. Interlude de frappe : const lesson = this.findLesson(DEFAULT_LESSON_ID); if (lesson) this.loadLesson(lesson);"
+    },
+    {
+      "id": "evolving-crisis-code-data",
+      "title": "05 · Les données et la persistance",
+      "order": 5,
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "text": "Les packs de leçons sont des tableaux JSON versionnés avec Git. Le manifeste lessons/index.json indique quels fichiers charger, car un hébergement statique ne peut pas lister un dossier. Les résultats, préférences, marques et leçons personnelles sont sauvegardés dans localStorage. La stratégie est volontairement locale : aucune donnée de visiteur ne part vers un serveur. En contrepartie, les données ne suivent pas la personne sur un autre navigateur. Défi : distinguer une source partagée, le dépôt, d'une source privée, le navigateur. Interlude de frappe : fetch('lessons/index.json').then(response => response.json());"
+    },
+    {
+      "id": "evolving-crisis-code-engine",
+      "title": "06 · Le moteur de frappe",
+      "order": 6,
+      "targetWPM": 31,
+      "targetAccuracy": 95,
+      "text": "Chaque touche compare la saisie attendue au caractère reçu. Le moteur avance si le caractère est correct, marque une erreur sinon, puis met à jour le curseur et les statistiques. Les commandes comme n, b, u et r forment une petite couche inspirée des éditeurs de texte : elle transforme une pratique de frappe en navigation active. Le choix d'un bus d'événements et d'une API publique permet d'ajouter une interface ou une gamification sans réécrire le moteur. Défi : ajouter une fonctionnalité sans mélanger calcul, stockage et rendu. Interlude de frappe : if (event.key === expected) { this.advance(); } else { this.recordError(); }"
+    },
+    {
+      "id": "evolving-crisis-code-challenge",
+      "title": "07 · Défi : modifier sans casser",
+      "order": 7,
+      "targetWPM": 32,
+      "targetAccuracy": 96,
+      "text": "Défi final : proposez mentalement une modification du module. Par exemple, ajouter un bouton pour masquer le chronomètre, créer une leçon bilingue ou afficher le meilleur score. Commencez par nommer l'état nécessaire, puis l'événement qui le modifie, puis le rendu qui doit changer. Enfin, pensez au stockage et au clavier. Une bonne modification est petite, testable et réversible. À retenir : une interface claire vient d'une structure claire ; une structure claire vient de responsabilités séparées. Interlude de frappe : function toggleTimer() { state.showTimer = !state.showTimer; render(); } Le but n'est pas de taper vite, mais de comprendre pourquoi chaque ligne existe."
+    }
+  ]
+}

@@ -5,7 +5,7 @@ const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'he
 if (isEmbed) document.body.classList.add('embed');
 
 const CFG = {
-  brand: '420 pb radio chaïto',
+  brand: '420 pb chaïto',
   playlist: [
     { title: 'Black holes', src: null, dur: 90, type: 'voice' },
     { title: 'The DNA suite', src: null, dur: 90, type: 'music' },
@@ -134,6 +134,8 @@ function synth(type) {
 let idx = 0;
 let live = true;
 let playing = false;
+let animationFrame = 0;
+let progressTimer = null;
 let startedAt = 0;
 let endTimer = null;
 function whatsOn() {
@@ -174,18 +176,33 @@ function advance() {
 }
 function ui() {
   $('ic').setAttribute('d', playing ? 'M7 5h4v14H7zm6 0h4v14h-4z' : 'M8 5v14l11-7z');
-  $('play').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  $('play').setAttribute('aria-label', playing ? 'Pause' : 'Tune in');
   bar.classList.toggle('on', playing);
+  document.body.classList.toggle('awake', playing);
+  document.body.classList.toggle('playing', playing);
   $('live').classList.toggle('is', live && playing);
   const now = $('now');
-  const text = (live && playing ? '● ' : '') + L[idx].title + ' · ' + L[idx].type;
+  const text = playing
+    ? (live ? '● ' : '') + L[idx].title + ' · ' + L[idx].type
+    : 'a quiet frequency · tap to tune in';
   now.firstChild.textContent = text;
-  now.classList.toggle('scroll', text.length > 22);
+  now.classList.toggle('scroll', playing && text.length > 22);
+  if (playing) {
+    if (!progressTimer) progressTimer = setInterval(updateProgress, 500);
+    startVisualization();
+  } else {
+    clearInterval(progressTimer);
+    progressTimer = null;
+    $('prog').style.width = '0';
+    stopVisualization();
+  }
 }
 $('play').onclick = () => {
   if (playing) { stopCurrent(); playing = false; ui(); }
-  else if (live) { const current = whatsOn(); load(current.i, current.off); }
-  else load(idx, 0);
+  else {
+    if (live) { const current = whatsOn(); load(current.i, current.off); }
+    else load(idx, 0);
+  }
 };
 window.addEventListener('message', event => {
   if (event.origin !== window.location.origin || event.source !== window.parent ||
@@ -199,13 +216,12 @@ window.addEventListener('message', event => {
     ui();
   }
 });
+function updateProgress() {
+  $('prog').style.width = playing ? Math.min(100, (Date.now() - startedAt) / 10 / L[idx].dur) + '%' : '0';
+}
 $('next').onclick = () => { live = false; load((idx + 1) % L.length, 0); };
 $('prev').onclick = () => { live = false; load((idx - 1 + L.length) % L.length, 0); };
 $('live').onclick = () => { live = true; const current = whatsOn(); load(current.i, current.off); };
-ui();
-setInterval(() => {
-  $('prog').style.width = playing ? Math.min(100, (Date.now() - startedAt) / 10 / L[idx].dur) + '%' : '0';
-}, 500);
 
 const cv = $('viz');
 const c = cv.getContext('2d');
@@ -232,7 +248,8 @@ function band(a, b) {
   return max / 255;
 }
 function frame() {
-  requestAnimationFrame(frame);
+  animationFrame = 0;
+  if (!playing) return;
   c.clearRect(0, 0, W, H);
   const mode = S.mode === 'auto' ? L[idx].type : S.mode;
   const accent = S.accent;
@@ -283,6 +300,18 @@ function frame() {
       c.fillRect(x, H - (Math.round(peaks[i]) + 1) * (segment + segmentGap) + segmentGap, barWidth, 2);
     }
   }
+  animationFrame = requestAnimationFrame(frame);
 }
+function startVisualization() {
+  if (!animationFrame && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    fit();
+    animationFrame = requestAnimationFrame(frame);
+  }
+}
+function stopVisualization() {
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  animationFrame = 0;
+  c.clearRect(0, 0, W, H);
+}
+ui();
 applyCfg();
-frame();

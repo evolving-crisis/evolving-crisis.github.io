@@ -1,0 +1,28 @@
+---
+id: filoexponetypgs-08
+title: "08 - Results: Gene Trees and Topology Comparisons"
+course: "Target Capture Phylogenomics"
+order: 80
+targetWPM: 30
+targetAccuracy: 95
+---
+
+### 3.7. Visualising the topology of all gene trees for each dataset with DensiTree
+
+
+
+The gene trees agreed for most taxa, but within *Sindora*, *Copaifera* and *Daniellia*, the topologies were incongruent. This can be seen in the DensiTree plots, such as in the one for the CAPTUS dataset (Fig. 7, Supplementary Fig. 8a–i), where the topologies for *Sindora*, *Copaifera* and *Daniellia* appear as a diffuse cloud unlike the other genera with clear topologies shared by most gene trees.
+
+*Fig. 7. DensiTree plot showing alternative gene tree topologies for the "CAPTUS" dataset.*
+
+### 3.8. Visualising differences in overall species tree topologies for various methods and datasets
+
+
+
+The largest differences (Axis 1, Fig. 8) in the Treespace plot were due to whether original sequence alignments were used or whether they were modified to have paralogous regions or sequences removed using the PPD trimming or the Y&S pipeline. However, this only applied to the HybPiper-based datasets, and for the CAPTUS datasets the topologies of all datasets were largely similar regardless of whether the alignments were modified as part of the Y&S pipeline. The next largest difference in Axis 2 (Fig. 8) was the split between concatenation-based IQ-TREE species trees and coalescent-based ASTRAL species trees, although the concatenated tree for the dataset "HybPiper_PPDdegentrimmedrem77" was an anomaly in that it appeared close to the other HybPiper PPD-trimmed coalescent-based ASTRAL trees (Fig. 8).
+
+*Fig. 8. Treespace plot across all trees using the "nNodes" method. Concatenated species trees are in green, with HybPiper datasets in light green and CAPTUS datasets in dark green. ASTRAL species trees are in blue, with HybPiper datasets in light blue and CAPTUS datasets in dark blue.*
+
+Species tree topologies compared using tanglegrams were largely similar across key comparisons (Supplementary Figs. 9a–k). In the comparison between the HybPiper dataset and the HybPiper dataset with paralogous genes removed ("HybPiper RemovedPPD77paralogs"), the two trees were completely identical (Supplementary Fig. 9a). For the comparison of the CAPTUS tree with the Yang & Smith-modified CAPTUS trees, the differences were limited to the species level in *Sindora* and *Daniellia*. However, in the comparisons of the HybPiper with the PPD- or Yang & Smith-modified datasets, there were differences at the tribe level relationships between Schotieae and Barnebydendreae (Supplementary Figs. 9b, c, d, e).
+
+The comparison of HybPiper and CAPTUS-generated trees (Supplementary Fig. 9h) showed that the trees were highly similar with only species-level differences in *Sindora*. When ASTRAL and concatenated tree topologies were compared with each other (Supplementary Figs. 9i, j, k), the differences involved both species-level changes in genera such as *Sindora*, *Tessmannia*, *Guibourtia*, and also at the tribe level involving the placement of Schotieae and Barnebydendreae.

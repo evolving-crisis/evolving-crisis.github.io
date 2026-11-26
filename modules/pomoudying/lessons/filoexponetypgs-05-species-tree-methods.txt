@@ -1,0 +1,86 @@
+---
+id: filoexponetypgs-05
+title: "05 - Species Tree Methods"
+course: "Target Capture Phylogenomics"
+order: 50
+targetWPM: 30
+targetAccuracy: 95
+---
+
+### 2.5. Comparison of species tree topologies
+
+
+
+A total of nine comparative analyses were performed, with different combinations of the number of genes included, assembly method, and paralog handling method, to evaluate the impact of these parameters on species tree topologies. These involve using the sequences from the entire set of 88 samples, and the flowchart of all methods is detailed in Fig. 2 and Table 1.
+
+After the sequences were compiled, and paralogs ignored, removed or incorporated, short sequences of less than 25% of the average length were removed, and genes with less than 10 taxa present (out of 88 taxa in total) were removed from the analysis. For each gene, sequences were aligned with MAFFT v7.515 using `-maxiterate 1000`, and alignments were trimmed with TrimAl v1.4.rev15 to remove columns containing more than 75% gaps.
+
+#### 2.5.1. Coalescent-based species tree inference
+
+
+
+From the trimmed alignments, gene trees were generated using IQ-TREE v.2.2.2.3 with ModelFinder for automatic model selection and 1000 ultrafast bootstrap replicates. TreeCollapseCL4 v3.0 was used to collapse nodes with less than 10% bootstrap support in the gene trees. TreeShrink v.1.3.9 was also run with default settings, while retaining outgroup tips, to remove tips with unusually long branch lengths which may be the result of misassembled sequences. ASTRAL v.5.7.8 was used to generate the coalescent-based species tree.
+
+#### 2.5.2. Species tree inference from concatenated gene matrix
+
+
+
+For each analysis, the post-TreeShrink alignments were concatenated using `AMAS.py` and a concatenated species tree was generated using IQ-TREE with individual genes as the partitions, `MFP + Merge` for the partition selection and 1000 ultrafast bootstrap replicates.
+
+#### 2.5.3. Comparing species tree topologies
+
+
+
+To compare the topologies of all trees, the `treespace` v.1.1.4.3 R package was used. `Treespace` uses a combination of topology and branch lengths to represent each phylogenetic tree as points in two-dimensional space. As the branch lengths of the ASTRAL trees and concatenated trees are not comparable, the `nNodes` method, based on the "Steel & Penny tip-tip path difference metric", was used in `treespace` to summarise the trees as a vector based solely on topology, while ignoring branch lengths. Each ASTRAL and concatenated analysis tree file was converted to the newick format and included as one of the inputs to the `treespace` programme.
+
+*Fig. 2. Flowchart of the nine datasets used for comparing the species tree topologies. HybPiper-based datasets are displayed in purple and CAPTUS-based analyses are displayed in green. The labels on the datasets correspond to their order in Table 1.*
+
+**Table 1.** Analyses performed with details on the assembly method and method of paralog handling.
+
+| Dataset Name | Assembly | Paralog handling method |
+| --- | --- | --- |
+| a) HybPiper | HybPiper | None
+
+ |
+| b) HybPiper RemovedPPD77paralogs | HybPiper | Alignments from the 77 paralogous genes identified by PPD removed
+
+ |
+| c) HybPiper PPDdegentrimmed Rem77 | HybPiper | Alignments trimmed by PPD to remove paralogous regions, and removed 77 paralogous genes identified by PPD
+
+ |
+| d) HybPiper PPDdegentrimmed | HybPiper | Alignments trimmed by PPD to remove paralogous regions
+
+ |
+| e) HybPiper Y&S MO | HybPiper | Assembled sequences processed by the Y&S MO pipeline to retain only orthologous sequences
+
+ |
+| f) HybPiper Y&S RT | HybPiper | Assembled sequences processed by the Y&S RT pipeline to separate and incorporate paralogous sequences
+
+ |
+| g) CAPTUS | CAPTUS | None
+
+ |
+| h) CAPTUS Y&S MO | CAPTUS | Assembled sequences processed by the Y&S MO pipeline to retain only orthologous sequences
+
+ |
+| i) CAPTUS Y&S RT | CAPTUS | Assembled sequences processed by the Y&S RT pipeline to separate and incorporate paralogous sequences
+
+ |
+
+#### 2.5.4. Assessing support for alternative topologies
+
+
+
+Using the ASTRAL tree topology and the concatenated gene alignments, Quartet Sampling v.1.3.1.b was run, using the `raxml-ng` engine and the settings `-reps 100 --threads 4 --lnlike 2`, with the partition file provided to the `-genetrees` parameter. The output included the Quartet Concordance (QC), which measures the extent of gene tree incongruence; Quartet Differential (QD), which indicates if discordant quartets occur in equal proportions, or if one is favoured over the other; and Quartet Informativeness (QI), which assesses if the data was informative enough or if there was a lack of signal. These results were used to determine if poorly supported nodes from bootstrap values or concordance factor analyses were due to a lack of signal, or the presence of conflicting topologies, and if these were due to incomplete lineage sorting or reticulate evolution.
+
+#### 2.5.5. Visualising the topology of all gene trees
+
+
+
+To visualise the conflict between all gene trees, DensiTree implemented using the `ggdensitree` command in the R (v. 4.4.2) package `ggtree` was used to plot all rooted gene tree topologies onto the same plot. To keep the length of the trees the same across all gene trees, each gene tree was made ultrametric with the `chronos` function in the `ape` package v.5.8. The DensiTree plots were prepared for all datasets (consisting of 88 taxa each).
+
+#### 2.5.6. Pairwise comparisons of tree topologies
+
+
+
+To examine the differences between phylogenetic trees, pairwise comparisons were also made by plotting tanglegrams, where two trees are plotted side by side and differences in the order of the taxa are indicated by lines connecting the two trees. Tanglegrams were made using the `cophylo` function of the R package `phytools` 2.3.0 with individual phylogenetic trees in the newick format as the input. The ASTRAL coalescent-based species trees were used for the tanglegram comparisons as their topology was more consistent than in the concatenated species trees.

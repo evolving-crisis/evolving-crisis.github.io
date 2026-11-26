@@ -1,0 +1,113 @@
+
+---
+
+# 🦉 Guion de Presentación: Neuroetología de la Localización del Sonido en Aves
+
+**Propósito:** Presentación oral académica para Ornitología (UdeA).  
+**Duración aproximada:** 12 a 15 minutos.  
+
+---
+
+### **1. Introducción y Saludo (¡Parar la oreja en el monte!)**
+
+> *"¡Buenas tardes, muchachos y profe! ¿Cómo van?*
+>
+> *Hoy les vengo a echar el cuento de un tema muy bacano de la neuroetología aviar: **¿cómo hacen las aves para saber exactamente de dónde viene un sonido?** Piensen en esto: una lechuza cazando en plena noche paisa en absoluta oscuridad, o un pajarito en medio de un rastrojo tupido esquivando un depredador solo por el ruido de una rama que se quiebra.*
+>
+> *Las aves no tienen orejas externas como nosotros para atrapar el sonido, pero se ubican en el espacio con una precisión impresionante. Para entender este 'GPS auditivo', nos vamos a basar en la revisión neuroetológica de **Lutz Kettler y Catherine Carr (2019)**, donde explican el procesamiento cerebral y sensorial que hace esto posible. Así que acomódense, que vamos a desglosar este mecanismo paso a paso."*
+
+---
+
+### **2. Las Pistas Acústicas y la Física del Oído Aviar**
+
+> *"Vean pues, para que un cerebro sepa de dónde viene un sonido, necesita comparar dos pistas fundamentales entre ambos oídos:*
+>
+> 1. **ITD (*Interaural Time Difference* o Diferencia Interaural de Tiempo):** Es la pequeñísima diferencia en el tiempo que tarda la onda sonora en llegar a un oído respecto al otro.
+> 2. **ILD (*Interaural Level Difference* o Diferencia Interaural de Nivel):** Es la diferencia en la intensidad o volumen del sonido entre ambos oídos, provocada porque la cabeza hace 'sombra' al sonido.
+>
+> *Pero aquí viene el primer dato clave de la anatomía aviar: muchas aves tienen cabezas muy chiquitas. En una cabeza pequeña, la distancia entre los oídos es mínima, por lo que las diferencias de tiempo e intensidad serían casi imperceptibles. ¿Cómo resuelven este chicharrón?*
+>
+> *Resulta que los oídos de las aves no son independientes como los de los mamíferos (que son receptores de presión puros). Las aves tienen **canales interaurales**, que son espacios de aire trabeculados que conectan ambos oídos medios por dentro del cráneo. Esto convierte a sus oídos en **receptores de diferencia de presión**, lo que significa que el sonido interactúa en el tímpano desde adentro y desde afuera, amplificando de forma natural las pistas de dirección para frecuencias bajas. ¡Una verdadera maravilla de la ingeniería evolutiva!"*
+
+---
+
+### **3. El Viaje Neural: Vías Paralelas en el Tallo Cerebral**
+
+> *"Ahora sí, metámonos al cerebro del ave. Cuando el nervio auditivo recibe la señal de la cóclea (papila basilar), entra al tallo cerebral y se bifurca en dos caminos completamente independientes:*
+>
+> * **El camino del tiempo (Vía de ITD):** Va directo al **Nucleus Magnocellularis (NM)**. Las neuronas de este núcleo hacen algo brutal llamado **acoplamiento de fase (*phase-locking*)**, disparando impulsos eléctricos en el punto exacto de la onda sonora. En la lechuza común (*Tyto alba*), este acoplamiento de fase funciona a frecuencias altísimas de hasta 9 kHz, mientras que en una paloma llega hasta los 2 kHz.
+> * **El camino de la intensidad (Vía de ILD):** Va al **Nucleus Angularis (NA)**, que codifica qué tan fuerte llegó el sonido usando la tasa global de disparos.
+>
+> *O sea que, desde la primera parada en el cerebro, **tiempo e intensidad se procesan en paralelo**."*
+
+---
+
+### **4. El Modelo de Jeffress y el Núcleo Laminar**
+
+> *"Ojo a este detalle, que es el corazón del artículo. ¿Cómo mide el cerebro esas microfracciones de segundo del tiempo (ITD)?*
+>
+> *El **Nucleus Magnocellularis (NM)** le manda información de ambos oídos al **Nucleus Laminaris (NL)**. En el núcleo laminar se aplica a la perfección el famoso **modelo de Jeffress**:*
+>
+> 1. *Los axones que vienen del NM actúan como **líneas de retardo** (*delay lines*), variando en longitud.*
+> 2. *Las neuronas del núcleo laminar actúan como **detectores de coincidencia** (*coincidence detectors*). Solo se activan al máximo cuando las señales de ambos oídos llegan **exactamente al mismo tiempo**.*
+>
+> *Esto traduce las diferencias de tiempo en un **código de lugar (*place code*)** o mapa topográfico de azimut (el plano horizontal). Si el sonido viene de la derecha, el camino neural izquierdo compensa el retraso y se activa una neurona específica en la hilera."*
+
+---
+
+### **5. La Lechuza (*Tyto alba*): La Reina de la Cacería Nocturna**
+
+> *"Aunque la mayoría de aves tienen oídos simétricos y usan este sistema para el plano horizontal, la lechuza común es el modelo estrella de la neuroetología por sus especializaciones extremas:*
+>
+> * **Ángulo mínimo de resolución:** Una lechuza puede discriminar cambios de ubicación de apenas **2° a 3°**, mientras que un pinzón (*zebra finch*) tiene un umbral de más de 100°.
+> * **Asimetría auricular y el disco facial:** La lechuza tiene las aberturas de los oídos asimétricas (una más arriba que la otra) y un disco facial de plumas que dirigen el sonido. La asimetría hace que la diferencia de intensidad (ILD) determine la **elevación (arriba/abajo)**, mientras que la diferencia de tiempo (ITD) determina el **azimut (izquierda/derecha)**."*
+
+---
+
+### **6. Integración en el Colículo Inferior y el Mapa del Espacio Auditivo**
+
+> *"Pero hay un pequeño problema en el núcleo laminar: la **ambigüedad de fase** (*phase ambiguity*). Si el sonido es un tono puro, el cerebro no sabe si la onda viene de frente o de un lado por la repetición del ciclo.*
+>
+> *Para resolver esto, la información sube al **Colículo Inferior (IC)**:*
+>
+> * En el **núcleo central (ICCc)**, se combinan distintas frecuencias (*across-frequency integration*) para eliminar los picos ambiguos y dejar solo la ubicación real.
+> * En el **núcleo externo (ICX)**, se juntan por fin la vía del tiempo (ITD) y la vía de la intensidad (ILD). Aquí se crea un verdadero **mapa topográfico del espacio auditivo**.
+>
+> *De ahí, el mapa auditivo se proyecta al **Téctum Óptico** (o lóbulo óptico), alineándose perfectamente con el mapa visual. ¡Por eso cuando la lechuza oye un ratón, voltea la cabeza instantáneamente hacia el punto exacto!"*
+
+---
+
+### **7. Evolución Paralela: Aves vs. Mamíferos**
+
+> *"Aquí va una pregunta para la clase: ¿los mamíferos hacemos lo mismo? ¡Sorpresa! **No.**
+>
+> *Los ancestros de aves y mamíferos divergieron antes de desarrollar oído timpánico. Por eso, evolucionaron respuestas paralelas pero diferentes:*
+>
+> * **Las aves** (y sus parientes cercanos los cocodrilos) usan el **modelo de Jeffress con mapa de lugar** en el núcleo laminar.
+> * **Los mamíferos** en su núcleo equivalente (la oliva superior medial o MSO) no usan mapa de lugar, sino un **código de pendiente hemisférica** (*slope code*), comparando la tasa de disparo entre los dos hemisferios cerebrales.
+>
+> *Esto demuestra que la evolución no siempre encuentra una única solución 'perfecta', sino soluciones locales totalmente funcionales."*
+
+---
+
+### **8. Plasticidad y Calibración Visual**
+
+> *"Para ir cerrando, ¿qué pasa si el sistema falla o cambia? Kettler y Carr resaltan los famosos experimentos de **Eric Knudsen y Michael Brainard** con lechuzas jóvenes:*
+>
+> * Les pusieron gafas con **prismas ópticos** que desviaban su vista.
+> * Al principio la lechuza fallaba, pero con los días, **el sistema visual recalibró el mapa auditivo en el colículo inferior** para ajustarlo a la nueva visión.
+> * Esta plasticidad se logra mediante remodelación de axones, receptores NMDA y ajustes en la inhibición por GABA. O sea, ¡la vista manda e instruye al oído sobre dónde está el mundo exterior!"*
+
+---
+
+### **9. Conclusión y Cierre**
+
+> *"En resumen, muchachos, la localización del sonido en aves es una joya neuroetológica:
+> 1. Aprovecha canales interaurales para amplificar señales.
+> 2. Procesa tiempo e intensidad por vías cerebrales paralelas.
+> 3. Construye un mapa espacial en el colículo inferior usando líneas de retardo y detectores de coincidencia.
+> 4. Se recalibra constantemente con la experiencia visual.
+>
+> *Muchas gracias a todos por la atención. ¿Tienen alguna pregunta o inquietud sobre el tema?"*
+
+---

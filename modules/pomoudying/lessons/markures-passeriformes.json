@@ -1,0 +1,481 @@
+{
+  "exportedAt": "2026-11-26T00:48:31.878Z",
+  "format": "studyping-marks.v1",
+  "marks": [
+    {
+      "id": "mark-passeriformes-01",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Thamnophilidae, Gymnopithys, Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco",
+      "start": 72,
+      "end": 183,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-01",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Gymnopithys-leucaspis-001.jpg/250px-Gymnopithys-leucaspis-001.jpg",
+          "alt": "Gymnopithys leucaspis",
+          "caption": "Gymnopithys leucaspis"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-02",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Grallariidae, Grallaria, Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre",
+      "start": 184,
+      "end": 290,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-02",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg/330px-Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg",
+          "alt": "Grallaria ruficapilla",
+          "caption": "Grallaria ruficapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-03",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Furnariidae, Margarornis, Margarornis squamiger, Pearled Treerunner, Subepalo Perlado",
+      "start": 291,
+      "end": 391,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-03",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Margarornis_squamiger_68812121.jpg/330px-Margarornis_squamiger_68812121.jpg",
+          "alt": "Margarornis squamiger",
+          "caption": "Margarornis squamiger"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-04",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Furnariidae, Xiphorhynchus, Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva",
+      "start": 392,
+      "end": 512,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-04",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Xiphorhynchus_triangularis_162661112.jpg/330px-Xiphorhynchus_triangularis_162661112.jpg",
+          "alt": "Xiphorhynchus triangularis",
+          "caption": "Xiphorhynchus triangularis"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-05",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Pipridae, Lepidothrix, Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul",
+      "start": 513,
+      "end": 613,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-05",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Lepidothrix_coronata_1.jpg/250px-Lepidothrix_coronata_1.jpg",
+          "alt": "Lepidothrix coronata",
+          "caption": "Lepidothrix coronata"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-06",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Cotingidae, Cephalopterus, Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado",
+      "start": 614,
+      "end": 719,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-06",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg/250px-Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg",
+          "alt": "Cephalopterus ornatus",
+          "caption": "Cephalopterus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-07",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Tyrannidae, Tyrannus, Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental",
+      "start": 720,
+      "end": 809,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-07",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Tyrannus_tyrannus_CT.jpg/250px-Tyrannus_tyrannus_CT.jpg",
+          "alt": "Tyrannus tyrannus",
+          "caption": "Tyrannus tyrannus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-08",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Vireonidae, Hylophilus, Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro",
+      "start": 810,
+      "end": 904,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-08",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Scrub_Greenlet.jpg/250px-Scrub_Greenlet.jpg",
+          "alt": "Hylophilus flavipes",
+          "caption": "Hylophilus flavipes"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-09",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Donacobiidae, Donacobius, Donacobius atricapilla, Black-capped Donacobius, Angú",
+      "start": 905,
+      "end": 999,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-09",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg/250px-Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg",
+          "alt": "Donacobius atricapilla",
+          "caption": "Donacobius atricapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-10",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Hirundinidae, Pygochelidon, Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera",
+      "start": 1000,
+      "end": 1114,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-10",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg/250px-Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg",
+          "alt": "Pygochelidon cyanoleuca",
+          "caption": "Pygochelidon cyanoleuca"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-11",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Hirundinidae, Stelgidopteryx, Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa",
+      "start": 1115,
+      "end": 1239,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-11",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG/250px-Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG",
+          "alt": "Stelgidopteryx ruficollis",
+          "caption": "Stelgidopteryx ruficollis"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-12",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Polioptilidae, Ramphocaenus, Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo",
+      "start": 1240,
+      "end": 1346,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-12",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Long-billed_Gnatwren.jpg/330px-Long-billed_Gnatwren.jpg",
+          "alt": "Ramphocaenus melanurus",
+          "caption": "Ramphocaenus melanurus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-13",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Troglodytidae, Cantorchilus, Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro",
+      "start": 1347,
+      "end": 1452,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-13",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Bay_Wren.jpg/250px-Bay_Wren.jpg",
+          "alt": "Cantorchilus nigricapillus",
+          "caption": "Cantorchilus nigricapillus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-14",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Turdidae, Catharus, Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson",
+      "start": 1453,
+      "end": 1548,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-14",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg/330px-Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg",
+          "alt": "Catharus ustulatus",
+          "caption": "Catharus ustulatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-15",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Turdidae, Turdus, Turdus serranus, Glossy-black Thrush, Mirlo Serrano",
+      "start": 1549,
+      "end": 1633,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-15",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Glossy-black_Thrush_RWD3.jpg/250px-Glossy-black_Thrush_RWD3.jpg",
+          "alt": "Turdus serranus",
+          "caption": "Turdus serranus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-16",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Passerellidae, Arremon, Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño",
+      "start": 1634,
+      "end": 1745,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-16",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg/250px-Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg",
+          "alt": "Arremon brunneinucha",
+          "caption": "Arremon brunneinucha"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-17",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Icteridae, Psarocolius, Psarocolius decumanus, Crested Oropendola, Cacique Crestado",
+      "start": 1746,
+      "end": 1844,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-17",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg/330px-Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg",
+          "alt": "Psarocolius decumanus",
+          "caption": "Psarocolius decumanus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-18",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Icteridae, Hypopyrrhus, Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo",
+      "start": 1845,
+      "end": 1951,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-18",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg/330px-Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg",
+          "alt": "Hypopyrrhus pyrohypogaster",
+          "caption": "Hypopyrrhus pyrohypogaster"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-19",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Icteridae, Leistes, Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja",
+      "start": 1952,
+      "end": 2047,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-19",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg/250px-Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg",
+          "alt": "Leistes militaris",
+          "caption": "Leistes militaris"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-20",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Parulidae, Myioborus, Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada",
+      "start": 2048,
+      "end": 2149,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-20",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg/330px-Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg",
+          "alt": "Myioborus ornatus",
+          "caption": "Myioborus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-21",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Cardinalidae, Pheucticus, Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado",
+      "start": 2150,
+      "end": 2263,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-21",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg/250px-Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg",
+          "alt": "Pheucticus ludovicianus",
+          "caption": "Pheucticus ludovicianus"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-22",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Thraupidae, Chlorophanes, Chlorophanes spiza, Green Honeycreeper, Mielero Verde",
+      "start": 2264,
+      "end": 2358,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-22",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg/330px-Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg",
+          "alt": "Chlorophanes spiza",
+          "caption": "Chlorophanes spiza"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-23",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Thraupidae, Chrysothlypis, Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca",
+      "start": 2359,
+      "end": 2469,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-23",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg/330px-Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg",
+          "alt": "Chrysothlypis salmoni",
+          "caption": "Chrysothlypis salmoni"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-24",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Thraupidae, Sporophila, Sporophila corvina, Variable Seedeater, Semillero Corvino",
+      "start": 2470,
+      "end": 2566,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-24",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sporophila-corvina-002.jpg/250px-Sporophila-corvina-002.jpg",
+          "alt": "Sporophila corvina",
+          "caption": "Sporophila corvina"
+        }
+      ]
+    },
+    {
+      "id": "mark-passeriformes-25",
+      "kind": "mark",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "More Lessons",
+      "text": "Passeriformes, Thraupidae, Tangara, Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas",
+      "start": 2567,
+      "end": 2671,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "fig-passeriformes-25",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg/330px-Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg",
+          "alt": "Tangara nigroviridis",
+          "caption": "Tangara nigroviridis"
+        }
+      ]
+    }
+  ]
+}

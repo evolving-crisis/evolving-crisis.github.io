@@ -1,0 +1,864 @@
+{
+  "format": "pomoudying-user-stats.v1",
+  "exportedAt": "2026-11-25T23:11:35.827Z",
+  "app": {
+    "name": "Pomoudying",
+    "statsSchemaVersion": 1,
+    "historyNote": "Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates."
+  },
+  "identity": {
+    "userId": "ty3c52606a028a881e768431d1perr",
+    "firstSeenAt": "2026-11-14T23:32:43.814Z",
+    "idGeneratedAt": "2026-11-15T00:13:06.098Z",
+    "idStrategy": "coarse-derived.v1",
+    "persistent": true,
+    "currentSessionId": "session-436ee6a5-8478-42fd-a52f-e75cf39cdd9b",
+    "currentSessionStartedAt": "2026-11-25T17:02:05.908Z",
+    "sessionPersistent": true
+  },
+  "summary": {
+    "lessons": 20,
+    "runs": 26,
+    "avgWpm": 40,
+    "avgAccuracy": 94,
+    "bestWpm": 60,
+    "lastAt": 1795647818521
+  },
+  "courses": [
+    {
+      "courseId": "my marks",
+      "title": "My Marks",
+      "lessonIds": [
+        "custom-marks-digest"
+      ]
+    },
+    {
+      "courseId": "metalhead-foundations",
+      "title": "metalhead-foundations",
+      "lessonIds": [
+        "custom-mvcuwp3c-9f7i"
+      ]
+    },
+    {
+      "courseId": "ornito",
+      "title": "ornito",
+      "lessonIds": [
+        "custom-mvb9pzom-w74d",
+        "custom-mvh1cgw5-flrq",
+        "custom-mvh2el59-r7zb",
+        "custom-mvh5y6xy-p03k",
+        "custom-mvhabmyx-r4wd",
+        "custom-mvhajt2e-u8me",
+        "custom-mvhbusxh-q7y4",
+        "custom-mvi36133-nzyf",
+        "custom-mvi3sydz-d0x0",
+        "custom-mvi5d0io-m04o",
+        "custom-mvi6000w-um3d",
+        "custom-mvk2vkg9-xc2k",
+        "custom-mvk79ci8-mfaf",
+        "custom-mvh0xew8-l6we",
+        "custom-mvsgr9o4-ijhb"
+      ]
+    },
+    {
+      "courseId": "labzoo",
+      "title": "labzoo",
+      "lessonIds": [
+        "custom-mva3pab0-fptl",
+        "custom-mw3zhqq2-033j",
+        "custom-mw9xi0ek-fqd5",
+        "custom-mw8k7zd4-6n1z",
+        "custom-mw8l47n9-36jd"
+      ]
+    },
+    {
+      "courseId": "chapter three",
+      "title": "chapter three",
+      "lessonIds": [
+        "custom-mv8u01nf-axed"
+      ]
+    },
+    {
+      "courseId": "raw-lab",
+      "title": "raw-lab",
+      "lessonIds": [
+        "custom-mvg5t9fh-yecg",
+        "custom-mvg7rynk-bkqq",
+        "custom-mvg8n65x-mc3i",
+        "custom-mvg9cyim-zwok",
+        "custom-mvgb729i-fzfx",
+        "custom-mvcozzec-tcdj",
+        "custom-mvcpvmky-nlwv",
+        "custom-mvcqxuzx-d4jc",
+        "custom-mvcz610s-01fg",
+        "custom-mvfxljj0-q91q"
+      ]
+    },
+    {
+      "courseId": "invertabrates",
+      "title": "Invertabrates",
+      "lessonIds": [
+        "custom-mv52ggom-cefi",
+        "custom-mv534pvo-fg5t",
+        "custom-mv5ii2qt-1yoh",
+        "custom-mv5j4rsq-l0dg",
+        "custom-mv5k1l6g-7e1t",
+        "custom-mvppz40x-ojrn",
+        "custom-mvpq6t0j-rj2q",
+        "custom-mvo3eyzv-gx5i",
+        "custom-mvo8xlcq-wgkq",
+        "custom-mvo8xm61-00le",
+        "custom-mvoh0ieg-shl2",
+        "custom-mvpm6xk7-2ic6",
+        "custom-mvpvc01c-p87h",
+        "custom-mvrclbg6-vgsz",
+        "custom-mvrd5d3w-4ger",
+        "custom-mvrdttcg-vc4l",
+        "custom-mvsqwdeu-ifwd",
+        "custom-mvu27cuk-1ejl",
+        "custom-mvu3stl1-acgk"
+      ]
+    },
+    {
+      "courseId": "guiasbai",
+      "title": "guiasbai",
+      "lessonIds": [
+        "custom-mva3i5rc-id3c",
+        "custom-mvbngvfx-0vvh"
+      ]
+    },
+    {
+      "courseId": "invertebrados draft",
+      "title": "invertebrados draft",
+      "lessonIds": [
+        "custom-mv8nu2i6-a7v9"
+      ]
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "lessonIds": [
+        "custom-mwfilq13-e9yy",
+        "custom-mwfkktyf-b7ln",
+        "custom-mwfjmtxy-nwqo",
+        "margrtikst",
+        "maryslzk",
+        "custom-mvxq0f3v-706p",
+        "custom-mw2t7vo6-b5zn",
+        "custom-mw6j9n5c-6sly"
+      ]
+    },
+    {
+      "courseId": "filogeny",
+      "title": "Filogeny",
+      "lessonIds": [
+        "custom-mvb7xza8-n0lf",
+        "custom-mwb6s24s-29hj"
+      ]
+    },
+    {
+      "courseId": "sanskrit",
+      "title": "Sanskrit",
+      "lessonIds": [
+        "custom-mw8i4dzv-iylf"
+      ]
+    },
+    {
+      "courseId": "classical molecular genetics",
+      "title": "classical molecular genetics",
+      "lessonIds": [
+        "custom-mv7eilqb-7rpx"
+      ]
+    },
+    {
+      "courseId": "fictionai",
+      "title": "FICTIONAI",
+      "lessonIds": [
+        "custom-mw44jn78-6jrh"
+      ]
+    },
+    {
+      "courseId": "punctuation & symbols",
+      "title": "Punctuation & Symbols",
+      "lessonIds": [
+        "punct-sentence",
+        "punct-symbols"
+      ]
+    },
+    {
+      "courseId": "programmer's practice",
+      "title": "Programmer's Practice",
+      "lessonIds": [
+        "prog-js-basics",
+        "prog-python-basics",
+        "custom-mwcls9jt-bhxs"
+      ]
+    },
+    {
+      "courseId": "chapter-three",
+      "title": "chapter-three",
+      "lessonIds": [
+        "custom-mv8twdc7-8q27"
+      ]
+    },
+    {
+      "courseId": "ficcion-ai",
+      "title": "ficcion-ai",
+      "lessonIds": [
+        "custom-mw2k06x3-o0gg"
+      ]
+    },
+    {
+      "courseId": "observation d'oedipomidas leucopus",
+      "title": "Observation d'Oedipomidas leucopus",
+      "lessonIds": [
+        "custom-mvcwc24d-52tm"
+      ]
+    },
+    {
+      "courseId": "papers-abastract",
+      "title": "papers-abastract",
+      "lessonIds": [
+        "custom-mvbq01f1-4mhg"
+      ]
+    }
+  ],
+  "runSummary": {
+    "runCount": 3,
+    "totalTypingTimeMs": 396646.9999999944,
+    "totalReadingTimeMs": 6492.300000000279,
+    "keystrokes": 1486,
+    "correctKeystrokes": 1430,
+    "errors": 56,
+    "backspaces": 51,
+    "averageWpm": 43,
+    "averageAccuracy": 96
+  },
+  "courseStats": [
+    {
+      "courseId": "my marks",
+      "title": "My Marks",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "metalhead-foundations",
+      "title": "metalhead-foundations",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "ornito",
+      "title": "ornito",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "labzoo",
+      "title": "labzoo",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "chapter three",
+      "title": "chapter three",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "raw-lab",
+      "title": "raw-lab",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "invertabrates",
+      "title": "Invertabrates",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "guiasbai",
+      "title": "guiasbai",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "invertebrados draft",
+      "title": "invertebrados draft",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "filogeny",
+      "title": "Filogeny",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "sanskrit",
+      "title": "Sanskrit",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "classical molecular genetics",
+      "title": "classical molecular genetics",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "fictionai",
+      "title": "FICTIONAI",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "punctuation & symbols",
+      "title": "Punctuation & Symbols",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "programmer's practice",
+      "title": "Programmer's Practice",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "chapter-three",
+      "title": "chapter-three",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "ficcion-ai",
+      "title": "ficcion-ai",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "observation d'oedipomidas leucopus",
+      "title": "Observation d'Oedipomidas leucopus",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "papers-abastract",
+      "title": "papers-abastract",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "runCount": 3,
+      "totalTypingTimeMs": 396646.9999999944,
+      "totalReadingTimeMs": 6492.300000000279,
+      "keystrokes": 1486,
+      "correctKeystrokes": 1430,
+      "errors": 56,
+      "backspaces": 51,
+      "averageWpm": 43,
+      "averageAccuracy": 96
+    }
+  ],
+  "lessonRunStats": {
+    "ortologo": {
+      "title": "ortologo",
+      "courseIds": [
+        "more lessons"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 176539.09999999963,
+      "totalReadingTimeMs": 6492.300000000279,
+      "keystrokes": 698,
+      "correctKeystrokes": 674,
+      "errors": 24,
+      "backspaces": 28,
+      "averageWpm": 46,
+      "averageAccuracy": 97
+    },
+    "margrtikst": {
+      "title": "margrtikst",
+      "courseIds": [
+        "more lessons"
+      ],
+      "runCount": 2,
+      "totalTypingTimeMs": 220107.89999999478,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 788,
+      "correctKeystrokes": 756,
+      "errors": 32,
+      "backspaces": 23,
+      "averageWpm": 42,
+      "averageAccuracy": 96
+    }
+  },
+  "lessonStats": {
+    "custom-mvg5t9fh-yecg": {
+      "bestWpm": 19,
+      "bestAccuracy": 87,
+      "attempts": 1,
+      "lastAt": 1792471854100
+    },
+    "custom-mvg7rynk-bkqq": {
+      "bestWpm": 20,
+      "bestAccuracy": 93,
+      "attempts": 1,
+      "lastAt": 1792473152456
+    },
+    "custom-mvg8n65x-mc3i": {
+      "bestWpm": 28,
+      "bestAccuracy": 88,
+      "attempts": 1,
+      "lastAt": 1792474770941
+    },
+    "custom-mvg9cyim-zwok": {
+      "bestWpm": 18,
+      "bestAccuracy": 89,
+      "attempts": 1,
+      "lastAt": 1792476535024
+    },
+    "custom-mvhabmyx-r4wd": {
+      "bestWpm": 55,
+      "bestAccuracy": 96,
+      "attempts": 1,
+      "lastAt": 1792537434190
+    },
+    "custom-mvhajt2e-u8me": {
+      "bestWpm": 60,
+      "bestAccuracy": 94,
+      "attempts": 1,
+      "lastAt": 1792537548578
+    },
+    "custom-mvhbusxh-q7y4": {
+      "bestWpm": 44,
+      "bestAccuracy": 89,
+      "attempts": 1,
+      "lastAt": 1792585519466
+    },
+    "custom-mvi3sydz-d0x0": {
+      "bestWpm": 39,
+      "bestAccuracy": 91,
+      "attempts": 1,
+      "lastAt": 1792588927587
+    },
+    "evolving-crisis-code-html": {
+      "bestWpm": 38,
+      "bestAccuracy": 94,
+      "attempts": 1,
+      "lastAt": 1793843449100
+    },
+    "custom-mw3zhqq2-033j": {
+      "bestWpm": 42,
+      "bestAccuracy": 94,
+      "attempts": 1,
+      "lastAt": 1793912951452
+    },
+    "custom-mw2t7vo6-b5zn": {
+      "bestWpm": 35,
+      "bestAccuracy": 94,
+      "attempts": 1,
+      "lastAt": 1794015103950
+    },
+    "custom-mw6j9n5c-6sly": {
+      "bestWpm": 34,
+      "bestAccuracy": 94,
+      "attempts": 1,
+      "lastAt": 1794064428668
+    },
+    "custom-mvcuwp3c-9f7i": {
+      "bestWpm": 47,
+      "bestAccuracy": 100,
+      "attempts": 1,
+      "lastAt": 1794180756733
+    },
+    "custom-mw8i4dzv-iylf": {
+      "bestWpm": 52,
+      "bestAccuracy": 98,
+      "attempts": 2,
+      "lastAt": 1794185651535
+    },
+    "custom-mw8k7zd4-6n1z": {
+      "bestWpm": 51,
+      "bestAccuracy": 97,
+      "attempts": 2,
+      "lastAt": 1794187287023
+    },
+    "custom-mwb6s24s-29hj": {
+      "bestWpm": 45,
+      "bestAccuracy": 96,
+      "attempts": 2,
+      "lastAt": 1794347039765
+    },
+    "01-d-un-rcic-a-un-teme": {
+      "bestWpm": 42,
+      "bestAccuracy": 98,
+      "attempts": 3,
+      "lastAt": 1794696928185
+    },
+    "evolving-crisis-code-startup": {
+      "bestWpm": 42,
+      "bestAccuracy": 97,
+      "attempts": 1,
+      "lastAt": 1794697205308
+    },
+    "ortologo": {
+      "bestWpm": 46,
+      "bestAccuracy": 97,
+      "attempts": 1,
+      "lastAt": 1794961199179
+    },
+    "margrtikst": {
+      "bestWpm": 42,
+      "bestAccuracy": 97,
+      "attempts": 2,
+      "lastAt": 1795647818521
+    }
+  },
+  "sessions": [
+    {
+      "sessionId": "session-75704fbc-4bea-40d2-8496-4043f2afb4cd",
+      "firstRunAt": "2026-11-18T00:14:23.972Z",
+      "lastRunAt": "2026-11-18T00:19:59.162Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 176539.09999999963,
+      "courseIds": [
+        "more lessons"
+      ],
+      "lessonIds": [
+        "ortologo"
+      ]
+    },
+    {
+      "sessionId": "session-436ee6a5-8478-42fd-a52f-e75cf39cdd9b",
+      "firstRunAt": "2026-11-25T22:04:12.351Z",
+      "lastRunAt": "2026-11-25T23:03:38.519Z",
+      "runCount": 2,
+      "totalTypingTimeMs": 220107.89999999478,
+      "courseIds": [
+        "more lessons"
+      ],
+      "lessonIds": [
+        "margrtikst"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "runId": "run-cc74711d-9100-4977-b911-bc77f852fbba",
+      "userId": "ty3c52606a028a881e768431d1perr",
+      "sessionId": "session-75704fbc-4bea-40d2-8496-4043f2afb4cd",
+      "startedAt": "2026-11-18T00:14:23.972Z",
+      "completedAt": "2026-11-18T00:19:59.162Z",
+      "courseId": "more lessons",
+      "courseTitle": "More Lessons",
+      "lessonId": "ortologo",
+      "lessonTitle": "ortologo",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 46,
+        "accuracy": 97,
+        "elapsedMs": 176539.09999999963,
+        "readingTimeMs": 6492.300000000279,
+        "keystrokes": 698,
+        "correctKeystrokes": 674,
+        "errors": 24,
+        "backspaces": 28
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 54206,
+          "charIndex": 189,
+          "wpm": 44
+        },
+        {
+          "elapsedMs": 109499,
+          "charIndex": 354,
+          "wpm": 46
+        },
+        {
+          "elapsedMs": 155721,
+          "charIndex": 532,
+          "wpm": 51
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-18T00:14:58.117Z",
+          "reason": "command",
+          "resumedAt": "2026-11-18T00:15:00.357Z",
+          "durationMs": 2240
+        },
+        {
+          "startedAt": "2026-11-18T00:15:28.916Z",
+          "reason": "blur",
+          "resumedAt": "2026-11-18T00:17:58.643Z",
+          "durationMs": 149727
+        },
+        {
+          "startedAt": "2026-11-18T00:18:12.532Z",
+          "reason": "command",
+          "resumedAt": "2026-11-18T00:18:14.535Z",
+          "durationMs": 2003
+        },
+        {
+          "startedAt": "2026-11-18T00:18:45.102Z",
+          "reason": "command",
+          "resumedAt": "2026-11-18T00:18:47.376Z",
+          "durationMs": 2274
+        },
+        {
+          "startedAt": "2026-11-18T00:19:14.054Z",
+          "reason": "command",
+          "resumedAt": "2026-11-18T00:19:16.461Z",
+          "durationMs": 2407
+        }
+      ]
+    },
+    {
+      "runId": "run-af0b1085-b765-48d7-bfde-30c3f74b2dc3",
+      "userId": "ty3c52606a028a881e768431d1perr",
+      "sessionId": "session-436ee6a5-8478-42fd-a52f-e75cf39cdd9b",
+      "startedAt": "2026-11-25T22:04:12.351Z",
+      "completedAt": "2026-11-25T22:06:07.354Z",
+      "courseId": "more lessons",
+      "courseTitle": "More Lessons",
+      "lessonId": "margrtikst",
+      "lessonTitle": "margrtikst",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 42,
+        "accuracy": 95,
+        "elapsedMs": 110629.59999999776,
+        "readingTimeMs": 0,
+        "keystrokes": 405,
+        "correctKeystrokes": 386,
+        "errors": 19,
+        "backspaces": 16
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 30561,
+          "charIndex": 101,
+          "wpm": 40
+        },
+        {
+          "elapsedMs": 64796,
+          "charIndex": 217,
+          "wpm": 41
+        },
+        {
+          "elapsedMs": 97741,
+          "charIndex": 309,
+          "wpm": 39
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-25T22:05:33.086Z",
+          "reason": "command",
+          "resumedAt": "2026-11-25T22:05:37.456Z",
+          "durationMs": 4370
+        }
+      ]
+    },
+    {
+      "runId": "run-ac5367c8-7265-4a6a-b13b-c74cbc9331b6",
+      "userId": "ty3c52606a028a881e768431d1perr",
+      "sessionId": "session-436ee6a5-8478-42fd-a52f-e75cf39cdd9b",
+      "startedAt": "2026-11-25T23:01:07.924Z",
+      "completedAt": "2026-11-25T23:03:38.519Z",
+      "courseId": "more lessons",
+      "courseTitle": "More Lessons",
+      "lessonId": "margrtikst",
+      "lessonTitle": "margrtikst",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 41,
+        "accuracy": 97,
+        "elapsedMs": 109478.29999999702,
+        "readingTimeMs": 0,
+        "keystrokes": 383,
+        "correctKeystrokes": 370,
+        "errors": 13,
+        "backspaces": 7
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 84334,
+          "charIndex": 101,
+          "wpm": 28
+        },
+        {
+          "elapsedMs": 112778,
+          "charIndex": 217,
+          "wpm": 49
+        },
+        {
+          "elapsedMs": 134633,
+          "charIndex": 319,
+          "wpm": 56
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-25T23:01:30.718Z",
+          "reason": "blur",
+          "resumedAt": "2026-11-25T23:02:11.835Z",
+          "durationMs": 41117
+        }
+      ]
+    }
+  ]
+}

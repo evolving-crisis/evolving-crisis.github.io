@@ -1,0 +1,15 @@
+{
+  "exportedAt": "2026-11-26T00:01:52.250Z",
+  "format": "pomoudying-lessons.v1",
+  "lessons": [
+    {
+      "id": "custom-mwwsffvo-udyk",
+      "title": "Session export smoke test",
+      "text": "A temporary lesson for export validation.",
+      "course": "Smoke test course",
+      "courseId": "smoke test course",
+      "targetWPM": 30,
+      "targetAccuracy": 95
+    }
+  ]
+}

@@ -1,13 +1,13 @@
-/*! Studyping — hackable typing-practice engine. MIT-style: do whatever you like with it. */
+/*! Pomoudying — hackable typing-practice engine. MIT-style: do whatever you like with it. */
 (function(){
 'use strict';
 
 /* =========================================================================
-   STUDYPING — a small, hackable typing-practice engine.
+   POMOUDYING — a small, hackable typing-practice engine.
    ---------------------------------------------------------------------
    This file is intentionally organized so you can extend it:
-     - Add lessons/courses:  window.Studyping.addLesson(lesson)
-     - React to progress:    window.Studyping.on('checkpoint', fn)
+     - Add lessons/courses:  window.Pomoudying.addLesson(lesson)
+     - React to progress:    window.Pomoudying.on('checkpoint', fn)
      - Build gamification on top of the event bus below.
    See the "PUBLIC API" block at the very end for the full surface.
    ========================================================================= */
@@ -21,43 +21,102 @@ const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const collapseWhitespace = (str) => str.normalize('NFC').replace(/\s+/g, ' ').trim();
 const normalizeLessonText = (str) => str.normalize('NFC').replace(/\r\n?/g, '\n').trim();
 function markdownLessonText(markdown, title){
-  const lines = markdown.split('\n');
+  return markdownLessonTextWithSourceMap(markdown, title).text;
+}
+function markdownLessonTextWithSourceMap(markdown, title){
+  const source = String(markdown).normalize('NFC').replace(/\r\n?/g, '\n');
+  const lines = source.split('\n');
   const output = [];
   let inCodeBlock = false;
   let skippedTitle = false;
+  let lineOffset = 0;
   lines.forEach(rawLine => {
+    const rawOffset = lineOffset;
+    lineOffset += rawLine.length + 1;
     const fence = rawLine.match(/^\s*(```+|~~~+)/);
     if(fence){
       inCodeBlock = !inCodeBlock;
       return;
     }
     if(inCodeBlock){
-      output.push(rawLine);
+      output.push({
+        text:rawLine,
+        indices:Array.from({ length:rawLine.length }, (_, i) => rawOffset + i),
+        newlineIndex:rawOffset + rawLine.length
+      });
       return;
     }
     if(/^\s*(?:-{3,}|_{3,}|\*{3,})\s*$/.test(rawLine)) return;
     let line = rawLine;
+    let prefixLength = 0;
     const heading = line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/);
     if(heading){
       if(!skippedTitle && title && heading[1].trim().toLowerCase() === title.trim().toLowerCase()){
         skippedTitle = true;
         return;
       }
-      line = line.replace(/^\s{0,3}#{1,6}\s+/, '');
+      const headingPrefix = line.match(/^\s{0,3}#{1,6}\s+/);
+      if(headingPrefix){
+        prefixLength += headingPrefix[0].length;
+        line = line.slice(headingPrefix[0].length);
+      }
     }
     if(/^\s*\|.*\|\s*$/.test(line)){
-      const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(cell => cell.trim());
+      const trimmed = line.trim();
+      const content = trimmed.replace(/^\|/, '').replace(/\|$/, '');
+      const segments = content.split('|');
+      const cells = segments.map(cell => cell.trim());
       if(cells.length > 1 && cells.every(cell => /^:?-{3,}:?$/.test(cell))) return;
-      line = cells.join(' ');
+      const lineStart = rawOffset + prefixLength + line.indexOf(trimmed) + (trimmed.startsWith('|') ? 1 : 0);
+      let segmentOffset = lineStart;
+      const text = [];
+      const indices = [];
+      segments.forEach((segment, index) => {
+        const cell = segment.trim();
+        const leading = segment.length - segment.trimStart().length;
+        text.push(cell);
+        for(let i = 0; i < cell.length; i++) indices.push(segmentOffset + leading + i);
+        if(index < segments.length - 1){
+          text.push(' ');
+          indices.push(segmentOffset + segment.length);
+        }
+        segmentOffset += segment.length + 1;
+      });
+      line = text.join('');
+      output.push({ text:line, indices, newlineIndex:rawOffset + rawLine.length });
+      return;
     } else {
-      line = line.replace(/^\s{0,3}>\s?/, '');
-      line = line.replace(/^\s*(?:[-+*]|\d+[.)])\s+/, '');
+      const quote = line.match(/^\s{0,3}>\s?/);
+      if(quote){
+        prefixLength += quote[0].length;
+        line = line.slice(quote[0].length);
+      }
+      const list = line.match(/^\s*(?:[-+*]|\d+[.)])\s+/);
+      if(list){
+        prefixLength += list[0].length;
+        line = line.slice(list[0].length);
+      }
     }
-    output.push(line);
+    output.push({
+      text:line,
+      indices:Array.from({ length:line.length }, (_, i) => rawOffset + prefixLength + i),
+      newlineIndex:rawOffset + rawLine.length
+    });
   });
-  return normalizeLessonText(output.join('\n'));
+  const joined = output.map(line => line.text).join('\n');
+  const mappedIndices = [];
+  output.forEach((line, index) => {
+    mappedIndices.push(...line.indices);
+    if(index < output.length - 1) mappedIndices.push(line.newlineIndex);
+  });
+  const leading = joined.length - joined.trimStart().length;
+  const trailing = joined.trimEnd().length;
+  return {
+    text:normalizeLessonText(joined),
+    sourceIndices:mappedIndices.slice(leading, trailing)
+  };
 }
-function parseMarkdownLessonFile(source, filename){
+function parseMarkdownLessonFile(source, filename, preserveMarkdown = false){
   const normalized = String(source).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   const frontmatter = normalized.match(/^\n*---\n([\s\S]*?)\n---(?:\n|$)/);
   const metadata = {};
@@ -67,15 +126,23 @@ function parseMarkdownLessonFile(source, filename){
       const field = line.match(/^([A-Za-z][\w-]*):\s*(.*?)\s*$/);
       if(!field) return;
       const value = field[2];
-      metadata[field[1]] = /^(['"]).*\1$/.test(value)
-        ? value.slice(1, -1).replace(/''/g, "'")
-        : value;
+      if(value.startsWith('"')){
+        try{ metadata[field[1]] = JSON.parse(value); }
+        catch(e){ metadata[field[1]] = value.slice(1, -1); }
+      }else if(/^'.*'$/.test(value)){
+        metadata[field[1]] = value.slice(1, -1).replace(/''/g, "'");
+      }else if(value.startsWith('[') || value.startsWith('{')){
+        try{ metadata[field[1]] = JSON.parse(value); }
+        catch(e){ metadata[field[1]] = value; }
+      }else{
+        metadata[field[1]] = value;
+      }
     });
     body = normalized.slice(frontmatter[0].length);
   }
   const firstHeading = body.match(/^\s{0,3}#\s+(.+)$/m);
   const title = String(metadata.title || (firstHeading && firstHeading[1]) || filename.replace(/\.(?:md|txt)$/i, '')).trim();
-  const text = markdownLessonText(body, metadata.title ? title : '');
+  const text = preserveMarkdown ? normalizeLessonText(body) : markdownLessonText(body, title);
   if(!title || !text) throw new Error(`Markdown lesson "${filename}" needs a title and body`);
   const lesson = {
     id:String(metadata.id || slugify(filename.replace(/\.(?:md|txt)$/i, ''))),
@@ -91,9 +158,42 @@ function parseMarkdownLessonFile(source, filename){
   if(courseId) lesson.courseId = courseId;
   if(order !== null) lesson.order = order;
   if(courseOrder !== null) lesson.courseOrder = courseOrder;
+  if(Array.isArray(metadata.objectives)) lesson.objectives = metadata.objectives;
+  if(Array.isArray(metadata.topics)) lesson.topics = metadata.topics;
   return lesson;
 }
-function parseInlineMarkdown(source){
+function parseMarkdownLessonBundle(source, filename){
+  const normalized = String(source).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const header = normalized.match(/^<!-- pomoudying-lessons-markdown\.v1:([a-z0-9-]+) -->\s*/i);
+  if(!header) return null;
+  const marker = `<!-- pomoudying-lesson:${header[1]} -->`;
+  const sections = normalized.slice(header[0].length).split(marker).slice(1)
+    .map(section => section.trim()).filter(Boolean);
+  if(!sections.length) throw new Error('The Markdown lesson export contains no lessons.');
+  return sections.map((section, index) =>
+    parseMarkdownLessonFile(section, `${filename.replace(/\.(?:md|txt)$/i, '')}-${index + 1}.txt`, true)
+  );
+}
+function buildMarkdownLessonBundle(lessons){
+  const token = generatedId('markdown');
+  const header = `<!-- pomoudying-lessons-markdown.v1:${token} -->`;
+  return `${header}\n${lessons.map(lesson => {
+    const metadata = [
+      `id: ${JSON.stringify(lesson.id)}`,
+      `title: ${JSON.stringify(lesson.title)}`,
+      `course: ${JSON.stringify(lesson.course || 'My Lessons')}`,
+      ...(lesson.courseId ? [`courseId: ${JSON.stringify(lesson.courseId)}`] : []),
+      `targetWPM: ${lesson.targetWPM ?? 30}`,
+      `targetAccuracy: ${lesson.targetAccuracy ?? 95}`,
+      ...(lesson.order != null ? [`order: ${lesson.order}`] : []),
+      ...(lesson.courseOrder != null ? [`courseOrder: ${lesson.courseOrder}`] : []),
+      ...(Array.isArray(lesson.objectives) ? [`objectives: ${JSON.stringify(lesson.objectives)}`] : []),
+      ...(Array.isArray(lesson.topics) ? [`topics: ${JSON.stringify(lesson.topics)}`] : [])
+    ];
+    return `<!-- pomoudying-lesson:${token} -->\n---\n${metadata.join('\n')}\n---\n${lesson.text}`;
+  }).join('\n\n')}\n`;
+}
+function parseInlineMarkdown(source, sourceMap = null, sourceLength = source.length){
   const text = [];
   const sourceIndices = [];
   const formats = [];
@@ -104,7 +204,7 @@ function parseInlineMarkdown(source){
   const append = (value, start) => {
     for(let i = 0; i < value.length; i++){
       text.push(value[i]);
-      sourceIndices.push(start + i);
+      sourceIndices.push(sourceMap ? sourceMap[start + i] : start + i);
     }
   };
   for(let i = 0; i < source.length;){
@@ -128,7 +228,12 @@ function parseInlineMarkdown(source){
     append(source[i], i);
     i++;
   }
-  return { text:text.join(''), sourceIndices, formats, sourceLength:source.length };
+  return { text:text.join(''), sourceIndices, formats, sourceLength };
+}
+function parseLessonMarkdown(source, lesson){
+  if(!lesson || !lesson.custom) return parseInlineMarkdown(source);
+  const parsedBlocks = markdownLessonTextWithSourceMap(source, lesson.title);
+  return parseInlineMarkdown(parsedBlocks.text, parsedBlocks.sourceIndices, source.length);
 }
 function sourcePositionForRendered(parsed, position){
   return position < parsed.sourceIndices.length
@@ -169,7 +274,7 @@ async function derivedVisitorId(){
       const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
       const shortHash = Array.from(new Uint8Array(digest).slice(0, 12), byte => byte.toString(16).padStart(2, '0')).join('');
       return `ty${shortHash}perr`;
-    }catch(e){ console.warn('Studyping: secure visitor ID hashing is unavailable; using the local fallback hash', e); }
+    }catch(e){ console.warn('Pomoudying: secure visitor ID hashing is unavailable; using the local fallback hash', e); }
   }
   let first = 2166136261, second = 0x811c9dc5;
   for(let i = 0; i < source.length; i++){
@@ -208,16 +313,17 @@ function normalizePeerStatsExport(raw){
     : typeof raw.userId === 'string' ? raw.userId.trim() : '';
   if(!userId || userId.length > 160) throw new Error('The stats export is missing a valid user ID.');
   const format = typeof raw.format === 'string' ? raw.format : '';
-  if(format && !format.startsWith('studyping-user-stats.')){
+  if(format && !format.startsWith('pomoudying-user-stats.') &&
+      !format.startsWith('studyping-user-stats.')){
     throw new Error(`Unsupported stats format "${format}".`);
   }
   if(!format && !PEER_STATS_SECTIONS.some(section => Object.prototype.hasOwnProperty.call(raw, section))){
-    throw new Error('The file does not look like a Studyping stats export.');
+    throw new Error('The file does not look like a Pomoudying stats export.');
   }
 
   const record = {
     userId,
-    format:format || 'studyping-user-stats.unknown',
+    format:format || 'pomoudying-user-stats.unknown',
     importedAt:new Date().toISOString(),
     ...(typeof raw.exportedAt === 'string' ? { sourceExportedAt:raw.exportedAt } : {}),
     identity:{
@@ -379,10 +485,38 @@ function collectGlobalStats(raw){
     lastAt
   };
 }
+function lessonStatsFor(raw, lessonId, aliases = {}){
+  if(Array.isArray(raw)){
+    return raw.find(entry => isRecord(entry) && (entry.lessonId === lessonId || entry.id === lessonId)) || null;
+  }
+  if(!isRecord(raw)) return null;
+  if(Object.prototype.hasOwnProperty.call(raw, lessonId)) return raw[lessonId];
+  if(isRecord(aliases)){
+    const alias = Object.keys(aliases).find(sourceId =>
+      aliases[sourceId] === lessonId && Object.prototype.hasOwnProperty.call(raw, sourceId)
+    );
+    if(alias) return raw[alias];
+  }
+  return null;
+}
+function hasSavedLessonActivity(result){
+  if(!isRecord(result)) return false;
+  const attempts = finiteStat(result.attempts);
+  const wpm = finiteStat(result.bestWpm ?? result.wpm);
+  const accuracy = finiteStat(result.bestAccuracy ?? result.accuracy);
+  const lastAt = finiteStat(result.lastAt);
+  const legacyDate = typeof result.lastAt === 'string' &&
+    /^\d{4}-\d{2}-\d{2}(?:T|$)/.test(result.lastAt.trim()) &&
+    Number.isFinite(Date.parse(result.lastAt));
+  return (attempts !== null && attempts > 0) ||
+    (wpm !== null && wpm > 0) ||
+    (accuracy !== null && accuracy >= 0 && accuracy <= 100) ||
+    (lastAt !== null && lastAt > 0) || legacyDate;
+}
 function describeGlobalStats(stats){
-  if(!stats.lessons) return 'No completed runs yet. Finish a lesson to start your global stats.';
+  if(!stats.lessons) return 'No global results yet. Complete a lesson run to start tracking global stats.';
   const parts = [
-    `Saved results across ${stats.lessons} lesson${stats.lessons === 1 ? '' : 's'}`,
+    `${stats.lessons} lesson${stats.lessons === 1 ? '' : 's'} with saved results`,
     `${stats.runs} completed run${stats.runs === 1 ? '' : 's'}`
   ];
   if(stats.bestWpm !== null) parts.push(`best ${stats.bestWpm} wpm`);
@@ -390,7 +524,7 @@ function describeGlobalStats(stats){
     const date = new Date(stats.lastAt);
     if(!Number.isNaN(date.getTime())) parts.push(`last ${date.toLocaleDateString()}`);
   }
-  return `${parts.join(' · ')}. Averages include only saved speed and accuracy values; missing values are skipped.`;
+  return `Global stats: ${parts.join(' · ')}. Average speed and accuracy use each lesson's best saved result; lessons without a value are excluded.`;
 }
 
 // Merge overlapping / touching [start, end) ranges so a mark inside a marked sentence
@@ -582,7 +716,7 @@ const IDLE_PAUSE_MS = 30000;
 
 // What a dead key (´ ` ¨ ^ ~) leaves in the typing field while it waits for its vowel.
 const ACCENT_ONLY = /^[´`¨^~˜¸¯˘˙˚˝ˇ'"\u0300-\u036F]+$/u;
-const SESSION_VISITS_KEY = 'studyping.lessonVisits.v1';
+const SESSION_VISITS_KEY = 'pomoudying.lessonVisits.v1';
 const LEGACY_SESSION_VISITS_KEY = 'typingStudio.lessonVisits.v1';
 const TEMPLATE_HISTORY_LIMIT = 20;
 const TEMPLATE_HISTORY_MAX_CHARS = 500000;
@@ -618,30 +752,34 @@ const DEFAULT_COURSES = [
 
 /* ---------------------------- storage ---------------------------- */
 const Storage = {
-  LESSONS_KEY:'studyping.customLessons.v1',
-  STATS_KEY:'studyping.stats.v1',
-  RUN_HISTORY_KEY:'studyping.runHistory.v1',
-  OTHER_USER_STATS_KEY:'studyping.otherUserStats.v1',
-  IDENTITY_KEY:'studyping.identity.v1',
-  SESSION_ID_KEY:'studyping.sessionId.v1',
-  PREFS_KEY:'studyping.prefs.v1',
-  MARKS_KEY:'studyping.marks.v1',
-  OVERRIDES_KEY:'studyping.overrides.v1',
-  LESSON_ID_ALIASES_KEY:'studyping.lessonIdAliases.v1',
-  DELETED_KEY:'studyping.deletedLessons.v1',
-  POSITIONS_KEY:'studyping.positions.v1',
+  LESSONS_KEY:'pomoudying.customLessons.v1',
+  STATS_KEY:'pomoudying.stats.v1',
+  RUN_HISTORY_KEY:'pomoudying.runHistory.v1',
+  OTHER_USER_STATS_KEY:'pomoudying.otherUserStats.v1',
+  IDENTITY_KEY:'pomoudying.identity.v1',
+  SESSION_ID_KEY:'pomoudying.sessionId.v1',
+  SESSION_LESSON_CHANGES_KEY:'pomoudying.sessionLessonChanges.v1',
+  PREFS_KEY:'pomoudying.prefs.v1',
+  MARKS_KEY:'pomoudying.marks.v1',
+  OVERRIDES_KEY:'pomoudying.overrides.v1',
+  LESSON_ID_ALIASES_KEY:'pomoudying.lessonIdAliases.v1',
+  DELETED_KEY:'pomoudying.deletedLessons.v1',
+  POSITIONS_KEY:'pomoudying.positions.v1',
   migrateLegacyData(){
     try{
       const keys = [this.LESSONS_KEY, this.STATS_KEY, this.PREFS_KEY, this.MARKS_KEY,
-        this.OVERRIDES_KEY, this.LESSON_ID_ALIASES_KEY, this.DELETED_KEY, this.POSITIONS_KEY];
+        this.OVERRIDES_KEY, this.LESSON_ID_ALIASES_KEY, this.DELETED_KEY, this.POSITIONS_KEY,
+        this.RUN_HISTORY_KEY, this.OTHER_USER_STATS_KEY, this.IDENTITY_KEY, this.SESSION_ID_KEY];
       keys.forEach(key => {
-        const legacyKey = key.replace(/^studyping\./, 'typingStudio.');
-        if(localStorage.getItem(key) === null){
-          const legacyValue = localStorage.getItem(legacyKey);
-          if(legacyValue !== null) localStorage.setItem(key, legacyValue);
-        }
+        ['studyping', 'typingStudio'].forEach(prefix => {
+          const legacyKey = key.replace(/^pomoudying\./, `${prefix}.`);
+          if(localStorage.getItem(key) === null){
+            const legacyValue = localStorage.getItem(legacyKey);
+            if(legacyValue !== null) localStorage.setItem(key, legacyValue);
+          }
+        });
       });
-    }catch(e){ console.warn('Studyping: could not migrate saved data', e); }
+    }catch(e){ console.warn('Pomoudying: could not migrate saved data', e); }
     try{
       if(sessionStorage.getItem(SESSION_VISITS_KEY) === null){
         const legacyVisits = sessionStorage.getItem(LEGACY_SESSION_VISITS_KEY);
@@ -649,32 +787,32 @@ const Storage = {
       }
     }catch(e){ /* sessionStorage may be unavailable in private or embedded contexts */ }
   },
-  loadLessons(){ try{ const raw = localStorage.getItem(this.LESSONS_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ console.warn('Studyping: could not read custom lessons', e); return []; } },
-  saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save custom lessons', e); } },
+  loadLessons(){ try{ const raw = localStorage.getItem(this.LESSONS_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ console.warn('Pomoudying: could not read custom lessons', e); return []; } },
+  saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Pomoudying: could not save custom lessons', e); } },
   loadStats(){ try{ const raw = localStorage.getItem(this.STATS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
-  saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Studyping: could not save stats', e); } },
+  saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Pomoudying: could not save stats', e); } },
   loadRunHistory(){
     try{
       const raw = localStorage.getItem(this.RUN_HISTORY_KEY);
       const value = raw ? JSON.parse(raw) : [];
       return Array.isArray(value) ? value.filter(run => run && typeof run === 'object' && !Array.isArray(run)) : [];
-    }catch(e){ console.warn('Studyping: could not read run history', e); return []; }
+    }catch(e){ console.warn('Pomoudying: could not read run history', e); return []; }
   },
   saveRunHistory(runs){
     try{ localStorage.setItem(this.RUN_HISTORY_KEY, JSON.stringify(runs)); return true; }
-    catch(e){ console.warn('Studyping: could not save run history; export may not include the latest run', e); return false; }
+    catch(e){ console.warn('Pomoudying: could not save run history; export may not include the latest run', e); return false; }
   },
   reassignRunHistoryUserId(previousId, nextId){
     if(!previousId || !nextId || previousId === nextId) return true;
     let raw;
     try{ raw = localStorage.getItem(this.RUN_HISTORY_KEY); }
-    catch(e){ console.warn('Studyping: could not read run history while changing user ID', e); return false; }
+    catch(e){ console.warn('Pomoudying: could not read run history while changing user ID', e); return false; }
     if(raw === null) return true;
     let runs;
     try{ runs = JSON.parse(raw); }
-    catch(e){ console.warn('Studyping: could not parse run history while changing user ID', e); return false; }
+    catch(e){ console.warn('Pomoudying: could not parse run history while changing user ID', e); return false; }
     if(!Array.isArray(runs)){
-      console.warn('Studyping: run history has an unsupported shape; user ID change will retry on next visit');
+      console.warn('Pomoudying: run history has an unsupported shape; user ID change will retry on next visit');
       return false;
     }
     let changed = false;
@@ -687,7 +825,7 @@ const Storage = {
   },
   saveIdentity(identity){
     try{ localStorage.setItem(this.IDENTITY_KEY, JSON.stringify(identity)); return true; }
-    catch(e){ console.warn('Studyping: could not save visitor ID', e); return false; }
+    catch(e){ console.warn('Pomoudying: could not save visitor ID', e); return false; }
   },
   loadOtherUserStats(){
     let raw;
@@ -737,13 +875,13 @@ const Storage = {
     try{
       raw = localStorage.getItem(this.IDENTITY_KEY);
     }catch(e){
-      console.warn('Studyping: could not read visitor ID; using a temporary ID for this page', e);
+      console.warn('Pomoudying: could not read visitor ID; using a temporary ID for this page', e);
       const now = new Date().toISOString();
       return { userId:await derivedVisitorId(), firstSeenAt:now, idGeneratedAt:now, idStrategy:'coarse-derived.v1', persistent:false };
     }
     if(raw){
       try{ value = JSON.parse(raw); }
-      catch(e){ console.warn('Studyping: saved visitor ID is invalid; generating a new one', e); }
+      catch(e){ console.warn('Pomoudying: saved visitor ID is invalid; generating a new one', e); }
     }
     if(value && value.idStrategy === 'coarse-derived.v1' &&
        typeof value.userId === 'string' && value.userId &&
@@ -772,12 +910,33 @@ const Storage = {
       sessionStorage.setItem(`${this.SESSION_ID_KEY}.startedAt`, session.startedAt);
       return session;
     }catch(e){
-      console.warn('Studyping: could not persist session ID; using a temporary ID for this page', e);
+      console.warn('Pomoudying: could not persist session ID; using a temporary ID for this page', e);
       return { sessionId:generatedId('session'), startedAt:new Date().toISOString(), persistent:false };
     }
   },
+  loadSessionLessonChanges(sessionId){
+    try{
+      const raw = sessionStorage.getItem(`${this.SESSION_LESSON_CHANGES_KEY}.${sessionId}`);
+      if(raw === null) return [];
+      const value = JSON.parse(raw);
+      if(!Array.isArray(value)) throw new Error('The saved changed-lesson list has an unsupported shape.');
+      return Array.from(new Set(value.filter(id => typeof id === 'string' && id)));
+    }catch(e){
+      console.warn('Pomoudying: could not read current-session lesson changes', e);
+      return [];
+    }
+  },
+  saveSessionLessonChanges(sessionId, lessonIds){
+    try{
+      sessionStorage.setItem(`${this.SESSION_LESSON_CHANGES_KEY}.${sessionId}`, JSON.stringify(lessonIds));
+      return true;
+    }catch(e){
+      console.warn('Pomoudying: could not save current-session lesson changes', e);
+      return false;
+    }
+  },
   loadOverrides(){ try{ const raw = localStorage.getItem(this.OVERRIDES_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ return {}; } },
-  saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('Studyping: could not save edits', e); } },
+  saveOverrides(map){ try{ localStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(map)); }catch(e){ console.warn('Pomoudying: could not save edits', e); } },
   loadLessonIdAliases(){
     try{
       const raw = localStorage.getItem(this.LESSON_ID_ALIASES_KEY);
@@ -786,17 +945,17 @@ const Storage = {
       return Object.fromEntries(Object.entries(value).filter(([id, nextId]) =>
         typeof id === 'string' && id && typeof nextId === 'string' && nextId
       ));
-    }catch(e){ console.warn('Studyping: could not read lesson ID changes', e); return {}; }
+    }catch(e){ console.warn('Pomoudying: could not read lesson ID changes', e); return {}; }
   },
-  saveLessonIdAliases(aliases){ try{ localStorage.setItem(this.LESSON_ID_ALIASES_KEY, JSON.stringify(aliases)); }catch(e){ console.warn('Studyping: could not save lesson ID changes', e); } },
+  saveLessonIdAliases(aliases){ try{ localStorage.setItem(this.LESSON_ID_ALIASES_KEY, JSON.stringify(aliases)); }catch(e){ console.warn('Pomoudying: could not save lesson ID changes', e); } },
   loadMarks(){ try{ const raw = localStorage.getItem(this.MARKS_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ return []; } },
-  saveMarks(list){ try{ localStorage.setItem(this.MARKS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Studyping: could not save marks', e); } },
+  saveMarks(list){ try{ localStorage.setItem(this.MARKS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Pomoudying: could not save marks', e); } },
   loadPrefs(){ try{ const raw = localStorage.getItem(this.PREFS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
   savePrefs(prefs){ try{ localStorage.setItem(this.PREFS_KEY, JSON.stringify(prefs)); }catch(e){ /* ignore */ } },
-  loadDeletedLessons(){ try{ const raw = localStorage.getItem(this.DELETED_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ console.warn('Studyping: could not read deleted lessons', e); return []; } },
-  saveDeletedLessons(ids){ try{ localStorage.setItem(this.DELETED_KEY, JSON.stringify(ids)); }catch(e){ console.warn('Studyping: could not save deleted lessons', e); } },
-  loadPositions(){ try{ const raw = localStorage.getItem(this.POSITIONS_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ console.warn('Studyping: could not read lesson positions', e); return {}; } },
-  savePositions(positions){ try{ localStorage.setItem(this.POSITIONS_KEY, JSON.stringify(positions)); }catch(e){ console.warn('Studyping: could not save lesson positions', e); } }
+  loadDeletedLessons(){ try{ const raw = localStorage.getItem(this.DELETED_KEY); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }catch(e){ console.warn('Pomoudying: could not read deleted lessons', e); return []; } },
+  saveDeletedLessons(ids){ try{ localStorage.setItem(this.DELETED_KEY, JSON.stringify(ids)); }catch(e){ console.warn('Pomoudying: could not save deleted lessons', e); } },
+  loadPositions(){ try{ const raw = localStorage.getItem(this.POSITIONS_KEY); const v = raw ? JSON.parse(raw) : {}; return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }catch(e){ console.warn('Pomoudying: could not read lesson positions', e); return {}; } },
+  savePositions(positions){ try{ localStorage.setItem(this.POSITIONS_KEY, JSON.stringify(positions)); }catch(e){ console.warn('Pomoudying: could not save lesson positions', e); } }
 };
 
 /* ---------------------------- sound engine ---------------------------- */
@@ -1588,6 +1747,7 @@ const App = {
   customLessons: [],
   identity: null,
   sessionIdentity: null,
+  sessionLessonChanges: new Set(),
   runStartedAt: null,
   runStartedPerf: null,
   runCheckpoints: [],
@@ -1595,6 +1755,7 @@ const App = {
   activeRunPause: null,
   staticPackCourses: [], // courses fetched from ./lessons/*.json — see fetchStaticPacks()
   staticPackMarks: [],   // default marks fetched from the same static lesson directory
+  staticPeerStats: [],   // stats snapshots discovered alongside static lessons
   state: 'idle', // idle | ready | running | paused | finished
   pauseReason: null, // 'command' | 'edit' | 'blur' | 'window' | 'hidden' | 'idle'
   commandMode: false,
@@ -1650,6 +1811,8 @@ const App = {
   escapeCommands: true, // when enabled, Escape enters command mode and handles app Escape actions
   shortcutsCollapsed: false, // pref: hide the Shortcuts list so Courses gets the full drawer height
   collapsedCourses: new Set(),
+  searchCollapsedCourses: new Set(),
+  courseSearchQuery: '',
   courseSequence: [],
   keyboardHidden: true,
   currentLesson: null,
@@ -1670,6 +1833,7 @@ const App = {
       }
     }
     this.sessionIdentity = Storage.loadOrCreateSessionId();
+    this.sessionLessonChanges = new Set(Storage.loadSessionLessonChanges(this.sessionIdentity.sessionId));
     this.customLessons = Storage.loadLessons();
     const prefs = Storage.loadPrefs();
     this.marks = Storage.loadMarks().map(m => {
@@ -1704,12 +1868,17 @@ const App = {
     this.dom = {
       menuBtn: qs('#menuBtn'), drawer: qs('#drawer'), drawerScrim: qs('#drawerScrim'), drawerCloseBtn: qs('#drawerCloseBtn'),
       shortcutPanel: qs('.shortcut-panel'), shortcutToggle: qs('#shortcutToggle'), shortcutHint: qs('#shortcutHint'),
-      courseList: qs('#courseList'), newLessonBtn: qs('#newLessonBtn'),
+      courseList: qs('#courseList'), courseSearch: qs('#courseSearch'), courseSearchEmpty: qs('#courseSearchEmpty'), newLessonBtn: qs('#newLessonBtn'),
+      globalLessonProgressValue: qs('#globalLessonProgressValue'), globalLessonProgressTrack: qs('#globalLessonProgressTrack'),
+      globalLessonProgressFill: qs('#globalLessonProgressFill'),
+      lessonStatsName: qs('#lessonStatsName'), lessonStatsCourse: qs('#lessonStatsCourse'),
+      lessonBestWpm: qs('#lessonBestWpm'), lessonBestAccuracy: qs('#lessonBestAccuracy'),
+      lessonCompletedRuns: qs('#lessonCompletedRuns'), lessonStatsEmpty: qs('#lessonStatsEmpty'),
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
       globalStats: qs('#globalStats'), globalWpm: qs('#gStatWpm'), globalAcc: qs('#gStatAcc'), globalRuns: qs('#gStatRuns'),
       userIdCopyBtn: qs('#userIdCopyBtn'), userIdValue: qs('#userIdValue'), userIdRegenerateBtn: qs('#userIdRegenerateBtn'),
-      sessionProgress: qs('#sessionProgress'), sessionProgressFill: qs('#sessionProgressFill'), sessionProgressPct: qs('#sessionProgressPct'),
+      lessonProgress: qs('#lessonProgress'), lessonProgressFill: qs('#lessonProgressFill'), lessonProgressPct: qs('#lessonProgressPct'),
       soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
       restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
@@ -1735,6 +1904,7 @@ const App = {
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       statModeSplit: qs('#statModeSplit'), statRemaining: qs('#statRemaining'),
       keyboardToggleRow: qs('.keyboard-toggle-row'), keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
+      previousLessonBtn: qs('#previousLessonBtn'), nextLessonNavBtn: qs('#nextLessonNavBtn'), lessonNavPosition: qs('#lessonNavPosition'),
       modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), modalTitle: qs('#modalTitle'), lessonForm: qs('#lessonForm'),
       actionModalScrim: qs('#actionModalScrim'), actionModalTitle: qs('#actionModalTitle'), actionModalMessage: qs('#actionModalMessage'),
       actionModalField: qs('#actionModalField'), actionModalLabel: qs('#actionModalLabel'), actionModalInput: qs('#actionModalInput'),
@@ -1747,7 +1917,16 @@ const App = {
       confettiLayer: qs('#confettiLayer'),
       exportLessonsBtn: qs('#exportLessonsBtn'), selectAllLessonsBtn: qs('#selectAllLessonsBtn'),
       exportStatsBtn: qs('#exportStatsBtn'),
+      exportSessionLessonsBtn: qs('#exportSessionLessonsBtn'),
+      exportSessionLessonsMarkdownBtn: qs('#exportSessionLessonsMarkdownBtn'),
+      exportLessonsMarkdownBtn: qs('#exportLessonsMarkdownBtn'),
       importOtherStatsBtn: qs('#importOtherStatsBtn'), importOtherStatsFileInput: qs('#importOtherStatsFileInput'),
+      communityDashboardBtn: qs('#communityDashboardBtn'), communityDashboard: qs('#communityDashboard'),
+      communityDashboardClose: qs('#communityDashboardClose'),
+      communityDashboardMetrics: qs('#communityDashboardMetrics'),
+      communityDashboardLeaderboard: qs('#communityDashboardLeaderboard'),
+      communityPlayersCount: qs('#communityPlayersCount'),
+      communityDashboardCourses: qs('#communityDashboardCourses'),
       importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput'),
       importConflictScrim: qs('#importConflictScrim'), importConflictIntro: qs('#importConflictIntro'),
       importConflictBody: qs('#importConflictBody'), importConflictApplyAll: qs('#importConflictApplyAll'),
@@ -1824,6 +2003,7 @@ const App = {
      back to the built-in DEFAULT_COURSES above; nothing breaks. */
   async fetchStaticPacks(){
     this.staticPackMarks = [];
+    this.staticPeerStats = [];
     try{
       const manifestUrl = new URL('lessons/index.json', document.baseURI);
       const res = await fetch(manifestUrl, { cache:'no-store' });
@@ -1859,11 +2039,30 @@ const App = {
             return { course:lesson.course, courseId, order:lesson.courseOrder, lessons:[lesson] };
           }
           const pack = await r.json();
+          const isStatsExport = isRecord(pack) && (
+            (typeof pack.format === 'string' &&
+              (pack.format.startsWith('pomoudying-user-stats.') ||
+               pack.format.startsWith('studyping-user-stats.'))) ||
+            (!pack.format && isRecord(pack.identity) && typeof pack.identity.userId === 'string' &&
+              PEER_STATS_SECTIONS.some(section => Object.prototype.hasOwnProperty.call(pack, section)))
+          );
+          if(isStatsExport){
+            try{
+              const { record, warnings } = normalizePeerStatsExport(pack);
+              if(warnings.length){
+                console.info(`Pomoudying: skipped malformed stats sections in "${name}": ${warnings.join(', ')}`);
+              }
+              return { peerStats:{ ...record, archiveFile:name } };
+            }catch(e){
+              console.warn(`Pomoudying: unable to load stats archive "${name}" —`, e.message);
+              return null;
+            }
+          }
           if(!pack || typeof pack !== 'object' ||
              (!Array.isArray(pack.lessons) && !Array.isArray(pack.marks))) return null;
           return pack;
         }catch(e){
-          console.warn(`Studyping: unable to load "${name}" —`, e.message);
+          console.warn(`Pomoudying: unable to load "${name}" —`, e.message);
           return null;
         }
       }));
@@ -1892,9 +2091,13 @@ const App = {
       this.staticPackMarks = packs
         .filter(p => p && Array.isArray(p.marks))
         .flatMap(p => p.marks);
+      this.staticPeerStats = packs
+        .filter(p => p && isRecord(p.peerStats))
+        .map(p => p.peerStats);
     }catch(e){
       this.staticPackCourses = [];
-      console.info('Studyping: no static lesson packs loaded —', e.message);
+      this.staticPeerStats = [];
+      console.info('Pomoudying: no static lesson packs loaded —', e.message);
     }
   },
 
@@ -2180,6 +2383,10 @@ const App = {
           rename.className = 'lesson-menu-action';
           rename.dataset.action = 'rename';
           rename.textContent = 'Rename lesson';
+          const duplicate = document.createElement('span');
+          duplicate.className = 'lesson-menu-action';
+          duplicate.dataset.action = 'duplicate';
+          duplicate.textContent = 'Duplicate lesson';
           const assign = document.createElement('span');
           assign.className = 'lesson-menu-action';
           assign.dataset.action = 'assign-course';
@@ -2196,7 +2403,7 @@ const App = {
           generateId.className = 'lesson-menu-action';
           generateId.dataset.action = 'generate-id';
           generateId.textContent = 'Generate lesson ID';
-          menuList.append(rename, editId, generateId, assign, setOrder);
+          menuList.append(rename, duplicate, editId, generateId, assign, setOrder);
           // Restore only exists when an override is actually stored. Pack exports
           // can carry an `edited` flag of their own, but there is nothing to restore
           // until this browser has saved an edit.
@@ -2215,11 +2422,12 @@ const App = {
           menu.appendChild(menuList);
           btn.appendChild(menu);
         }
-        const best = stats[lesson.id];
-        if(best && best.bestWpm){
+        const best = lessonStatsFor(stats, lesson.id, this.lessonIdAliases);
+        const bestWpm = isRecord(best) ? finiteStat(best.bestWpm ?? best.wpm) : null;
+        if(bestWpm !== null && bestWpm > 0){
           const meta = document.createElement('span');
           meta.className = 'lesson-meta';
-          meta.textContent = `★ ${best.bestWpm}`;
+          meta.textContent = `★ ${bestWpm}`;
           btn.appendChild(meta);
         }
         li.appendChild(btn);
@@ -2230,6 +2438,48 @@ const App = {
       this.dom.courseList.appendChild(group);
     });
     this.updateExportButton();
+    this.applyCourseSearch();
+    this.updateLessonNavigation();
+    this.updateGlobalLessonProgress();
+    this.updateLessonStats();
+  },
+  applyCourseSearch(){
+    const query = this.dom.courseSearch.value.trim().toLowerCase();
+    if(query !== this.courseSearchQuery){
+      this.courseSearchQuery = query;
+      this.searchCollapsedCourses.clear();
+    }
+    let visibleCourses = 0;
+    this.dom.courseList.querySelectorAll('.course-group').forEach(group => {
+      const courseTitle = group.querySelector('.course-head h3').textContent.toLowerCase();
+      const key = courseKey(courseTitle);
+      const courseMatches = query && courseTitle.includes(query);
+      let visibleLessons = 0;
+      group.querySelectorAll('.course-lessons > ul > li').forEach(item => {
+        const lessonTitle = item.querySelector('.lt-title').textContent.toLowerCase();
+        const matches = !query || courseMatches || lessonTitle.includes(query);
+        item.hidden = !matches;
+        if(matches) visibleLessons++;
+      });
+      group.hidden = Boolean(query) && !courseMatches && visibleLessons === 0;
+      const collapsed = query
+        ? this.searchCollapsedCourses.has(key)
+        : this.collapsedCourses.has(key);
+      group.classList.toggle('collapsed', collapsed);
+      const lessons = group.querySelector('.course-lessons');
+      const toggle = group.querySelector('.course-toggle');
+      if(lessons){
+        lessons.setAttribute('aria-hidden', String(collapsed));
+        lessons.inert = collapsed;
+      }
+      if(toggle){
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+        toggle.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${courseTitle}`);
+        toggle.title = `${collapsed ? 'Expand' : 'Collapse'} ${courseTitle}`;
+      }
+      if(!group.hidden) visibleCourses++;
+    });
+    this.dom.courseSearchEmpty.hidden = !query || visibleCourses > 0;
   },
   updateCourseSummary(node, course, stats){
     const results = course.lessons
@@ -2245,10 +2495,13 @@ const App = {
           (lastAt !== null && lastAt > 0);
       });
     const average = key => {
-      const values = results.map(result => finiteStat(result[key])).filter(value =>
+      const values = results.map(result => ({
+        value:finiteStat(result[key]),
+        attempts:finiteStat(result.attempts) || 0
+      })).filter(({ value, attempts }) =>
         value !== null && (key !== 'bestAccuracy' || (value >= 0 && value <= 100)) &&
-        (key !== 'bestWpm' || value > 0 || (finiteStat(result.attempts) || 0) > 0)
-      );
+        (key !== 'bestWpm' || value > 0 || attempts > 0)
+      ).map(({ value }) => value);
       return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
     };
     const completed = results.length;
@@ -2270,6 +2523,43 @@ const App = {
     fill.style.width = `${total ? completed / total * 100 : 0}%`;
     node.title = `${course.title}: ${completed} of ${total} lessons completed. Average per-lesson best: ${avgWpm === null ? 'no speed yet' : `${avgWpm} WPM`}, ${avgAccuracy === null ? 'no accuracy yet' : `${avgAccuracy}% accuracy`}.`;
   },
+  updateGlobalLessonProgress(){
+    if(!this.dom.globalLessonProgressTrack) return;
+    const lessons = this.getAllCourses().flatMap(course => course.lessons);
+    const stats = Storage.loadStats();
+    const withResults = lessons.reduce((count, lesson) =>
+      count + (hasSavedLessonActivity(lessonStatsFor(stats, lesson.id, this.lessonIdAliases)) ? 1 : 0), 0);
+    const total = lessons.length;
+    const max = total || 1;
+    const percent = total ? Math.round(withResults / total * 100) : 0;
+    const value = total ? `${withResults} of ${total}` : 'No lessons available';
+    const description = total
+      ? `Lessons with saved results: ${withResults} of ${total} available lessons`
+      : 'No lessons are currently available';
+    this.dom.globalLessonProgressValue.textContent = value;
+    this.dom.globalLessonProgressTrack.setAttribute('aria-valuemax', String(max));
+    this.dom.globalLessonProgressTrack.setAttribute('aria-valuenow', String(withResults));
+    this.dom.globalLessonProgressTrack.setAttribute('aria-valuetext', description);
+    this.dom.globalLessonProgressTrack.title = description;
+    this.dom.globalLessonProgressFill.style.width = `${percent}%`;
+  },
+  updateLessonStats(){
+    const lesson = this.currentLesson;
+    if(!lesson) return;
+    this.dom.lessonStatsName.textContent = lesson.title || lesson.id;
+    this.dom.lessonStatsCourse.textContent = this.currentCourseTitle || lesson.course || '';
+    const result = lessonStatsFor(Storage.loadStats(), lesson.id, this.lessonIdAliases);
+    const hasResults = hasSavedLessonActivity(result);
+    const bestWpm = isRecord(result) ? finiteStat(result.bestWpm ?? result.wpm) : null;
+    const accuracy = isRecord(result) ? finiteStat(result.bestAccuracy ?? result.accuracy) : null;
+    const attempts = isRecord(result) ? finiteStat(result.attempts) : null;
+    this.dom.lessonBestWpm.textContent = bestWpm === null ? '—' : String(Math.round(bestWpm));
+    this.dom.lessonBestAccuracy.textContent =
+      accuracy === null || accuracy < 0 || accuracy > 100 ? '—' : `${Math.round(accuracy)}%`;
+    this.dom.lessonCompletedRuns.textContent =
+      attempts === null || attempts <= 0 ? '—' : Math.round(attempts).toLocaleString();
+    this.dom.lessonStatsEmpty.hidden = hasResults;
+  },
   updateCourseSummaries(){
     const stats = Storage.loadStats();
     const courses = new Map(this.getAllCourses().map(course => [courseKey(course.title), course]));
@@ -2283,18 +2573,19 @@ const App = {
     // Updating in place keeps the drawer's scroll and focus exactly where they
     // were when the lesson finished.
     const stats = Storage.loadStats();
-    const best = stats[id];
+    const best = lessonStatsFor(stats, id, this.lessonIdAliases);
+    const bestWpm = isRecord(best) ? finiteStat(best.bestWpm ?? best.wpm) : null;
     const rows = Array.from(this.dom.courseList.querySelectorAll('.lesson-item'))
       .filter(row => row.dataset.id === id);
     rows.forEach(row => {
       let meta = Array.from(row.children).find(el => el.classList && el.classList.contains('lesson-meta'));
-      if(best && best.bestWpm){
+      if(bestWpm !== null && bestWpm > 0){
         if(!meta){
           meta = document.createElement('span');
           meta.className = 'lesson-meta';
           row.appendChild(meta);
         }
-        meta.textContent = `★ ${best.bestWpm}`;
+        meta.textContent = `★ ${bestWpm}`;
       } else if(meta){
         meta.remove();
       }
@@ -2308,12 +2599,13 @@ const App = {
       if(!entry) return;
       if(entry.kind === 'custom'){
         const target = this.customLessons.slice().reverse().find(item => item.id === lesson.id);
-        if(target) target.order = order;
+        if(target){ target.order = order; this.trackSessionLessonChange(lesson.id); }
       }else{
         const current = this.overrides[lesson.id];
         const override = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
         override.order = order;
         this.overrides[lesson.id] = override;
+        this.trackSessionLessonChange(lesson.id);
       }
     });
     Storage.saveLessons(this.customLessons);
@@ -2369,6 +2661,16 @@ const App = {
     const selected = Array.from(lessonIds).filter(id => this.exportSelection.has(id)).length;
     this.dom.exportLessonsBtn.textContent = selected ? `Export selected (${selected})` : 'Export selected';
     this.dom.selectAllLessonsBtn.textContent = selected === lessonIds.size && selected ? 'Unselect all' : 'Select all';
+    const changed = Array.from(lessonIds).filter(id => this.sessionLessonChanges.has(id)).length;
+    this.dom.exportSessionLessonsBtn.textContent = changed
+      ? `Export session changes (JSON, ${changed})`
+      : 'Export session changes (JSON)';
+    this.dom.exportSessionLessonsMarkdownBtn.textContent = changed
+      ? `Export session changes (Markdown, ${changed})`
+      : 'Export session changes (Markdown)';
+    this.dom.exportLessonsMarkdownBtn.textContent = selected
+      ? `Export selected (Markdown, ${selected})`
+      : 'Export selected (Markdown)';
   },
   toggleAllLessonSelection(){
     const ids = Array.from(new Set(this.getAllCourses().flatMap(course => course.lessons).map(l => l.id)));
@@ -2410,8 +2712,9 @@ const App = {
     this.templateUndo = [];
     this.templateRedo = [];
     this.currentCourseTitle = nextCourseTitle;
+    this.updateLessonStats();
     this.lessonSource = normalizeLessonText(lesson.text);
-    this.lessonMarkdown = parseInlineMarkdown(this.lessonSource);
+    this.lessonMarkdown = parseLessonMarkdown(this.lessonSource, lesson);
     this.engine = new TypingEngine({ ...lesson, text:this.lessonMarkdown.text });
     this.engine.addEventListener('start', () => this.onStart());
     this.engine.addEventListener('keystroke', (e) => this.onKeystroke(e));
@@ -2452,8 +2755,44 @@ const App = {
     this.savePref('lastLessonId', lesson.id);
     this.syncCourseCollapse(this.currentCourseTitle);
     this.renderSidebarActive();
+    this.updateLessonNavigation();
     this.bus.dispatchEvent(new CustomEvent('lessonLoaded', { detail:{ lessonId:lesson.id } }));
     if(!this.lessonIntro && (opts.ready || savedPosition > 0)) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
+  },
+  updateLessonNavigation(){
+    const lessons = this.getAllCourses().flatMap(course =>
+      course.lessons.map(lesson => ({ lesson, courseTitle:course.title }))
+    );
+    const index = lessons.findIndex(item => item.lesson.id === this.currentLesson?.id);
+    const canNavigate = index >= 0 && lessons.length > 1;
+    this.dom.lessonNavPosition.textContent = index >= 0 ? `${index + 1} / ${lessons.length}` : '— / —';
+    this.dom.previousLessonBtn.disabled = !canNavigate;
+    this.dom.nextLessonNavBtn.disabled = !canNavigate;
+    if(canNavigate){
+      const previous = lessons[(index - 1 + lessons.length) % lessons.length].lesson.title;
+      const next = lessons[(index + 1) % lessons.length].lesson.title;
+      this.dom.previousLessonBtn.title = `Previous lesson: ${previous}`;
+      this.dom.previousLessonBtn.setAttribute('aria-label', `Previous lesson: ${previous}`);
+      this.dom.nextLessonNavBtn.title = `Next lesson: ${next}`;
+      this.dom.nextLessonNavBtn.setAttribute('aria-label', `Next lesson: ${next}`);
+    }else{
+      this.dom.previousLessonBtn.title = 'Previous lesson';
+      this.dom.previousLessonBtn.setAttribute('aria-label', 'Previous lesson');
+      this.dom.nextLessonNavBtn.title = 'Next lesson';
+      this.dom.nextLessonNavBtn.setAttribute('aria-label', 'Next lesson');
+    }
+  },
+  navigateLesson(direction){
+    const lessons = this.getAllCourses().flatMap(course =>
+      course.lessons.map(lesson => ({ lesson, courseTitle:course.title }))
+    );
+    if(!lessons.length) return;
+    const index = lessons.findIndex(item => item.lesson.id === this.currentLesson?.id);
+    const targetIndex = index < 0
+      ? 0
+      : (index + direction + lessons.length) % lessons.length;
+    const target = lessons[targetIndex];
+    this.loadLesson(target.lesson, target.courseTitle, { ready:true });
   },
 
   restart(){
@@ -2481,7 +2820,7 @@ const App = {
     this.hideCompletion();
     this.dom.progressFill.style.width = '0%';
     this.dom.progressFill.style.background = 'var(--brass)';
-    this.updateSessionProgress(0);
+    this.updateLessonProgress(0);
     this.dom.captureInput.value = '';
     this.shadowValue = '';
     this.stopTicker();
@@ -2747,7 +3086,7 @@ const App = {
   applyTemplateHistoryEntry(entry){
     const snapshot = this.textView.snapshot(this.engine.pos);
     const sourceText = entry.sourceText === undefined ? entry.text : entry.sourceText;
-    const parsed = parseInlineMarkdown(sourceText);
+    const parsed = parseLessonMarkdown(sourceText, this.currentLesson);
     const pos = Math.min(entry.pos, parsed.text.length);
     this.persistEdit(parsed.text, { sourceText });
     this.engine.replaceText(parsed.text, pos);
@@ -2923,10 +3262,6 @@ const App = {
       this.showPill('edit', 'Queued deletions cleared', 1200);
       return true;
     }
-    if(key === 'Backspace'){
-      this.deletePreviousWord();
-      return true;
-    }
     if(this.pendingCommand === 'm'){
       const candidate = 'm' + key.toLowerCase();
       if(candidate === 'mw'){
@@ -2941,9 +3276,35 @@ const App = {
       }
       return true;
     }
-    if(this.pendingCommand === 'd'){
+    if(this.pendingCommand === 'd' || /^d\d+$/.test(this.pendingCommand)){
+      if(/^\d$/.test(key)){
+        const countText = this.pendingCommand.slice(1) + key;
+        this.queueCommandBuffer('d' + countText);
+        this.showPill('edit', `Delete ${countText} word${Number(countText) === 1 ? '' : 's'}: type w`);
+        return true;
+      }
+      if(key === 'Backspace'){
+        if(this.pendingCommand.length > 1){
+          const countText = this.pendingCommand.slice(1, -1);
+          this.queueCommandBuffer(countText ? 'd' + countText : 'd');
+          this.showPill('edit', countText
+            ? `Delete ${countText} word${Number(countText) === 1 ? '' : 's'}: type w`
+            : 'Delete current word: type w');
+        } else {
+          this.clearCommandBuffer();
+          this.deletePreviousWord();
+        }
+        return true;
+      }
+      const count = this.pendingCommand.length > 1
+        ? Math.min(Number(this.pendingCommand.slice(1)), this.engine.text.length + 1)
+        : 1;
       this.clearCommandBuffer();
-      if(key === 'w') this.deleteCurrentWord();
+      if(key === 'w') this.deleteCurrentWord(count);
+      return true;
+    }
+    if(key === 'Backspace'){
+      this.deletePreviousWord();
       return true;
     }
     if(this.pendingCommand === 'c'){
@@ -3042,22 +3403,30 @@ const App = {
     this.refreshOverlays();
     this.bus.dispatchEvent(new CustomEvent('lessonEdited', { detail:{ lessonId:this.currentLesson.id } }));
   },
-  deleteCurrentWord(){
+  deleteCurrentWord(count = 1){
     if(!this.engine || (this.state !== 'ready' && this.state !== 'running' && !(this.commandMode && this.state === 'paused')) || this.editing) return;
     const eng = this.engine;
     const text = eng.text;
     const pos = eng.pos;
     let start = pos;
-    while(start < text.length && /\s/.test(text[start])) start++;
-    let end = start;
-    while(end < text.length && !/\s/.test(text[end])) end++;
-    if(start === text.length){
-      end = pos;
-      start = pos;
-      while(start > 0 && /\s/.test(text[start - 1])) start--;
-      while(start > 0 && !/\s/.test(text[start - 1])) start--;
-    } else if(end < text.length){
-      while(end < text.length && /\s/.test(text[end])) end++;
+    let end = pos;
+    const wordCount = Math.min(Math.floor(count), text.length + 1);
+    for(let i = 0; i < wordCount; i++){
+      let wordStart = end;
+      while(wordStart < text.length && /\s/.test(text[wordStart])) wordStart++;
+      if(wordStart === text.length){
+        let previousStart = start;
+        while(previousStart > 0 && /\s/.test(text[previousStart - 1])) previousStart--;
+        while(previousStart > 0 && !/\s/.test(text[previousStart - 1])) previousStart--;
+        if(previousStart === start) break;
+        start = previousStart;
+        continue;
+      }
+      end = wordStart;
+      while(end < text.length && !/\s/.test(text[end])) end++;
+      if(end < text.length){
+        while(end < text.length && /\s/.test(text[end])) end++;
+      }
     }
     this.deleteTextRange(start, end, pos);
   },
@@ -3252,7 +3621,7 @@ const App = {
   updateProgress(){
     const pct = clamp(Math.round((this.engine.pos/this.engine.text.length)*100), 0, 100);
     this.dom.progressFill.style.width = pct + '%';
-    this.updateSessionProgress(pct);
+    this.updateLessonProgress(pct);
     const acc = this.engine.getStats().accuracy;
     const hue = clamp((acc-70)*4, 0, 130); // 70%acc -> red-ish, 100%acc -> green-ish, feeding the brass baseline otherwise
     if(acc < 90){
@@ -3261,12 +3630,14 @@ const App = {
       this.dom.progressFill.style.background = 'var(--brass)';
     }
   },
-  updateSessionProgress(pct){
-    if(!this.dom.sessionProgress) return;
-    this.dom.sessionProgressFill.style.width = pct + '%';
-    this.dom.sessionProgressPct.textContent = pct + '%';
-    this.dom.sessionProgress.setAttribute('aria-valuenow', String(pct));
-    this.dom.sessionProgress.title = `Current lesson progress: ${pct}%`;
+  updateLessonProgress(pct){
+    if(!this.dom.lessonProgress) return;
+    this.dom.lessonProgressFill.style.width = pct + '%';
+    this.dom.lessonProgressPct.textContent = pct + '%';
+    this.dom.lessonProgress.setAttribute('aria-valuenow', String(pct));
+    const description = `Cursor is ${pct}% of the way through the current lesson`;
+    this.dom.lessonProgress.setAttribute('aria-valuetext', description);
+    this.dom.lessonProgress.title = `${description} (not the percentage of text typed)`;
   },
 
   /* ----- overlay / pause / focus ----- */
@@ -3392,6 +3763,11 @@ const App = {
     const inField = t !== d.captureInput && t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
     if(e.key === 'Escape' && !this.escapeCommands) return;
     if(e.key === 'Escape'){
+      if(d.communityDashboard.open){
+        e.preventDefault();
+        d.communityDashboard.close();
+        return;
+      }
       if(d.importConflictScrim.classList.contains('open')){ this.finishImportConflict('skip'); return; }
       if(d.mediaScrim.classList.contains('open')){ this.closeMediaEditor(); return; }
       if(d.marksScrim.classList.contains('open')){ this.closeMarks(); return; }
@@ -3440,7 +3816,7 @@ const App = {
     if(e.ctrlKey || e.metaKey || e.altKey) return;
     if(d.modalScrim.classList.contains('open') || d.actionModalScrim.classList.contains('open') || d.marksScrim.classList.contains('open') ||
        d.importConflictScrim.classList.contains('open') || d.mediaScrim.classList.contains('open') ||
-       d.completeOverlay.classList.contains('open') || d.drawer.classList.contains('open')) return;
+       d.completeOverlay.classList.contains('open') || d.drawer.classList.contains('open') || d.communityDashboard.open) return;
     if(t !== d.captureInput && t && t.closest){
       if(inField) return;
       if(t.closest('button, a') && (e.key === ' ' || e.key === 'Enter')) return; // focused buttons keep their Space/Enter
@@ -3544,7 +3920,7 @@ const App = {
         nextUserId = await derivedVisitorId();
         if(nextUserId === previousUserId) nextUserId = await derivedVisitorId();
       }catch(e){
-        console.warn('Studyping: could not generate a new user ID', e);
+        console.warn('Pomoudying: could not generate a new user ID', e);
         await this.showNotice('Could not generate user ID', 'A new ID could not be generated from this browser context.');
         return;
       }
@@ -3561,7 +3937,7 @@ const App = {
       }
       this.identity = identity;
       if(!Storage.reassignRunHistoryUserId(previousUserId, nextUserId)){
-        await this.showNotice('User ID changed', 'The new ID is saved. Local run history could not be relinked yet; Studyping will retry on the next visit.');
+        await this.showNotice('User ID changed', 'The new ID is saved. Local run history could not be relinked yet; Pomoudying will retry on the next visit.');
         return;
       }
       delete identity.previousUserId;
@@ -3587,7 +3963,217 @@ const App = {
     const description = describeGlobalStats(stats);
     this.dom.globalStats.title = description;
     this.dom.globalStats.setAttribute('aria-label', description);
+    this.updateGlobalLessonProgress();
+    this.updateLessonStats();
     if(this.engine) this.updateStats();
+  },
+  openCommunityDashboard(){
+    const peersById = new Map();
+    const lessonArchive = new Set();
+    [...this.staticPeerStats, ...Storage.loadOtherUserStats()].forEach(peer => {
+      if(!isRecord(peer) || typeof peer.userId !== 'string' ||
+         !peer.userId || peer.userId === this.identity.userId) return;
+      const current = peersById.get(peer.userId);
+      peersById.set(peer.userId, current ? mergePeerStats(current, peer) : peer);
+    });
+
+    const peers = Array.from(peersById.values()).map(peer => {
+      const summary = isRecord(peer.summary) ? peer.summary : {};
+      const runSummary = isRecord(peer.runSummary) ? peer.runSummary : {};
+      const runs = finiteStat(runSummary.runCount);
+      const reportedRuns = finiteStat(summary.runs);
+      const runCount = Math.max(0, Math.round(runs !== null ? runs : reportedRuns || 0));
+      const courseStats = Array.isArray(peer.courseStats)
+        ? peer.courseStats
+        : isRecord(peer.courseStats) ? Object.values(peer.courseStats) : [];
+      [peer.lessonStats, peer.lessonRunStats].forEach(section => {
+        if(Array.isArray(section)){
+          section.forEach(lesson => {
+            if(isRecord(lesson) && typeof (lesson.id || lesson.lessonId) === 'string'){
+              lessonArchive.add(lesson.id || lesson.lessonId);
+            }
+          });
+        }else if(isRecord(section)){
+          Object.keys(section).forEach(id => lessonArchive.add(id));
+        }
+      });
+      const courseIds = new Set();
+      (Array.isArray(peer.courses) ? peer.courses : []).forEach(course => {
+        if(!isRecord(course)) return;
+        const key = typeof course.courseId === 'string' && course.courseId
+          ? course.courseId
+          : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
+        if(key) courseIds.add(key);
+      });
+      courseStats.forEach(course => {
+        if(!isRecord(course)) return;
+        const key = typeof course.courseId === 'string' && course.courseId
+          ? course.courseId
+          : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
+        if(key) courseIds.add(key);
+      });
+      return {
+        userId:peer.userId,
+        runs:runCount,
+        bestWpm:Math.max(0, finiteStat(summary.bestWpm) || 0),
+        courseCount:courseIds.size,
+        typingTimeMs:Math.max(0, finiteStat(runSummary.totalTypingTimeMs) || 0),
+        courseStats
+      };
+    }).sort((a, b) => b.runs - a.runs || b.bestWpm - a.bestWpm || a.userId.localeCompare(b.userId));
+
+    const sum = (values) => values.reduce((total, value) => {
+      const next = total + value;
+      return Number.isFinite(next) ? next : Number.MAX_SAFE_INTEGER;
+    }, 0);
+    const totalRuns = sum(peers.map(peer => peer.runs));
+    const totalTypingTimeMs = sum(peers.map(peer => peer.typingTimeMs));
+    const courseArchive = new Map();
+    peers.forEach(peer => (Array.isArray(peer.courses) ? peer.courses : []).forEach(course => {
+      if(!isRecord(course)) return;
+      const id = typeof course.courseId === 'string' && course.courseId
+        ? course.courseId
+        : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
+      if(!id) return;
+      const current = courseArchive.get(id) || {
+        id,
+        title:typeof course.title === 'string' && course.title.trim() ? course.title.trim() : id,
+        runs:0,
+        users:new Set()
+      };
+      current.users.add(peer.userId);
+      courseArchive.set(id, current);
+    }));
+    peers.forEach(peer => peer.courseStats.forEach(course => {
+      if(!isRecord(course)) return;
+      const id = typeof course.courseId === 'string' && course.courseId
+        ? course.courseId
+        : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
+      if(!id) return;
+      const current = courseArchive.get(id) || {
+        id,
+        title:typeof course.title === 'string' && course.title.trim() ? course.title.trim() : id,
+        runs:0,
+        users:new Set()
+      };
+      current.runs = sum([current.runs, Math.max(0, finiteStat(course.runCount) || 0)]);
+      current.users.add(peer.userId);
+      if(typeof course.title === 'string' && course.title.trim() && current.title === id){
+        current.title = course.title.trim();
+      }
+      courseArchive.set(id, current);
+    }));
+    const courseRows = Array.from(courseArchive.values())
+      .sort((a, b) => b.runs - a.runs || b.users.size - a.users.size || a.title.localeCompare(b.title))
+      .slice(0, 6);
+    const maxRuns = peers.reduce((maximum, peer) => Math.max(maximum, peer.runs), 1);
+    const metrics = [
+      { label:'archive users', value:peers.length, format:value => Math.round(value).toLocaleString() },
+      { label:'reported runs', value:totalRuns, format:value => Math.round(value).toLocaleString() },
+      { label:'course fossils', value:courseArchive.size, format:value => Math.round(value).toLocaleString() },
+      { label:'lesson fossils', value:lessonArchive.size, format:value => Math.round(value).toLocaleString() },
+      { label:'practice hours', value:totalTypingTimeMs / 3600000, format:value => value.toLocaleString(undefined, { maximumFractionDigits:1 }) }
+    ];
+    this.dom.communityDashboardMetrics.replaceChildren();
+    metrics.forEach(metric => {
+      const card = document.createElement('div');
+      card.className = 'community-metric';
+      const value = document.createElement('strong');
+      value.className = 'community-metric-value';
+      value.dataset.countup = String(metric.value);
+      value.dataset.format = metric.label;
+      value.textContent = metric.format(0);
+      const label = document.createElement('span');
+      label.textContent = metric.label;
+      card.append(value, label);
+      this.dom.communityDashboardMetrics.appendChild(card);
+    });
+
+    this.dom.communityDashboardLeaderboard.replaceChildren();
+    this.dom.communityPlayersCount.textContent = peers.length
+      ? `top ${Math.min(8, peers.length)} / ${peers.length}`
+      : 'waiting for explorers';
+    peers.slice(0, 8).forEach((peer, index) => {
+      const item = document.createElement('li');
+      item.className = 'community-player';
+      item.style.setProperty('--player-index', String(index));
+      const rank = document.createElement('span');
+      rank.className = 'community-player-rank';
+      rank.textContent = String(index + 1).padStart(2, '0');
+      const details = document.createElement('span');
+      details.className = 'community-player-details';
+      const id = document.createElement('code');
+      id.textContent = peer.userId.length > 18
+        ? `${peer.userId.slice(0, 10)}…${peer.userId.slice(-5)}`
+        : peer.userId;
+      id.title = peer.userId;
+      const level = document.createElement('small');
+      const badge = peer.runs >= 25 ? 'STREAK KEEPER' : peer.runs >= 5 ? 'REGULAR' : 'NEW EXPLORER';
+      level.textContent = `${badge} · ${peer.courseCount} COURSE${peer.courseCount === 1 ? '' : 'S'}`;
+      details.append(id, level);
+      const score = document.createElement('span');
+      score.className = 'community-player-score';
+      const best = peer.bestWpm ? ` · best ${peer.bestWpm.toLocaleString()} wpm` : '';
+      score.textContent = `${peer.runs.toLocaleString()} runs${best}`;
+      const bar = document.createElement('span');
+      bar.className = 'community-player-bar';
+      const fill = document.createElement('span');
+      fill.style.setProperty('--player-progress', `${Math.max(5, (peer.runs / maxRuns) * 100)}%`);
+      bar.appendChild(fill);
+      item.append(rank, details, score, bar);
+      this.dom.communityDashboardLeaderboard.appendChild(item);
+    });
+    if(!peers.length){
+      const empty = document.createElement('li');
+      empty.className = 'community-empty';
+      empty.textContent = 'No imported histories yet. Add a stats export to the lessons archive or import one from the Courses drawer.';
+      this.dom.communityDashboardLeaderboard.appendChild(empty);
+    }
+
+    this.dom.communityDashboardCourses.replaceChildren();
+    courseRows.forEach((course, index) => {
+      const item = document.createElement('li');
+      item.className = 'community-course';
+      item.style.setProperty('--player-index', String(index));
+      const title = document.createElement('span');
+      title.className = 'community-course-title';
+      title.textContent = course.title;
+      title.title = course.id;
+      const meta = document.createElement('small');
+      const courseRuns = Math.round(course.runs);
+      meta.textContent = `${course.users.size} user${course.users.size === 1 ? '' : 's'} · ${courseRuns.toLocaleString()} run${courseRuns === 1 ? '' : 's'}`;
+      item.append(title, meta);
+      this.dom.communityDashboardCourses.appendChild(item);
+    });
+    if(!courseRows.length){
+      const empty = document.createElement('li');
+      empty.className = 'community-empty';
+      empty.textContent = peers.length
+        ? 'Course IDs are missing from these snapshots; their practice still counts.'
+        : 'No course records have surfaced yet.';
+      this.dom.communityDashboardCourses.appendChild(empty);
+    }
+
+    const reducedMotion = prefersReducedMotion();
+    this.dom.communityDashboardMetrics.querySelectorAll('[data-countup]').forEach(node => {
+      const target = Number(node.dataset.countup);
+      const metric = metrics.find(item => item.label === node.dataset.format);
+      if(!metric || !Number.isFinite(target)) return;
+      if(reducedMotion){
+        node.textContent = metric.format(target);
+        return;
+      }
+      const start = performance.now();
+      const duration = 650;
+      const tick = now => {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        node.textContent = metric.format(target * eased);
+        if(progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    if(!this.dom.communityDashboard.open) this.dom.communityDashboard.showModal();
   },
   saveBestStats(stats){
     const stored = Storage.loadStats();
@@ -3662,7 +4248,7 @@ const App = {
   displayText(){
     // what's on screen: the lesson, or — while editing — whatever the field currently holds
     return this.editing
-      ? parseInlineMarkdown(this.dom.captureInput.value).text
+      ? parseLessonMarkdown(this.dom.captureInput.value, this.currentLesson).text
       : (this.engine ? this.engine.text : '');
   },
   applyAnnotations(parsedEdit = null){
@@ -4368,7 +4954,7 @@ const App = {
     if(!this.editing) return;
     const d = this.dom, eng = this.engine, tv = this.textView, es = this.editStart;
     const newSource = normalizeLessonText(d.captureInput.value);
-    const parsed = parseInlineMarkdown(newSource);
+    const parsed = parseLessonMarkdown(newSource, this.currentLesson);
     if(accept && !parsed.text){ this.showPill('edit', "The lesson text can't be empty", 1800); return; }
     const changed = accept && newSource !== es.sourceText;
     this.editing = false;
@@ -4429,8 +5015,9 @@ const App = {
     if(options.remapPending !== false && this.engine) this.remapPendingDeletions(this.engine.text, text);
     const sourceText = normalizeLessonText(options.sourceText === undefined ? text : options.sourceText);
     this.lessonSource = sourceText;
-    this.lessonMarkdown = parseInlineMarkdown(sourceText);
+    this.lessonMarkdown = parseLessonMarkdown(sourceText, lesson);
     const lesson = this.currentLesson;
+    this.trackSessionLessonChange(lesson.id);
     if(lesson.custom){
       lesson.text = sourceText;
       Storage.saveLessons(this.customLessons);
@@ -4487,7 +5074,11 @@ const App = {
           const acc = optionalInt(v.targetAccuracy, 50, 100);
           if(wpm !== null) next.targetWPM = wpm;
           if(acc !== null) next.targetAccuracy = acc;
-          if(Object.keys(next).length){ this.overrides[id] = next; n++; }
+          if(Object.keys(next).length){
+            this.overrides[id] = next;
+            this.trackSessionLessonChange(id);
+            n++;
+          }
         }
       });
     }
@@ -4534,7 +5125,7 @@ const App = {
   rebuildForEdit(val){
     const es = this.editStart, tv = this.textView;
     const previousMarkdown = this._editMarkdown;
-    const nextMarkdown = parseInlineMarkdown(val);
+    const nextMarkdown = parseLessonMarkdown(val, this.currentLesson);
     this.remapCapturesForTextChange(previousMarkdown.text, nextMarkdown.text);
     this.remapPendingDeletions(previousMarkdown.text, nextMarkdown.text);
     // The typed prefix keeps its green / red only up to the first character that differs from where
@@ -4762,6 +5353,7 @@ const App = {
       custom:true
     };
     this.customLessons.push(lesson);
+    this.trackSessionLessonChange(lesson.id);
     Storage.saveLessons(this.customLessons);
     this.closeModal();
     this.renderSidebar();
@@ -4779,6 +5371,7 @@ const App = {
     if(!value || value === target.title) return;
     if(lesson) lesson.title = value;
     else this.saveLessonMetadata(id, { title:value });
+    if(lesson) this.trackSessionLessonChange(id);
     if(this.currentLesson && this.currentLesson.id === id){
       this.dom.lessonTitle.textContent = value;
       const refreshed = this.findLesson(id);
@@ -4786,6 +5379,41 @@ const App = {
     }
     if(lesson) Storage.saveLessons(this.customLessons);
     this.renderSidebar();
+  },
+  duplicateLesson(id){
+    const entry = this.findLessonEntry(id);
+    if(!entry || this.deletedLessons.has(id)) return;
+    const source = entry.lesson;
+    const existingTitles = new Set(this.getAllCourses()
+      .flatMap(course => course.lessons.map(lesson => lesson.title.toLowerCase())));
+    const baseTitle = `Copy of ${source.title}`;
+    let title = baseTitle;
+    for(let suffix = 2; existingTitles.has(title.toLowerCase()); suffix++){
+      title = `${baseTitle} (${suffix})`;
+    }
+    const lesson = {
+      id:uid('custom'),
+      title,
+      course:source.course || entry.courseTitle || 'My Lessons',
+      ...(entry.courseId ? { courseId:entry.courseId } : {}),
+      text:source.text,
+      targetWPM:source.targetWPM ?? 30,
+      targetAccuracy:source.targetAccuracy ?? 95,
+      ...(source.order != null ? { order:source.order } : {}),
+      ...(source.courseOrder != null ? { courseOrder:source.courseOrder } : {}),
+      ...(Array.isArray(source.objectives)
+        ? { objectives:source.objectives.map(objective => isRecord(objective) ? { ...objective } : objective) }
+        : {}),
+      ...(Array.isArray(source.topics) ? { topics:source.topics.slice() } : {}),
+      custom:true
+    };
+    this.customLessons.push(lesson);
+    this.trackSessionLessonChange(lesson.id);
+    Storage.saveLessons(this.customLessons);
+    this.renderSidebar();
+    this.loadLesson(lesson, lesson.course, { ready:true });
+    this.showPill('edit', 'Copy created. Press Esc, then i to edit the text.', 2200);
+    this.bus.dispatchEvent(new CustomEvent('lessonAdded', { detail:{ lessonId:lesson.id } }));
   },
   async copyLessonId(id){
     const entry = this.findLessonEntry(id);
@@ -4883,6 +5511,7 @@ const App = {
     }else{
       this.lessonIdAliases[entry.sourceId] = nextId;
     }
+    this.trackSessionLessonChange(nextId, id);
     Object.keys(this.lessonIdAliases).forEach(sourceId => {
       if(this.lessonIdAliases[sourceId] === id) this.lessonIdAliases[sourceId] = nextId;
     });
@@ -4919,7 +5548,7 @@ const App = {
     if(this.exportSelection.delete(id)) this.exportSelection.add(nextId);
     if(this.sessionLessonVisits.delete(id)){
       this.sessionLessonVisits.add(nextId);
-      try{ sessionStorage.setItem(SESSION_VISITS_KEY, JSON.stringify([...this.sessionLessonVisits])); }catch(e){ console.warn('Studyping: could not save lesson visit state', e); }
+      try{ sessionStorage.setItem(SESSION_VISITS_KEY, JSON.stringify([...this.sessionLessonVisits])); }catch(e){ console.warn('Pomoudying: could not save lesson visit state', e); }
     }
     [this.templateUndo, this.templateRedo].forEach(history => {
       history.forEach(item => { if(item.lessonId === id) item.lessonId = nextId; });
@@ -4956,6 +5585,7 @@ const App = {
     if(lesson) {
       lesson.course = value;
       lesson.courseId = destinationCourseId;
+      this.trackSessionLessonChange(id);
       Storage.saveLessons(this.customLessons);
     } else this.saveLessonMetadata(id, { course:value, courseId:destinationCourseId });
     if(this.currentLesson && this.currentLesson.id === id){
@@ -4982,6 +5612,7 @@ const App = {
       if(target){
         if(order === null) delete target.order;
         else target.order = order;
+        this.trackSessionLessonChange(id);
         Storage.saveLessons(this.customLessons);
       }
     }else{
@@ -5001,7 +5632,14 @@ const App = {
       ? { text:existing }
       : existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {};
     this.overrides[id] = { ...metadata, ...changes };
+    this.trackSessionLessonChange(id);
     Storage.saveOverrides(this.overrides);
+  },
+  trackSessionLessonChange(id, previousId = null){
+    if(typeof previousId === 'string' && previousId) this.sessionLessonChanges.delete(previousId);
+    if(typeof id === 'string' && id) this.sessionLessonChanges.add(id);
+    Storage.saveSessionLessonChanges(this.sessionIdentity.sessionId, Array.from(this.sessionLessonChanges));
+    this.updateExportButton();
   },
   async deleteLesson(id){
     const found = this.findLesson(id);
@@ -5009,6 +5647,8 @@ const App = {
     if(!lesson) return;
     if(!await this.showActionModal({ title:'Delete lesson?', message:`Delete "${lesson.title}"? This cannot be undone.`, input:false, confirm:'Delete' })) return;
     this.exportSelection.delete(id);
+    this.sessionLessonChanges.delete(id);
+    Storage.saveSessionLessonChanges(this.sessionIdentity.sessionId, Array.from(this.sessionLessonChanges));
     this.customLessons = this.customLessons.filter(l => l.id !== id);
     this.deletedLessons.add(id);
     Storage.saveDeletedLessons(Array.from(this.deletedLessons));
@@ -5037,7 +5677,7 @@ const App = {
     course.lessons.forEach(lesson => {
       if(customIds.has(lesson.id)){
         const custom = this.customLessons.find(item => item.id === lesson.id);
-        if(custom){ custom.course = value; updatedCustomLesson = true; }
+        if(custom){ custom.course = value; this.trackSessionLessonChange(lesson.id); updatedCustomLesson = true; }
       }else this.saveLessonMetadata(lesson.id, { course:value });
     });
     if(updatedCustomLesson) Storage.saveLessons(this.customLessons);
@@ -5098,13 +5738,14 @@ const App = {
     course.lessons.forEach(lesson => {
       if(customIds.has(lesson.id)){
         const custom = this.customLessons.slice().reverse().find(item => item.id === lesson.id);
-        if(custom){ custom.courseId = courseId; lessonsChanged = true; }
+        if(custom){ custom.courseId = courseId; this.trackSessionLessonChange(lesson.id); lessonsChanged = true; }
       }else{
         const existing = this.overrides[lesson.id];
         const metadata = typeof existing === 'string'
           ? { text:existing }
           : existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {};
         this.overrides[lesson.id] = { ...metadata, courseId };
+        this.trackSessionLessonChange(lesson.id);
         overridesChanged = true;
       }
     });
@@ -5124,6 +5765,8 @@ const App = {
     const ids = new Set(course.lessons.map(lesson => lesson.id));
     this.exportSelection.forEach(id => { if(ids.has(id)) this.exportSelection.delete(id); });
     this.customLessons = this.customLessons.filter(lesson => !ids.has(lesson.id));
+    ids.forEach(id => this.sessionLessonChanges.delete(id));
+    Storage.saveSessionLessonChanges(this.sessionIdentity.sessionId, Array.from(this.sessionLessonChanges));
     ids.forEach(id => this.deletedLessons.add(id));
     Storage.saveDeletedLessons(Array.from(this.deletedLessons));
     Storage.saveLessons(this.customLessons);
@@ -5154,6 +5797,17 @@ const App = {
      so a digest can move between browsers without carrying lesson content. */
   downloadJson(payload, filename){
     const blob = new Blob([payload], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  },
+  downloadText(payload, filename){
+    const blob = new Blob([payload], { type:'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -5214,9 +5868,9 @@ const App = {
     });
 
     return {
-      format:'studyping-user-stats.v1',
+      format:'pomoudying-user-stats.v1',
       exportedAt:new Date().toISOString(),
-      app:{ name:'Studyping', statsSchemaVersion:1, historyNote:'Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates.' },
+      app:{ name:'Pomoudying', statsSchemaVersion:1, historyNote:'Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates.' },
       identity:{
         userId:this.identity.userId,
         firstSeenAt:this.identity.firstSeenAt,
@@ -5285,7 +5939,7 @@ const App = {
   },
   exportStats(){
     const data = this.buildStatsExport();
-    this.downloadJson(JSON.stringify(data, null, 2), `studyping-stats-${new Date().toISOString().slice(0,10)}.json`);
+    this.downloadJson(JSON.stringify(data, null, 2), `pomoudying-stats-${new Date().toISOString().slice(0,10)}.json`);
   },
   importOtherUserStats(json){
     const raw = typeof json === 'string' ? JSON.parse(json) : json;
@@ -5326,10 +5980,10 @@ const App = {
       }
       await this.showNotice('Other-user stats imported', message);
     }catch(err){
-      console.warn('Studyping: other-user stats import failed', err);
+      console.warn('Pomoudying: other-user stats import failed', err);
       await this.showNotice('Stats import failed', err && err.message
         ? err.message
-        : 'That file could not be imported as Studyping user stats.');
+        : 'That file could not be imported as Pomoudying user stats.');
     }finally{
       this.importingStats = false;
     }
@@ -5339,33 +5993,65 @@ const App = {
       this.endInlineEdit(true);
       if(this.editing) return;
     }
-    const selectedById = new Map();
-    this.getAllCourses().forEach(course => course.lessons.forEach(lesson => {
-      if(this.exportSelection.has(lesson.id) && !selectedById.has(lesson.id)){
-        selectedById.set(lesson.id, {
-          id:lesson.id,
-          title:lesson.title,
-          text:lesson.text,
-          course:lesson.course || course.title,
-          courseId:course.courseId,
-          targetWPM:lesson.targetWPM,
-          targetAccuracy:lesson.targetAccuracy,
-          ...(lesson.order != null ? { order:lesson.order } : {}),
-          ...(lesson.courseOrder != null ? { courseOrder:lesson.courseOrder } : {}),
-          ...(Array.isArray(lesson.objectives) ? { objectives:lesson.objectives } : {}),
-          ...(Array.isArray(lesson.topics) ? { topics:lesson.topics } : {})
-        });
-      }
-    }));
-    const selected = Array.from(selectedById.values());
+    const selected = this.collectLessonsForExport(false);
     if(!selected.length){ await this.showNotice('Nothing selected', 'Select at least one lesson to export.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'studyping-lessons.v1', lessons:selected }, null, 2);
-    this.downloadJson(payload, `studyping-lessons-${selected.length}.json`);
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-lessons.v1', lessons:selected }, null, 2);
+    this.downloadJson(payload, `pomoudying-lessons-${selected.length}.json`);
+  },
+  collectLessonsForExport(sessionOnly){
+    const ids = sessionOnly ? this.sessionLessonChanges : this.exportSelection;
+    const lessonsById = new Map();
+    this.getAllCourses().forEach(course => course.lessons.forEach(lesson => {
+      if(!ids.has(lesson.id) || lessonsById.has(lesson.id)) return;
+      lessonsById.set(lesson.id, {
+        id:lesson.id,
+        title:lesson.title,
+        text:lesson.text,
+        course:lesson.course || course.title,
+        courseId:course.courseId,
+        targetWPM:lesson.targetWPM,
+        targetAccuracy:lesson.targetAccuracy,
+        ...(lesson.order != null ? { order:lesson.order } : {}),
+        ...(lesson.courseOrder != null ? { courseOrder:lesson.courseOrder } : {}),
+        ...(Array.isArray(lesson.objectives) ? { objectives:lesson.objectives } : {}),
+        ...(Array.isArray(lesson.topics) ? { topics:lesson.topics } : {})
+      });
+    }));
+    return Array.from(lessonsById.values());
+  },
+  async exportSessionLessons(){
+    if(this.editing){
+      this.endInlineEdit(true);
+      if(this.editing) return;
+    }
+    const lessons = this.collectLessonsForExport(true);
+    if(!lessons.length){
+      await this.showNotice('No session changes', 'Create or edit a lesson in this browser-tab session before exporting.');
+      return;
+    }
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-lessons.v1', lessons }, null, 2);
+    this.downloadJson(payload, `pomoudying-session-lessons-${lessons.length}.json`);
+  },
+  async exportMarkdownLessons(sessionOnly){
+    if(this.editing){
+      this.endInlineEdit(true);
+      if(this.editing) return;
+    }
+    const lessons = this.collectLessonsForExport(sessionOnly);
+    if(!lessons.length){
+      await this.showNotice('Nothing to export', sessionOnly
+        ? 'Create or edit a lesson in this browser-tab session before exporting.'
+        : 'Select at least one lesson to export.');
+      return;
+    }
+    const payload = buildMarkdownLessonBundle(lessons);
+    const prefix = sessionOnly ? 'pomoudying-session-lessons' : 'pomoudying-lessons';
+    this.downloadText(payload, `${prefix}-${lessons.length}.txt`);
   },
   async exportMarks(){
     if(!this.marks.length){ await this.showNotice('Nothing to export', 'No marks or masks to export yet.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'studyping-marks.v1', marks:this.marks }, null, 2);
-    this.downloadJson(payload, `studyping-marks-${this.marks.length}.json`);
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-marks.v1', marks:this.marks }, null, 2);
+    this.downloadJson(payload, `pomoudying-marks-${this.marks.length}.json`);
   },
   async importMarksFromFile(file){
     const reader = new FileReader();
@@ -5380,8 +6066,8 @@ const App = {
           ? `Imported ${added} mark${added === 1 ? '' : 's'}.`
           : 'No new marks were added — they are already saved or missing required fields.');
       }catch(err){
-        console.warn('Studyping: mark import failed', err);
-        await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Studyping marks export.');
+        console.warn('Pomoudying: mark import failed', err);
+        await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Pomoudying marks export.');
       }
     };
     reader.readAsText(file);
@@ -5390,12 +6076,20 @@ const App = {
     if(this.importing){ await this.showNotice('Import in progress', 'A lesson import is already in progress.'); return; }
     this.importing = true;
     try{
-      const data = JSON.parse(await this.readTextFile(file));
+      const source = await this.readTextFile(file);
+      let data;
+      try{
+        data = JSON.parse(source);
+      }catch(jsonError){
+        if(!/\.(?:md|txt)$/i.test(file.name)) throw jsonError;
+        const bundle = parseMarkdownLessonBundle(source, file.name);
+        data = { lessons:bundle || [parseMarkdownLessonFile(source, file.name, true)] };
+      }
       await this.importLessonData(data);
     }catch(err){
       if(this.importConflict) this.finishImportConflict('skip');
-      console.warn('Studyping: import failed', err);
-      await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Studyping lessons export.');
+      console.warn('Pomoudying: import failed', err);
+      await this.showNotice('Import failed', err && err.message ? err.message : 'That file did not look like a Pomoudying lessons export.');
     }finally{
       this.importing = false;
     }
@@ -5417,7 +6111,7 @@ const App = {
     if(!list.length && !Object.keys(ovr).length && !Object.keys(idAliases).length && !deletedList.length){
       throw new Error(markList.length
         ? 'That file contains marks, not lessons. Use Import marks to add them.'
-        : 'That file did not look like a Studyping lessons export.');
+        : 'That file did not look like a Pomoudying lessons export.');
     }
     // Apply aliases before deletions so a deleted lesson keeps its changed ID.
     const aliasCount = Object.keys(idAliases).length
@@ -5516,7 +6210,7 @@ const App = {
     return result;
   },
   importLessonsSync(list, conflictMode = 'skip'){
-    // Non-interactive path for Studyping.importData(): conflicts follow the
+    // Non-interactive path for Pomoudying.importData(): conflicts follow the
     // caller's rule ('skip' by default) and identical ids are always skipped.
     const mode = conflictMode === 'update' || conflictMode === 'new' ? conflictMode : 'skip';
     const result = { added:0, updated:0, versions:0, identical:0, skipped:0, restored:0, invalid:0, conflicts:0 };
@@ -5578,6 +6272,7 @@ const App = {
     if(incoming.objectives) lesson.objectives = incoming.objectives;
     if(incoming.topics) lesson.topics = incoming.topics;
     this.customLessons.push(lesson);
+    this.trackSessionLessonChange(lesson.id);
     return lesson;
   },
   applyImportedUpdate(entry, incoming){
@@ -5728,6 +6423,7 @@ const App = {
         after.textContent = change.after || '(none)';
         values.append(after);
       }
+      this.trackSessionLessonChange(entry.lesson.id);
       row.append(label, values);
       fields.appendChild(row);
     });
@@ -5774,6 +6470,12 @@ const App = {
   toggleCourse(title){
     const key = courseKey(title);
     if(!key) return;
+    if(this.dom.courseSearch.value.trim()){
+      if(this.searchCollapsedCourses.has(key)) this.searchCollapsedCourses.delete(key);
+      else this.searchCollapsedCourses.add(key);
+      this.applyCourseSearch();
+      return;
+    }
     if(this.collapsedCourses.has(key)) this.collapsedCourses.delete(key);
     else this.collapsedCourses.add(key);
     this.savePref('collapsedCourses', Array.from(this.collapsedCourses));
@@ -5843,7 +6545,7 @@ const App = {
   },
   setRadioPlaying(playing){
     if(window.parent !== window && window.location.origin !== 'null'){
-      window.parent.postMessage({ type:'studyping:radio', action:playing ? 'on' : 'off' }, window.location.origin);
+      window.parent.postMessage({ type:'pomoudying:radio', action:playing ? 'on' : 'off' }, window.location.origin);
     }
     this.showPill('edit', playing ? 'Radio on' : 'Radio off', 1200);
   },
@@ -5880,8 +6582,8 @@ const App = {
     const button = this.dom.escapeSwitch;
     button.setAttribute('aria-checked', String(this.escapeCommands));
     button.title = this.escapeCommands
-      ? 'Escape controls Studyping commands; turn off to leave Escape to the browser'
-      : 'Escape is left to the browser; turn on to use Studyping commands';
+      ? 'Escape controls Pomoudying commands; turn off to leave Escape to the browser'
+      : 'Escape is left to the browser; turn on to use Pomoudying commands';
   },
 
   /* ----- wiring ----- */
@@ -5892,6 +6594,7 @@ const App = {
       if(e.key === Storage.STATS_KEY) this.updateGlobalStats();
     });
     d.menuBtn.addEventListener('click', () => this.openDrawer());
+    d.courseSearch.addEventListener('input', () => this.applyCourseSearch());
     d.escapeSwitch.addEventListener('click', () => this.toggleEscapeCommands());
     d.shortcutToggle.addEventListener('click', () => this.toggleShortcuts());
     d.drawerCloseBtn.addEventListener('click', () => this.closeDrawer());
@@ -6005,6 +6708,7 @@ const App = {
         const id = menu.dataset.menuId;
         this.closeLessonMenu(menu);
         if(menuAction.dataset.action === 'rename') this.renameLesson(id);
+        else if(menuAction.dataset.action === 'duplicate') this.duplicateLesson(id);
         else if(menuAction.dataset.action === 'edit-id') this.editLessonId(id);
         else if(menuAction.dataset.action === 'generate-id') this.generateAndSaveLessonId(id);
         else if(menuAction.dataset.action === 'assign-course') this.assignLessonCourse(id);
@@ -6019,6 +6723,14 @@ const App = {
 
     d.newLessonBtn.addEventListener('click', () => this.openModal());
     d.exportStatsBtn.addEventListener('click', () => this.exportStats());
+    d.exportSessionLessonsBtn.addEventListener('click', () => this.exportSessionLessons());
+    d.exportSessionLessonsMarkdownBtn.addEventListener('click', () => this.exportMarkdownLessons(true));
+    d.exportLessonsMarkdownBtn.addEventListener('click', () => this.exportMarkdownLessons(false));
+    d.communityDashboardBtn.addEventListener('click', () => this.openCommunityDashboard());
+    d.communityDashboardClose.addEventListener('click', () => d.communityDashboard.close());
+    d.communityDashboard.addEventListener('click', e => {
+      if(e.target === d.communityDashboard) d.communityDashboard.close();
+    });
     d.importOtherStatsBtn.addEventListener('click', () => d.importOtherStatsFileInput.click());
     d.importOtherStatsFileInput.addEventListener('change', () => {
       const file = d.importOtherStatsFileInput.files[0];
@@ -6159,6 +6871,8 @@ const App = {
       setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
     });
     d.keyboardToggleBtn.addEventListener('click', () => this.toggleKeyboard());
+    d.previousLessonBtn.addEventListener('click', () => this.navigateLesson(-1));
+    d.nextLessonNavBtn.addEventListener('click', () => this.navigateLesson(1));
 
     // Clicking the text/veil must not steal focus from the typing field (that would
     // read as "focus lost" and pause), so cancel the mousedown and let click() decide.
@@ -6229,13 +6943,7 @@ const App = {
 
     d.retryBtn.addEventListener('click', () => this.restart());
     d.closeCompleteBtn.addEventListener('click', () => this.hideCompletion());
-    d.nextLessonBtn.addEventListener('click', () => {
-      const courses = this.getAllCourses();
-      const flat = courses.flatMap(c => c.lessons.map(l => ({ lesson:l, courseTitle:c.title })));
-      const idx = flat.findIndex(x => x.lesson.id === this.currentLesson.id);
-      const next = flat[(idx+1) % flat.length];
-      this.loadLesson(next.lesson, next.courseTitle, { ready:true });
-    });
+    d.nextLessonBtn.addEventListener('click', () => this.navigateLesson(1));
 
   }
 };
@@ -6243,32 +6951,32 @@ const App = {
 document.addEventListener('DOMContentLoaded', () => App.init());
 
 /* =========================================================================
-   PUBLIC API — window.Studyping
+   PUBLIC API — window.Pomoudying
    ---------------------------------------------------------------------
    Use this surface to feed your own content and hook your own gamification
    logic in without touching the internals above.
 
-     Studyping.addLesson({
+     Pomoudying.addLesson({
        title: 'My Drill', course: 'My Lessons', text: '...',
        targetWPM: 40, targetAccuracy: 96,
        objectives: [{ type:'minWpm', value:40, label:'Reach 40 wpm' }] // optional
      })
-     Studyping.loadLesson(lessonId)
-     Studyping.courses()                 // -> [{ title, lessons:[...] }]
-     Studyping.getState()                // -> { lessonId, state, stats }
-     Studyping.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
-     Studyping.exportStats()             // -> detailed local stats export JSON
-     Studyping.importOtherUserStats(json) // -> store one user's stats separately
-     Studyping.getOtherUserStats()        // -> imported users' stats snapshots
-     Studyping.on('checkpoint', fn)      // events: start, keystroke, error,
-     Studyping.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
+     Pomoudying.loadLesson(lessonId)
+     Pomoudying.courses()                 // -> [{ title, lessons:[...] }]
+     Pomoudying.getState()                // -> { lessonId, state, stats }
+     Pomoudying.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
+     Pomoudying.exportStats()             // -> detailed local stats export JSON
+     Pomoudying.importOtherUserStats(json) // -> store one user's stats separately
+     Pomoudying.getOtherUserStats()        // -> imported users' stats snapshots
+     Pomoudying.on('checkpoint', fn)      // events: start, keystroke, error,
+     Pomoudying.off('checkpoint', fn)     //   wordComplete, checkpoint, lessonLoaded,
                                              //   lessonComplete, lessonAdded, lessonEdited,
                                              //   ready, paused, resumed, markAdded, markRemoved
-     Studyping.setSoundEnabled(bool)
-     Studyping.setTheme('light'|'dark'|'gray'|'system')
-     Studyping.exportData() / importData(json, { conflicts:'skip'|'update'|'new' })
+     Pomoudying.setSoundEnabled(bool)
+     Pomoudying.setTheme('light'|'dark'|'gray'|'system')
+     Pomoudying.exportData() / importData(json, { conflicts:'skip'|'update'|'new' })
    ========================================================================= */
-window.Studyping = {
+window.Pomoudying = {
   addLesson(lesson){
     const source = lesson && typeof lesson === 'object' ? lesson : {};
     const title = String(source.title || '').trim();
@@ -6281,7 +6989,7 @@ window.Studyping = {
       const comparison = compareImportedLesson(existing.lesson, existing.courseTitle, incoming);
       if(comparison.same) return existing.lesson.id; // already saved: no duplicate row
       id = uid('custom'); // same id, different content: keep both under a fresh id
-      console.info(`Studyping: lesson id "${source.id}" already exists with different content; adding the new lesson as "${id}".`);
+      console.info(`Pomoudying: lesson id "${source.id}" already exists with different content; adding the new lesson as "${id}".`);
     }
     const wpm = optionalInt(source.targetWPM, 5, 200);
     const acc = optionalInt(source.targetAccuracy, 50, 100);
@@ -6300,6 +7008,7 @@ window.Studyping = {
       custom: true
     };
     App.customLessons.push(full);
+    App.trackSessionLessonChange(full.id);
     Storage.saveLessons(App.customLessons);
     App.renderSidebar();
     App.bus.dispatchEvent(new CustomEvent('lessonAdded', { detail:{ lessonId:full.id } }));
@@ -6351,7 +7060,7 @@ window.Studyping = {
         // options.conflicts: 'skip' (default), 'update', or 'new' (second version).
         const result = App.importLessonsSync(data.lessons, conflictMode);
         if(result.conflicts){
-          console.info(`Studyping: importData resolved ${plural(result.conflicts, 'conflict')} using "${conflictMode || 'skip'}".`);
+          console.info(`Pomoudying: importData resolved ${plural(result.conflicts, 'conflict')} using "${conflictMode || 'skip'}".`);
         }
       }
       if(data.stats){
@@ -6364,13 +7073,14 @@ window.Studyping = {
       App.renderSidebar();
       return true;
     }catch(e){
-      console.warn('Studyping: importData failed', e);
+      console.warn('Pomoudying: importData failed', e);
       return false;
     }
   }
 };
 
-// Keep integrations written for the previous module name working after the rename.
-window.TypingStudio = window.Studyping;
+// Keep integrations written for the previous names working after the rename.
+window.Studyping = window.Pomoudying;
+window.TypingStudio = window.Pomoudying;
 
 })();

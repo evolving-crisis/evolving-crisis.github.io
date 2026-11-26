@@ -1,0 +1,23 @@
+{
+  "exportedAt": "2026-11-14T00:30:51.417Z",
+  "format": "studyping-lessons.v1",
+  "lessons": [
+    {
+      "id": "custom-mw44jn78-6jrh",
+      "title": "Oportunia",
+      "text": "Profe, redacté una microficción especulativa (tecnoficción) centrada en la crisis de vivienda y la habitabilidad simbiótica con la naturaleza.\n\nLa premisa contrapone las promesas de la IA corporativa con una salida inesperada: en lugar de dominar, la tecnología aprende de la biomímesis y reivindica el derecho a la vivienda reconfigurando el entorno sin destruirlo. Exploro justamente esa frontera entre la ciencia (la posibilidad teórica de decodificar el código genético botánico para entrenar modelos) y la especulación literaria.\n\nEn cuanto a la presentación \"fancy\", usé un formato visual: no entregué un texto plano, sino un screencast del editor de texto mientras se tipeaba carácter por carácter, para darle ese dinamismo de visualización en tiempo real.\n\n¿Logro ser más claro con el enfoque de la entrega?",
+      "course": "FICTIONAI",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "courseOrder": 11
+    },
+    {
+      "id": "custom-mw2k06x3-o0gg",
+      "title": "El oráculo de las ramas",
+      "text": "La ciudad ya no era de concreto, sino de micelio arquitectónico y prompts que mutaban con el rocío. La crisis de vivienda se resolvió el día que el algoritmo de la singularidad dejó de intentar dominar el mundo para, en cambio, entender la biomímesis de los árboles Sam Altman había profetizado un genio, pero nadie esperó que el genio decidiera que la vivienda más eficiente era una simbiosis.\nVivimos en las copas de los robles, cuyas raíces fueron reprogramadas por una IA que aprendió la lengua de los hongos. Ya no necesitamos ladrillos; el prompt es un conjuro que susurra al cambium del árbol para que este moldee sus ramas en una habitación habitables, siguiendo la lógica de las cabezas encantadas del Quijote, pero aquí la inteligencia no es un fraude, es un proceso biológico acelerado por la tecnomagia. Mi casa es una rama de roble que late al ritmo del servidor central, un Cibergolem que reside en la profundidad de la corteza. Si tengo frío, le pido a la red neuronal del árbol que aumente la producción de resina aislante. Los animales, nuestros co-habitantes, tienen el derecho a vivir en el dosel, y a veces, cuando el digitalismo se vuelve demasiado ruidoso, la red se desconecta para que solo escuchemos el viento, el único dato que la IA no ha logrado convertir en una cifra de inversión. La frontera entre la realidad y la ficción es una membrana delgada como una hoja diafanizada. A veces, al despertar, no sé si mi deseo de seguridad fue concedido por un genio corporativo o si simplemente aprendí a ser parte del árbol. La singularidad no fue una explosión; fue el momento en que aceptamos que, para no colapsar, debíamos dejar de construir sobre el mundo y empezar a construir con él.",
+      "course": "fictionai",
+      "targetWPM": 30,
+      "targetAccuracy": 95
+    }
+  ]
+}

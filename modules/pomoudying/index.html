@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Studyping App — Evolving Crisis</title>
+<title>Pomoudying App — Evolving Crisis</title>
 <meta name="description" content="A hackable, keyboard-aware typing practice tool you can host yourself and feed your own lessons.">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./styles.css">
@@ -19,7 +19,7 @@
       </button>
       <div class="brand">
         <span class="brand-caret"></span>
-        <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Studyping commands" title="Use Escape for Studyping commands">
+        <button class="escape-switch" id="escapeSwitch" role="switch" aria-checked="true" aria-label="Use Escape for Pomoudying commands" title="Use Escape for Pomoudying commands">
           <span class="escape-switch-label">Esc commands</span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
@@ -27,6 +27,7 @@
     </div>
     <div class="topbar-dashboard">
       <div class="user-id-control" aria-label="Local user ID">
+        <span class="user-id-label">User</span>
         <button class="user-id-copy" id="userIdCopyBtn" type="button" title="Click to copy your user ID">
           <code class="user-id-value" id="userIdValue"></code>
         </button>
@@ -35,48 +36,87 @@
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 5v4h-4"/><path d="M4.6 8a5.8 5.8 0 0 1 9.9-2L16 8M4 15v-4h4"/><path d="M15.4 12a5.8 5.8 0 0 1-9.9 2L4 12"/></svg>
         </button>
       </div>
-      <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global typing stats">
-        <span class="gs-label">Global</span>
-        <span class="gs-metric">
-          <span class="gs-value" id="gStatWpm">—</span>
-          <span class="gs-unit">avg wpm</span>
-        </span>
-        <span class="gs-sep" aria-hidden="true"></span>
-        <span class="gs-metric acc">
-          <span class="gs-value" id="gStatAcc">—</span>
-          <span class="gs-unit">avg acc</span>
-        </span>
-        <span class="gs-sep gs-sep-runs" aria-hidden="true"></span>
-        <span class="gs-metric runs">
-          <span class="gs-value" id="gStatRuns">0</span>
-          <span class="gs-unit">runs</span>
-        </span>
-      </div>
-      <section class="session-stats" aria-label="Current session">
-        <section class="stats-row" id="statsRow" aria-label="Current session statistics" aria-live="polite">
-          <div class="stat"><span class="stat-value" id="statWpm">0</span><span class="stat-label">speed · wpm</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statAcc">100%</span><span class="stat-label">accuracy</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statTime">0:00</span><span class="stat-label">time</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statErrors">0</span><span class="stat-label">errors</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statPosition">0/0</span><span class="stat-label">position</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statModeSplit">— / —</span><span class="stat-label">typing / reading</span></div>
-          <div class="stat-divider"></div>
-          <div class="stat"><span class="stat-value" id="statRemaining">—</span><span class="stat-label">typing left</span></div>
-        </section>
-        <div class="session-progress" id="sessionProgress" role="progressbar"
-             aria-label="Current lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-             title="Current lesson progress">
-          <div class="session-progress-head">
-            <span>Run</span>
-            <span id="sessionProgressPct">0%</span>
-          </div>
-          <span class="session-progress-track" aria-hidden="true"><span id="sessionProgressFill"></span></span>
+      <div class="global-stats" id="globalStats" role="status" aria-live="polite" aria-atomic="true" aria-label="Global stats">
+        <div class="global-stats-metrics">
+          <span class="gs-label">Global stats</span>
+          <span class="gs-metric">
+            <span class="gs-value" id="gStatWpm">—</span>
+            <span class="gs-unit">avg. best WPM</span>
+          </span>
+          <span class="gs-sep" aria-hidden="true"></span>
+          <span class="gs-metric acc">
+            <span class="gs-value" id="gStatAcc">—</span>
+            <span class="gs-unit">avg. best accuracy</span>
+          </span>
+          <span class="gs-sep gs-sep-runs" aria-hidden="true"></span>
+          <span class="gs-metric runs">
+            <span class="gs-value" id="gStatRuns">0</span>
+            <span class="gs-unit">completed runs</span>
+          </span>
         </div>
+        <section class="lesson-progress-summary" aria-label="Lessons with saved results">
+          <div class="lesson-progress-head">
+            <span class="lesson-progress-label">Lessons with results</span>
+            <span class="lesson-progress-value" id="globalLessonProgressValue">No lessons available</span>
+          </div>
+          <div class="lesson-progress-track" id="globalLessonProgressTrack" role="progressbar"
+               aria-label="Lessons with saved results" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"
+               aria-valuetext="No lessons available">
+            <span class="lesson-progress-fill" id="globalLessonProgressFill"></span>
+          </div>
+        </section>
+      </div>
+      <section class="session-stats" aria-label="Session stats">
+        <span class="session-stats-label">Session stats</span>
+        <div class="session-stats-data">
+          <section class="stats-row" id="statsRow" aria-label="Current session statistics" aria-live="polite">
+            <div class="stat"><span class="stat-value" id="statWpm">0</span><span class="stat-label">speed (WPM)</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-value" id="statAcc">100%</span><span class="stat-label">accuracy</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-value" id="statTime">0:00</span><span class="stat-label">time elapsed</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-value" id="statErrors">0</span><span class="stat-label">errors</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-value" id="statModeSplit">— / —</span><span class="stat-label">time split</span></div>
+          </section>
+        </div>
+      </section>
+      <section class="lesson-stats-card" aria-labelledby="lessonStatsTitle">
+        <div class="lesson-stats-card-head">
+          <h2 class="lesson-stats-title" id="lessonStatsTitle">Current lesson stats</h2>
+          <div class="lesson-stats-lesson">
+            <span class="lesson-stats-lesson-name" id="lessonStatsName">No lesson selected</span>
+            <span class="lesson-stats-course-name" id="lessonStatsCourse"></span>
+          </div>
+        </div>
+        <div class="lesson-run-progress">
+          <div class="lesson-run-progress-head">
+            <span>Lesson position</span>
+            <span><span id="statPosition">0/0</span> · <span id="lessonProgressPct">0%</span></span>
+            <span class="lesson-run-progress-estimate">Est. time left <span id="statRemaining">—</span></span>
+          </div>
+          <div class="lesson-run-progress-track" id="lessonProgress" role="progressbar"
+               aria-label="Cursor position through current lesson" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+               aria-valuetext="Cursor is at the start of the current lesson" title="Cursor position through current lesson">
+            <span id="lessonProgressFill"></span>
+          </div>
+        </div>
+        <div class="lesson-stats-metrics">
+          <div class="lesson-stat">
+            <span class="lesson-stat-value" id="lessonBestWpm">—</span>
+            <span class="lesson-stat-label">best WPM</span>
+          </div>
+          <div class="lesson-stat">
+            <span class="lesson-stat-value" id="lessonBestAccuracy">—</span>
+            <span class="lesson-stat-label">best accuracy</span>
+          </div>
+          <div class="lesson-stat">
+            <span class="lesson-stat-value" id="lessonCompletedRuns">—</span>
+            <span class="lesson-stat-label">completed runs</span>
+          </div>
+        </div>
+        <p class="lesson-stats-empty" id="lessonStatsEmpty">No saved results for this lesson yet.</p>
       </section>
     </div>
     <div class="topbar-actions">
@@ -120,7 +160,7 @@
           <li><kbd>t</kbd> return to Typing mode</li>
           <li><kbd>n</kbd>/<kbd>b</kbd> next/previous word</li>
           <li><kbd>N</kbd>/<kbd>B</kbd> (Shift+n/b) queue skipped word(s) for deletion</li>
-          <li><kbd>dw</kbd> immediately deletes the current word</li>
+          <li><kbd>dw</kbd> immediately deletes the current word; <kbd>d3w</kbd> deletes the next 3 words</li>
           <li><kbd>D</kbd> delete queued ranges; <kbd>q</kbd> clears them</li>
           <li><kbd>Esc</kbd>/<kbd>t</kbd> return to Typing mode, keeping queued ranges</li>
           <li><kbd>:1234</kbd> jump to position 1234, then <kbd>Enter</kbd></li>
@@ -141,15 +181,21 @@
         <div class="drawer-head">
           <h2 id="courseTitle">Courses</h2>
         </div>
+        <input class="course-search" id="courseSearch" type="search" aria-label="Search courses and lessons" placeholder="Search lessons or courses" autocomplete="off">
         <div class="course-list" id="courseList"></div>
+        <p class="course-search-empty" id="courseSearchEmpty" hidden>No matching courses or lessons.</p>
         <button class="new-lesson-btn" id="newLessonBtn">+ New custom lesson</button>
         <div class="drawer-tools">
           <button class="text-btn stats-export-btn" id="exportStatsBtn" title="Download your local run history, course and lesson statistics, and pseudonymous IDs; raw browser details are not included">Export my stats</button>
           <button class="text-btn" id="importOtherStatsBtn" title="Add another user's stats to a separate local collection for future comparisons">Import other stats</button>
+          <button class="text-btn community-dashboard-btn" id="communityDashboardBtn" type="button">Open stats arcade</button>
+          <button class="text-btn" id="exportSessionLessonsBtn" title="Download JSON for lessons created or edited in this browser-tab session">Export session changes (JSON)</button>
+          <button class="text-btn" id="exportSessionLessonsMarkdownBtn" title="Download a Markdown .txt bundle of lessons created or edited in this browser-tab session">Export session changes (Markdown)</button>
           <button class="text-btn" id="exportLessonsBtn">Export selected</button>
+          <button class="text-btn" id="exportLessonsMarkdownBtn" title="Download selected lessons as a Markdown .txt bundle">Export selected (Markdown)</button>
           <button class="text-btn" id="selectAllLessonsBtn">Select all</button>
           <button class="text-btn" id="importLessonsBtn">Import lessons</button>
-          <input type="file" id="importFileInput" accept="application/json" hidden>
+          <input type="file" id="importFileInput" accept="application/json,.json,.txt,.md,text/plain" hidden>
           <input type="file" id="importOtherStatsFileInput" accept="application/json" hidden>
         </div>
         <div class="drawer-prefs">
@@ -191,6 +237,12 @@
       </section>
 
       <div class="keyboard-toggle-row">
+        <nav class="lesson-navigation" aria-label="Lesson navigation">
+          <button class="lesson-nav-btn" id="previousLessonBtn" type="button" aria-label="Previous lesson" title="Previous lesson" disabled>‹ <span class="lesson-nav-label">Previous</span></button>
+          <span class="lesson-nav-position" id="lessonNavPosition" aria-live="polite">— / —</span>
+          <button class="lesson-nav-btn" id="nextLessonNavBtn" type="button" aria-label="Next lesson" title="Next lesson" disabled><span class="lesson-nav-label">Next</span> ›</button>
+        </nav>
+        <span class="keyboard-toggle-divider" aria-hidden="true"></span>
         <button class="text-btn" id="keyboardToggleBtn" type="button"
                 aria-expanded="true" aria-controls="keyboardPanel">Hide keyboard</button>
       </div>
@@ -247,7 +299,7 @@
           <input id="lfOrder" type="number" step="1" placeholder="e.g. 20">
         </label>
         <label class="field"><span>Text to type</span>
-          <textarea id="lfText" required rows="5" placeholder="Paste or write the passage you want to practice…"></textarea>
+          <textarea id="lfText" required rows="5" placeholder="Write or paste text; Markdown is supported…"></textarea>
         </label>
         <div class="field-row">
           <label class="field"><span>Target WPM</span>
@@ -313,8 +365,8 @@
       </div>
       <ul class="marks-list" id="marksList"></ul>
       <div class="modal-actions marks-actions">
-        <button type="button" class="btn" id="marksImportBtn" title="Import marks and masks from a Studyping marks JSON file">Import marks</button>
-        <button type="button" class="btn" id="marksExportBtn" title="Download all marks and masks as a Studyping marks JSON file">Export marks</button>
+        <button type="button" class="btn" id="marksImportBtn" title="Import marks and masks from a Pomoudying marks JSON file">Import marks</button>
+        <button type="button" class="btn" id="marksExportBtn" title="Download all marks and masks as a Pomoudying marks JSON file">Export marks</button>
         <button type="button" class="btn" id="marksCopyBtn">Copy all</button>
         <button type="button" class="btn primary" id="marksPracticeBtn">Practice these</button>
         <input type="file" id="marksImportFileInput" accept="application/json" hidden>
@@ -376,6 +428,39 @@
       </div>
     </div>
   </div>
+
+  <dialog class="community-dashboard" id="communityDashboard" aria-labelledby="communityDashboardTitle">
+    <div class="community-dashboard-head">
+      <div>
+        <p class="community-kicker">POMOUDYING / FIELD NOTES</p>
+        <h2 id="communityDashboardTitle">The stats arcade</h2>
+        <p class="community-subtitle">A playful snapshot of imported practice histories.</p>
+      </div>
+      <button class="icon-btn community-dashboard-close" id="communityDashboardClose" type="button" aria-label="Close stats arcade">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
+      </button>
+    </div>
+    <div class="community-metrics" id="communityDashboardMetrics" aria-live="polite"></div>
+    <div class="community-dashboard-columns">
+      <section class="community-section" aria-labelledby="communityPlayersTitle">
+        <div class="community-section-head">
+          <h3 id="communityPlayersTitle">Practice crew</h3>
+          <span class="community-section-note" id="communityPlayersCount"></span>
+        </div>
+        <ol class="community-leaderboard" id="communityDashboardLeaderboard"></ol>
+      </section>
+      <section class="community-section" aria-labelledby="communityCoursesTitle">
+        <div class="community-section-head">
+          <h3 id="communityCoursesTitle">Course fossils</h3>
+          <span class="community-section-note">even the vanished ones</span>
+        </div>
+        <ol class="community-course-list" id="communityDashboardCourses"></ol>
+      </section>
+    </div>
+    <p class="community-archive-note" id="communityArchiveNote">
+      Stats files in the lessons archive load on refresh. Renamed IDs, retired lessons, duplicate histories, and gloriously impossible totals are part of the fossil record.
+    </p>
+  </dialog>
 
 </div>
 

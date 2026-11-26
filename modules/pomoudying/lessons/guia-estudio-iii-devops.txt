@@ -1,0 +1,17 @@
+**Interview example: Linux disk-space troubleshooting**
+
+I recently investigated a disk-space issue on a Fedora Asahi Linux workstation running on Apple Silicon.
+
+The root filesystem was approximately 97% utilized, so I started by inspecting filesystem usage with `df -h` and then used `du` to identify the largest directories.
+
+I found that storage consumption came from several independent sources: package-manager caches, crash reports, application data, Python dependencies, IDE plugins and a particularly large Git repository.
+
+Rather than deleting files indiscriminately, I classified the data according to whether it was system-managed, cached, application-specific or user data.
+
+The most challenging part was the Git repository. Its metadata occupied approximately 9.8 GB, primarily because of large packfiles and historical media objects. I investigated object sizes, branches, stashes, reflogs and Git LFS content. I also discovered that a garbage-collection attempt failed because there was insufficient temporary disk space.
+
+Before considering a destructive repository rebuild, I synchronized the local branch with the remote repository and verified that the current working tree and untracked files needed to be preserved.
+
+The main lesson was that Linux storage troubleshooting requires more than identifying large files. It requires understanding ownership, data lifecycle, filesystem behavior, application-level storage and the risks of cleanup operations.
+
+I would apply the same method in RHEL: diagnose first, identify the responsible subsystem, select the appropriate management tool, protect important data and verify the result afterward.

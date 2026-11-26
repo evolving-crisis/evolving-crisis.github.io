@@ -1,19 +1,20 @@
 ---
 layout: page
-title: studyping
+title: Pomoudying
 permalink: /studyping/
 ---
 
 <style>
-  body:has(.studyping-fullscreen) .page-content {
+  body:has(.pomoudying-fullscreen) .page-content {
     padding: 0;
   }
 
-  body:has(.studyping-fullscreen) .page-content > .wrapper {
+  body:has(.pomoudying-fullscreen) .page-content > .wrapper {
     max-width: none;
     padding: 0;
   }
 
+  body:has(.pomoudying-fullscreen) .page-heading,
   body:has(.studyping-fullscreen) .page-heading {
     display: none;
   }
@@ -37,7 +38,7 @@ permalink: /studyping/
 
 <div class="studyping-fullscreen">
 <iframe
-  src="{{ '/modules/studyping/' | relative_url }}"
-  title="Studyping App"
+  src="{{ '/modules/pomoudying/' | relative_url }}"
+  title="Pomoudying App"
 ></iframe>
 </div>

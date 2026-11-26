@@ -1,0 +1,10 @@
+---
+id: ortoncept
+title: "ortologous"
+course: "Target Capture Phylogenomics"
+order: 100
+targetWPM: 30
+targetAccuracy: 95
+---
+
+*Miren, muchachos, las palabras en biología pesan. Decir 'ortólogo' suena a verdad ontológica: genes separados por pura especiación*[1]*. Pero seamos honestos: en bioinformática, 'ortólogo' es muchas veces un* **término sombrilla** *, un constructo operacional ante la incertidumbre*[2]*. Cuando un pipeline nos dice 'encontré el ortólogo', lo que realmente dice es 'esta fue la única copia que pude ensamblar'*[2]*. Pero por debajo se pueden esconder 'ortólogos artifactuales', quimeras o duplicaciones borradas por el tiempo*[2][3]*. Por eso, la verdadera filosofía filogenómica no es solo correr programas, sino interrogar nuestro vocabulario: ¡un ortólogo operacional no siempre es un ortólogo evolutivo!*

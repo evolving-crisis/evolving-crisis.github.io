@@ -2,7 +2,7 @@
 
 The source for the [Evolving Crisis](https://evolving-crisis.github.io) website. The site is built with Jekyll and published through GitHub Actions to GitHub Pages.
 
-The site currently includes the blog, an About page, and a **Studyping** navigation tab at [`/studyping/`](https://evolving-crisis.github.io/studyping/). That tab displays the self-contained typing-study app from [`modules/studyping/`](./modules/studyping/). It also includes the standalone Radio Chaito player module from [`modules/radio-chaito/`](./modules/radio-chaito/), embedded in the site header on every Jekyll page.
+The site currently includes the blog, an About page, and a **Pomoudying** navigation tab at [`/pomoudying/`](https://evolving-crisis.github.io/pomoudying/). That tab displays the self-contained typing-study app from [`modules/pomoudying/`](./modules/pomoudying/). It also includes the standalone Radio Chaito player module from [`modules/radio-chaito/`](./modules/radio-chaito/), embedded in the site header on every Jekyll page.
 
 ## Tooling
 
@@ -14,8 +14,9 @@ The site currently includes the blog, an About page, and a **Studyping** navigat
 - **jekyll-feed**: generates the site's RSS/Atom feed.
 - **jekyll-remote-theme**: loads the Minima theme from GitHub.
 - **jekyll-seo-tag**: generates SEO metadata used by Minima.
-- **Studyping App**: a static HTML/CSS/JavaScript learning module with JSON lesson packs and browser-local progress.
+- **Pomoudying App**: a static HTML/CSS/JavaScript learning module with JSON lesson packs and browser-local progress.
 - **Radio Chaito**: a static HTML/CSS/JavaScript radio player module with a synthesized demo stream.
+- **Offline site cache**: a service worker precaches the generated site and refreshes cached pages and assets as they are requested.
 
 The [`Gemfile`](./Gemfile) declares Jekyll and its plugins individually, and [`Gemfile.lock`](./Gemfile.lock) records the resolved versions. GitHub Actions builds and deploys the site with the workflow in [`.github/workflows/pages.yml`](./.github/workflows/pages.yml).
 
@@ -112,8 +113,10 @@ bundle exec jekyll clean
 
 Generated directories such as `_site/`, `.jekyll-cache/`, and `.sass-cache/` are ignored by Git and should not be committed.
 
-The build includes the static files under `modules/studyping/` unchanged. The module uses relative asset and lesson URLs so it works at its published subpath.
+The build includes the static files under `modules/pomoudying/` unchanged. The module uses relative asset and lesson URLs so it works at its published subpath.
 The Radio Chaito module under [`modules/radio-chaito/`](./modules/radio-chaito/) is also copied unchanged and is available at `/modules/radio-chaito/`.
+
+The generated [`service-worker.js`](./service-worker.js) precaches the site's pages and static files when the site is first visited. It serves the last cached copy while offline and updates that copy in the background when a connection is available. The first visit must be online so the browser can install the service worker and cache the site. Browser storage limits may prevent unusually large or less-used files from being cached.
 
 ## Adding content
 
@@ -152,14 +155,14 @@ Use descriptive alternative text for accessibility.
 
 - [`index.markdown`](./index.markdown) defines the home page.
 - [`about.markdown`](./about.markdown) defines the About page.
-- [`studyping.markdown`](./studyping.markdown) provides the Studyping navigation tab.
+- [`pomoudying.markdown`](./pomoudying.markdown) provides the Pomoudying navigation tab.
 - [`404.html`](./404.html) defines the not-found page.
 - [`_config.yml`](./_config.yml) contains the site title, description, URL, theme, and plugins.
-- [`modules/studyping/`](./modules/studyping/) contains the standalone typing-study module.
+- [`modules/pomoudying/`](./modules/pomoudying/) contains the standalone typing-study module.
 
 Restart `bundle exec jekyll serve` after changing `_config.yml`; Jekyll does not reload configuration changes automatically.
 
-### Studyping module
+### Pomoudying module
 
 The module is intentionally independent of Jekyll and has no additional build
 step or server dependency. It contains:
@@ -169,10 +172,10 @@ step or server dependency. It contains:
 - browser-local custom lessons, marks, masks, preferences, and scores stored in
   `localStorage`.
 
-The blog page at [`studyping.markdown`](./studyping.markdown) embeds the
+The blog page at [`pomoudying.markdown`](./pomoudying.markdown) embeds the
 module with an iframe, while the module remains directly available at
-`/modules/studyping/`. See the module's
-[`README.md`](./modules/studyping/README.md) for its behavior and local
+`/modules/pomoudying/`. See the module's
+[`README.md`](./modules/pomoudying/README.md) for its behavior and local
 development instructions.
 
 ## Deploy with GitHub Pages
@@ -229,9 +232,9 @@ Visit <http://localhost:4000> and check the home page, posts, images, About page
 ├── _includes/custom-head.html # Shared favicon markup
 ├── _posts/              # Published posts
 ├── assets/images/       # Images used by posts and pages
-├── modules/studyping/ # Standalone typing-study module
+├── modules/pomoudying/ # Standalone typing-study module
 ├── about.markdown       # About page
-├── studyping.markdown # Blog page embedding the typing module
+├── pomoudying.markdown # Blog page embedding the typing module
 ├── index.markdown       # Home page
 ├── favicon.svg           # Site favicon
 ├── 404.html             # Custom not-found page
