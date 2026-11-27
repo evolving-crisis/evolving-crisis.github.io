@@ -167,17 +167,33 @@ function parseMarkdownLessonBundle(source, filename){
   const header = normalized.match(/^<!-- pomoudying-lessons-markdown\.v1:([a-z0-9-]+) -->\s*/i);
   if(!header) return null;
   const marker = `<!-- pomoudying-lesson:${header[1]} -->`;
-  const sections = normalized.slice(header[0].length).split(marker).slice(1)
+  let bundleSource = normalized.slice(header[0].length);
+  let marks = [];
+  const marksMarker = `<!-- pomoudying-marks.v1:${header[1]} -->`;
+  const marksIndex = bundleSource.lastIndexOf(marksMarker);
+  if(marksIndex >= 0){
+    try{
+      marks = JSON.parse(bundleSource.slice(marksIndex + marksMarker.length).trim());
+    }catch(e){
+      throw new Error('The Markdown lesson export contains invalid mark data.');
+    }
+    if(!Array.isArray(marks)) throw new Error('The Markdown lesson export contains invalid mark data.');
+    bundleSource = bundleSource.slice(0, marksIndex).trimEnd();
+  }
+  const sections = bundleSource.split(marker).slice(1)
     .map(section => section.trim()).filter(Boolean);
   if(!sections.length) throw new Error('The Markdown lesson export contains no lessons.');
-  return sections.map((section, index) =>
-    parseMarkdownLessonFile(section, `${filename.replace(/\.(?:md|txt)$/i, '')}-${index + 1}.txt`, true)
-  );
+  return {
+    lessons:sections.map((section, index) =>
+      parseMarkdownLessonFile(section, `${filename.replace(/\.(?:md|txt)$/i, '')}-${index + 1}.txt`, true)
+    ),
+    marks
+  };
 }
-function buildMarkdownLessonBundle(lessons){
+function buildMarkdownLessonBundle(lessons, marks = []){
   const token = generatedId('markdown');
   const header = `<!-- pomoudying-lessons-markdown.v1:${token} -->`;
-  return `${header}\n${lessons.map(lesson => {
+  const lessonSections = lessons.map(lesson => {
     const metadata = [
       `id: ${JSON.stringify(lesson.id)}`,
       `title: ${JSON.stringify(lesson.title)}`,
@@ -191,7 +207,11 @@ function buildMarkdownLessonBundle(lessons){
       ...(Array.isArray(lesson.topics) ? [`topics: ${JSON.stringify(lesson.topics)}`] : [])
     ];
     return `<!-- pomoudying-lesson:${token} -->\n---\n${metadata.join('\n')}\n---\n${lesson.text}`;
-  }).join('\n\n')}\n`;
+  }).join('\n\n');
+  const markSection = Array.isArray(marks) && marks.length
+    ? `\n\n<!-- pomoudying-marks.v1:${token} -->\n${JSON.stringify(marks, null, 2)}`
+    : '';
+  return `${header}\n${lessonSections}${markSection}\n`;
 }
 function parseInlineMarkdown(source, sourceMap = null, sourceLength = source.length){
   const text = [];
@@ -273,7 +293,7 @@ async function derivedVisitorId(){
     try{
       const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
       const shortHash = Array.from(new Uint8Array(digest).slice(0, 12), byte => byte.toString(16).padStart(2, '0')).join('');
-      return `ty${shortHash}perr`;
+      return `ruyez${shortHash.slice(4, 7)}pren`;
     }catch(e){ console.warn('Pomoudying: secure visitor ID hashing is unavailable; using the local fallback hash', e); }
   }
   let first = 2166136261, second = 0x811c9dc5;
@@ -301,10 +321,89 @@ function finiteStat(value){
   }
   return null;
 }
+function parseArchiveTimestamp(value){
+  if(typeof value === 'string'){
+    const parsed = Date.parse(value);
+    if(Number.isFinite(parsed)) return parsed;
+  }
+  const numeric = finiteStat(value);
+  if(numeric === null) return null;
+  const timestamp = Math.abs(numeric) < 100000000000 ? numeric * 1000 : numeric;
+  return Number.isFinite(new Date(timestamp).getTime()) ? timestamp : null;
+}
+function buildCommunityArchiveInsights(peers, localCleanStreak = null){
+  const safePeers = Array.isArray(peers) ? peers : [];
+  const choose = (label, key, direction, format, dateKey = null) => {
+    const candidates = safePeers.map(peer => ({ peer, value:peer[key] }))
+      .filter(item => Number.isFinite(item.value) &&
+        (key !== 'runs' || item.value > 0) &&
+        (key !== 'longestCleanStreak' || Number.isSafeInteger(item.value) && item.value >= 0));
+    if(!candidates.length) return { label, holders:[], value:null, format, dateKey };
+    const best = candidates.reduce((value, item) => direction < 0
+      ? Math.min(value, item.value) : Math.max(value, item.value), candidates[0].value);
+    return {
+      label,
+      holders:candidates.filter(item => item.value === best).map(item => ({
+        userId:item.peer.userId,
+        date:dateKey ? item.peer[dateKey] : null
+      })),
+      value:best,
+      format,
+      dateKey
+    };
+  };
+  const total = safePeers.length;
+  const cleanStreakProfiles = safePeers.filter(peer =>
+    Number.isSafeInteger(peer.longestCleanStreak) && peer.longestCleanStreak >= 0);
+  const coverage = [
+    { label:'Best speed', count:safePeers.filter(peer => Number.isFinite(peer.bestWpm)).length },
+    { label:'Average accuracy', count:safePeers.filter(peer => Number.isFinite(peer.averageAccuracy)).length },
+    { label:'Run-by-run history', count:safePeers.filter(peer => peer.detailedRunCount > 0).length },
+    { label:'Dated finishes', count:safePeers.filter(peer => Number.isFinite(peer.latestRunAt)).length },
+    { label:'Error-free streak history', count:cleanStreakProfiles.length }
+  ].map(item => ({ ...item, percent:total ? Math.round(item.count / total * 100) : null }));
+  const paceRuns = safePeers.flatMap(peer => peer.paceRuns || []);
+  const accuracyProfiles = safePeers.filter(peer => Number.isFinite(peer.averageAccuracy));
+  const highAccuracyCount = accuracyProfiles.filter(peer => peer.averageAccuracy >= 95).length;
+  const archiveCleanStreak = cleanStreakProfiles.reduce((best, peer) =>
+    Math.max(best, peer.longestCleanStreak), 0);
+  const personalCleanStreak = finiteStat(localCleanStreak);
+  return {
+    coverage,
+    total,
+    accuracyProfiles:accuracyProfiles.length,
+    highAccuracyCount,
+    highAccuracyPercent:accuracyProfiles.length ? Math.round(highAccuracyCount / accuracyProfiles.length * 100) : null,
+    archiveCleanStreak:cleanStreakProfiles.length ? archiveCleanStreak : null,
+    cleanStreakShadow:cleanStreakProfiles.length
+      ? personalCleanStreak === null
+        ? `Archive ghost record: ${archiveCleanStreak.toLocaleString()} error-free keystrokes.`
+        : personalCleanStreak > archiveCleanStreak
+          ? `You passed the archive shadow by ${(personalCleanStreak - archiveCleanStreak).toLocaleString()} error-free keystrokes.`
+          : personalCleanStreak === archiveCleanStreak
+            ? `Your all-time record ties the archive shadow at ${archiveCleanStreak.toLocaleString()} error-free keystrokes.`
+            : `The archive ghost leads your all-time record by ${(archiveCleanStreak - personalCleanStreak).toLocaleString()} error-free keystrokes.`
+      : 'Archive shadow unavailable: no imported profile reports a clean-streak record.',
+    paceRuns:{
+      eligible:paceRuns.length,
+      target:paceRuns.filter(run => run.wpm >= run.targetWpm).length,
+      great:paceRuns.filter(run => run.wpm >= run.targetWpm * 1.2).length
+    },
+    awards:[
+      choose('Pace setter', 'bestWpm', 1, 'wpm'),
+      choose('Most accurate average', 'averageAccuracy', 1, 'accuracy'),
+      choose('Cleanest history', 'errorRate', -1, 'errorRate'),
+      choose('Most completed runs', 'runs', 1, 'runs'),
+      choose('First recorded finisher', 'earliestRunAt', -1, 'date', 'earliestRunAt'),
+      choose('Latest recorded finisher', 'latestRunAt', 1, 'date', 'latestRunAt'),
+      choose('Longest error-free streak', 'longestCleanStreak', 1, 'cleanStreak')
+    ]
+  };
+}
 const isRecord = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
 const PEER_STATS_SECTIONS = [
   'summary', 'courses', 'runSummary', 'courseStats',
-  'lessonRunStats', 'lessonStats', 'sessions', 'runs'
+  'lessonRunStats', 'lessonStats', 'sessions', 'runs', 'fragmentCoverage'
 ];
 function normalizePeerStatsExport(raw){
   if(!isRecord(raw)) throw new Error('The file must contain one stats export object.');
@@ -366,6 +465,10 @@ function normalizePeerStatsExport(raw){
     }else if(section === 'lessonRunStats' || section === 'lessonStats'){
       if(!isRecord(value) && !Array.isArray(value)){ warnings.push(section); return; }
       record[section] = value;
+    }else if(section === 'fragmentCoverage'){
+      const coverage = normalizeFragmentCoverage(value);
+      if(!coverage){ warnings.push(section); return; }
+      record.fragmentCoverage = coverage;
     }
     acceptedSections++;
   });
@@ -417,6 +520,10 @@ function mergePeerStats(existing, incoming){
   ['identity', 'app', 'summary', 'runSummary'].forEach(key => {
     if(isRecord(existing[key]) && isRecord(incoming[key])){
       merged[key] = { ...existing[key], ...incoming[key] };
+      if((key === 'summary' || key === 'runSummary') &&
+         Number.isFinite(existing[key].longestCleanStreak) && Number.isFinite(incoming[key].longestCleanStreak)){
+        merged[key].longestCleanStreak = Math.max(existing[key].longestCleanStreak, incoming[key].longestCleanStreak);
+      }
     }
   });
   if(Object.prototype.hasOwnProperty.call(incoming, 'courses')){
@@ -445,6 +552,9 @@ function mergePeerStats(existing, incoming){
       merged[key] = mergeImportedMap(existing[key], incoming[key]);
     }
   });
+  if(Object.prototype.hasOwnProperty.call(incoming, 'fragmentCoverage')){
+    merged.fragmentCoverage = mergeFragmentCoverage(existing.fragmentCoverage, incoming.fragmentCoverage);
+  }
   return merged;
 }
 function collectGlobalStats(raw){
@@ -750,11 +860,232 @@ const DEFAULT_LESSON_ID = 'evolving-crisis-code-intro';
 const DEFAULT_COURSES = [
 ];
 
+const BADGE_CHARACTER_GROUPS = [
+  { id:'em-dash', label:'Em-dash setter', characters:'—' },
+  { id:'guillemets', label:'Guillemets', characters:'«»' },
+  { id:'curly-quotes', label:'Curly quotes', characters:'‘’“”' },
+  { id:'french-accents', label:'French accents', characters:'àâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ' },
+  { id:'german-umlauts', label:'Umlauts & sharp s', characters:'äöüÄÖÜßẞ' },
+  { id:'latin-e-macron', label:'Latin e with macron', characters:'ēĒ' },
+  { id:'tilde-letters', label:'Tilde letters', characters:'ñÑãõÃÕ' }
+];
+const BADGE_MILESTONES = [
+  { id:'target-pace', label:'Nice! Target pace', metric:'targetPaceReached', target:1 },
+  { id:'great-pace', label:'Great! 120% pace', metric:'greatPaceReached', target:1 },
+  { id:'correct-100', label:'First century', metric:'correctCharacters', target:100 },
+  { id:'correct-500', label:'Five hundred strokes', metric:'correctCharacters', target:500 },
+  { id:'correct-1000', label:'Thousand keystrokes', metric:'correctCharacters', target:1000 },
+  { id:'correct-5000', label:'Five thousand strokes', metric:'correctCharacters', target:5000 },
+  { id:'streak-25', label:'Shadow thread', metric:'longestCleanStreak', target:25 },
+  { id:'streak-100', label:'Ghost passage', metric:'longestCleanStreak', target:100 },
+  { id:'streak-500', label:'Impossible calm', metric:'longestCleanStreak', target:500 },
+  { id:'streak-1000', label:'Unbroken myth', metric:'longestCleanStreak', target:1000 },
+  { id:'runs-1', label:'First completed lesson', metric:'completedRuns', target:1 },
+  { id:'runs-10', label:'Ten completed lessons', metric:'completedRuns', target:10 },
+  { id:'runs-25', label:'Twenty-five completed lessons', metric:'completedRuns', target:25 },
+  { id:'fragment-1', label:'First fragment', metric:'fragmentsVisited', target:1 },
+  { id:'fragment-4', label:'Four corners', metric:'fragmentsVisited', target:4 },
+  { id:'fragment-20', label:'Passage cartographer', metric:'fragmentsVisited', target:20 },
+  { id:'fragment-50', label:'Unmapped no more', metric:'fragmentsVisited', target:50 },
+  { id:'whole-lesson-1', label:'Whole passage', metric:'fullyExploredLessons', target:1 },
+  { id:'whole-lesson-10', label:'Course cartographer', metric:'fullyExploredLessons', target:10 },
+  { id:'frontier-1', label:'First archive gap', metric:'frontierFragments', target:1 },
+  { id:'frontier-4', label:'Four first traces', metric:'frontierFragments', target:4 },
+  { id:'frontier-12', label:'Scarce trail', metric:'frontierFragments', target:12 },
+  { id:'frontier-30', label:'Last scraps', metric:'frontierFragments', target:30 }
+];
+const BADGE_CHALLENGE_LIMIT = 32;
+const LESSON_FRAGMENT_COUNT = 4;
+const BADGE_TRACKED_CHARACTERS = new Set(BADGE_CHARACTER_GROUPS.flatMap(group => Array.from(group.characters)));
+function normalizeFragmentCoverage(raw){
+  if(!isRecord(raw) || raw.version !== 1 || !isRecord(raw.lessons)) return null;
+  const lessons = Object.create(null);
+  Object.entries(raw.lessons).slice(0, 2000).forEach(([lessonId, value]) => {
+    if(typeof lessonId !== 'string' || !lessonId || lessonId.length > 256 || !isRecord(value)) return;
+    const fragmentCount = Number(value.fragmentCount);
+    const visitedMask = Number(value.visitedMask);
+    if(!Number.isInteger(fragmentCount) || fragmentCount < 1 || fragmentCount > LESSON_FRAGMENT_COUNT ||
+       !Number.isSafeInteger(visitedMask) || visitedMask <= 0 ||
+       visitedMask > (1 << fragmentCount) - 1) return;
+    lessons[lessonId] = { fragmentCount, visitedMask };
+  });
+  return { version:1, lessons };
+}
+function mergeFragmentCoverage(previous, incoming){
+  const existing = normalizeFragmentCoverage(previous) || { version:1, lessons:Object.create(null) };
+  const added = normalizeFragmentCoverage(incoming) || { version:1, lessons:Object.create(null) };
+  Object.entries(added.lessons).forEach(([lessonId, next]) => {
+    const current = existing.lessons[lessonId];
+    existing.lessons[lessonId] = current && current.fragmentCount === next.fragmentCount
+      ? { fragmentCount:next.fragmentCount, visitedMask:current.visitedMask | next.visitedMask }
+      : { ...next };
+  });
+  return existing;
+}
+function fragmentCoverageForProgress(progress){
+  const normalized = normalizeBadgeProgress(progress);
+  const lessons = Object.create(null);
+  Object.entries(normalized.visitedFragments).forEach(([lessonId, visitedMask]) => {
+    lessons[lessonId] = { fragmentCount:normalized.fragmentCounts[lessonId], visitedMask };
+  });
+  return { version:1, lessons };
+}
+function lessonFragmentCount(text){
+  return Math.min(LESSON_FRAGMENT_COUNT, String(text || '').trim().length);
+}
+function countVisitedFragments(mask, fragmentCount = LESSON_FRAGMENT_COUNT){
+  let count = 0;
+  for(let fragment = 0; fragment < fragmentCount; fragment++){
+    if(mask & (1 << fragment)) count++;
+  }
+  return count;
+}
+function normalizeBadgeChallenge(value){
+  return Array.from(new Set(Array.from(String(value || '').normalize('NFC'))
+    .filter(character => !/\s/u.test(character)))).slice(0, BADGE_CHALLENGE_LIMIT).join('');
+}
+function normalizeBadgeProgress(raw){
+  const value = isRecord(raw) ? raw : {};
+  const challengeCharacters = normalizeBadgeChallenge(value.challengeCharacters);
+  const tracked = new Set([...BADGE_TRACKED_CHARACTERS, ...Array.from(challengeCharacters)]);
+  const characters = {};
+  if(isRecord(value.characters)){
+    Object.entries(value.characters).forEach(([rawCharacter, count]) => {
+      const character = String(rawCharacter).normalize('NFC');
+      if(Array.from(character).length === 1 && tracked.has(character) && (count === true || Number(count) > 0)){
+        characters[character] = true;
+      }
+    });
+  }
+  const counter = number => Number.isSafeInteger(number) && number > 0 ? number : 0;
+  const flag = number => number === true || counter(number) > 0 ? 1 : 0;
+  const normalizeMasks = (rawMasks, rawCounts) => {
+    const masks = Object.create(null);
+    const counts = Object.create(null);
+    if(isRecord(rawMasks)){
+      Object.entries(rawMasks).slice(0, 2000).forEach(([lessonId, rawMask]) => {
+      const mask = Number(rawMask);
+      if(typeof lessonId === 'string' && lessonId.length > 0 && lessonId.length <= 256 && Number.isSafeInteger(mask) && mask >= 0){
+        const rawCount = isRecord(rawCounts) ? Number(rawCounts[lessonId]) : NaN;
+        const fragmentCount = Number.isInteger(rawCount) && rawCount > 0 && rawCount <= LESSON_FRAGMENT_COUNT
+          ? rawCount
+          : LESSON_FRAGMENT_COUNT;
+        const validMask = mask & ((1 << fragmentCount) - 1);
+        if(validMask){
+          masks[lessonId] = validMask;
+          counts[lessonId] = fragmentCount;
+        }
+      }
+      });
+    }
+    return { masks, counts };
+  };
+  const { masks:visitedFragments, counts:fragmentCounts } = normalizeMasks(value.visitedFragments, value.fragmentCounts);
+  const { masks:frontierClaims, counts:frontierCounts } = normalizeMasks(value.frontierClaims, value.frontierCounts);
+  const fragmentEntries = Object.entries(visitedFragments);
+  const frontierEntries = Object.entries(frontierClaims);
+  return {
+    version:1,
+    correctCharacters:counter(value.correctCharacters),
+    currentCleanStreak:counter(value.currentCleanStreak),
+    longestCleanStreak:Math.max(counter(value.currentCleanStreak), counter(value.longestCleanStreak)),
+    completedRuns:counter(value.completedRuns),
+    targetPaceReached:flag(value.targetPaceReached),
+    greatPaceReached:flag(value.greatPaceReached),
+    visitedFragments,
+    fragmentCounts,
+    frontierClaims,
+    frontierCounts,
+    fragmentsVisited:fragmentEntries.reduce((total, [lessonId, mask]) => total + countVisitedFragments(mask, fragmentCounts[lessonId]), 0),
+    fullyExploredLessons:fragmentEntries.filter(([lessonId, mask]) => mask === (1 << fragmentCounts[lessonId]) - 1).length,
+    frontierFragments:frontierEntries.reduce((total, [lessonId, mask]) => total + countVisitedFragments(mask, frontierCounts[lessonId]), 0),
+    characters,
+    challengeCharacters,
+    historyImported:value.historyImported === true
+  };
+}
+function badgeDefinitions(progress){
+  const characters = BADGE_CHARACTER_GROUPS.map(group => ({
+    ...group,
+    metric:'characters',
+    required:Array.from(group.characters),
+    description:`Type each exact character ${group.characters} correctly once.`
+  }));
+  const challenge = Array.from(normalizeBadgeChallenge(progress.challengeCharacters));
+  if(challenge.length){
+    characters.push({
+      id:'personal-character-challenge',
+      label:'Your character challenge',
+      characters:challenge.join(''),
+      metric:'characters',
+      required:challenge,
+      description:'Type every character you selected correctly once.'
+    });
+  }
+  const milestones = BADGE_MILESTONES.map(milestone => ({
+      ...milestone,
+      description:milestone.metric === 'targetPaceReached'
+        ? 'Reach the lesson target WPM at a typing checkpoint.'
+        : milestone.metric === 'greatPaceReached'
+          ? 'Reach 120% of the lesson target WPM at a typing checkpoint.'
+          : milestone.metric === 'fragmentsVisited'
+            ? `Visit ${milestone.target.toLocaleString()} new lesson fragments by typing through them.`
+            : milestone.metric === 'fullyExploredLessons'
+              ? `Visit every available fragment in ${milestone.target.toLocaleString()} lesson${milestone.target === 1 ? '' : 's'}.`
+              : milestone.metric === 'frontierFragments'
+                ? `Be the first recorded profile in this archive snapshot to reach ${milestone.target.toLocaleString()} lesson range${milestone.target === 1 ? '' : 's'}; missing reports can make a range look unclaimed.`
+                : `Reach ${milestone.target.toLocaleString()} ${milestone.metric === 'completedRuns' ? 'completed lessons' : milestone.metric === 'longestCleanStreak' ? 'consecutive error-free keystrokes' : 'correct keystrokes'}.`
+    }));
+  const paceBadges = milestones.filter(badge => badge.metric === 'targetPaceReached' || badge.metric === 'greatPaceReached');
+  return [
+    ...paceBadges,
+    ...characters,
+    ...milestones.filter(badge => badge.metric !== 'targetPaceReached' && badge.metric !== 'greatPaceReached')
+  ];
+}
+function badgeStatuses(raw){
+  const progress = normalizeBadgeProgress(raw);
+  return badgeDefinitions(progress).map(badge => {
+    const current = badge.metric === 'characters'
+      ? badge.required.filter(character => progress.characters[character]).length
+      : progress[badge.metric];
+    const target = badge.metric === 'characters' ? badge.required.length : badge.target;
+    return { ...badge, current, target, earned:current >= target };
+  });
+}
+function mergeBadgeProgress(previous, incoming){
+  const merged = normalizeBadgeProgress(previous);
+  const added = normalizeBadgeProgress(incoming);
+  merged.correctCharacters = Math.max(merged.correctCharacters, added.correctCharacters);
+  merged.longestCleanStreak = Math.max(merged.longestCleanStreak, added.longestCleanStreak);
+  merged.completedRuns = Math.max(merged.completedRuns, added.completedRuns);
+  merged.targetPaceReached = Math.max(merged.targetPaceReached, added.targetPaceReached);
+  merged.greatPaceReached = Math.max(merged.greatPaceReached, added.greatPaceReached);
+  const mergeMasks = (targetMasks, targetCounts, incomingMasks, incomingCounts) => {
+    Object.entries(incomingMasks).forEach(([lessonId, mask]) => {
+      const incomingCount = incomingCounts[lessonId];
+      if(!Object.prototype.hasOwnProperty.call(targetMasks, lessonId) || targetCounts[lessonId] !== incomingCount){
+        targetMasks[lessonId] = mask;
+        targetCounts[lessonId] = incomingCount;
+      }else{
+        targetMasks[lessonId] |= mask;
+      }
+    });
+  };
+  mergeMasks(merged.visitedFragments, merged.fragmentCounts, added.visitedFragments, added.fragmentCounts);
+  mergeMasks(merged.frontierClaims, merged.frontierCounts, added.frontierClaims, added.frontierCounts);
+  merged.challengeCharacters = added.challengeCharacters || merged.challengeCharacters;
+  merged.characters = { ...merged.characters, ...added.characters };
+  merged.historyImported = merged.historyImported || added.historyImported;
+  return normalizeBadgeProgress(merged);
+}
+
 /* ---------------------------- storage ---------------------------- */
 const Storage = {
   LESSONS_KEY:'pomoudying.customLessons.v1',
   STATS_KEY:'pomoudying.stats.v1',
   RUN_HISTORY_KEY:'pomoudying.runHistory.v1',
+  BADGES_KEY:'pomoudying.badges.v1',
   OTHER_USER_STATS_KEY:'pomoudying.otherUserStats.v1',
   IDENTITY_KEY:'pomoudying.identity.v1',
   SESSION_ID_KEY:'pomoudying.sessionId.v1',
@@ -791,6 +1122,8 @@ const Storage = {
   saveLessons(list){ try{ localStorage.setItem(this.LESSONS_KEY, JSON.stringify(list)); }catch(e){ console.warn('Pomoudying: could not save custom lessons', e); } },
   loadStats(){ try{ const raw = localStorage.getItem(this.STATS_KEY); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } },
   saveStats(stats){ try{ localStorage.setItem(this.STATS_KEY, JSON.stringify(stats)); }catch(e){ console.warn('Pomoudying: could not save stats', e); } },
+  loadBadges(){ try{ const raw = localStorage.getItem(this.BADGES_KEY); return normalizeBadgeProgress(raw ? JSON.parse(raw) : null); }catch(e){ return normalizeBadgeProgress(null); } },
+  saveBadges(progress){ try{ localStorage.setItem(this.BADGES_KEY, JSON.stringify(normalizeBadgeProgress(progress))); }catch(e){ console.warn('Pomoudying: could not save badges', e); } },
   loadRunHistory(){
     try{
       const raw = localStorage.getItem(this.RUN_HISTORY_KEY);
@@ -1057,6 +1390,8 @@ class TypingEngine extends EventTarget{
     this.pausedDuration = 0;
     this.keystrokes = 0;
     this.correctKeystrokes = 0;
+    this.currentCleanStreak = 0;
+    this.longestCleanStreak = 0;
     this.errorEvents = 0;
     this.backspaces = 0;
     this.finished = false;
@@ -1094,7 +1429,14 @@ class TypingEngine extends EventTarget{
     const correct = ch === expected;
     const index = this.pos;
     this.keystrokes++;
-    if(correct) this.correctKeystrokes++; else this.errorEvents++;
+    if(correct){
+      this.correctKeystrokes++;
+      this.currentCleanStreak++;
+      this.longestCleanStreak = Math.max(this.longestCleanStreak, this.currentCleanStreak);
+    }else{
+      this.errorEvents++;
+      this.currentCleanStreak = 0;
+    }
     this.pos++;
     this.dispatchEvent(new CustomEvent('keystroke', { detail:{ index, correct, char:ch } }));
     if(!correct){
@@ -1747,15 +2089,20 @@ const App = {
   customLessons: [],
   identity: null,
   sessionIdentity: null,
+  achievements: null,
+  badgeAnnouncementTimer: null,
   sessionLessonChanges: new Set(),
   runStartedAt: null,
   runStartedPerf: null,
   runCheckpoints: [],
   runPauses: [],
+  completedLessonRun: null,
   activeRunPause: null,
   staticPackCourses: [], // courses fetched from ./lessons/*.json — see fetchStaticPacks()
   staticPackMarks: [],   // default marks fetched from the same static lesson directory
   staticPeerStats: [],   // stats snapshots discovered alongside static lessons
+  communityPeers: [],
+  communityLeaderboardMetric: 'wpm',
   state: 'idle', // idle | ready | running | paused | finished
   pauseReason: null, // 'command' | 'edit' | 'blur' | 'window' | 'hidden' | 'idle'
   commandMode: false,
@@ -1767,6 +2114,7 @@ const App = {
   marks: [],         // saved annotations: { id, kind:'mark'|'mask', lessonId, lessonTitle, course, text, start, end, createdAt, attempts?, clean? }
   deletedLessons: new Set(),
   exportSelection: new Set(),
+  lessonExportFormat: 'json',
   importConflict: null, // pending { info, resolve, previousFocus } while the import dialog is open
   importing: false,     // one file import at a time (each conflict waits for a click)
   importingStats: false,
@@ -1821,6 +2169,9 @@ const App = {
   readingTimeMs: 0,
   readingStartedAt: null,
   globalAvgWpm: null,
+  baseTheme: 'system',
+  grayscaleTheme: false,
+  soundKeyAnimationTimer: null,
   dom: {},
 
   async init(){
@@ -1871,18 +2222,23 @@ const App = {
       courseList: qs('#courseList'), courseSearch: qs('#courseSearch'), courseSearchEmpty: qs('#courseSearchEmpty'), newLessonBtn: qs('#newLessonBtn'),
       globalLessonProgressValue: qs('#globalLessonProgressValue'), globalLessonProgressTrack: qs('#globalLessonProgressTrack'),
       globalLessonProgressFill: qs('#globalLessonProgressFill'),
-      lessonStatsName: qs('#lessonStatsName'), lessonStatsCourse: qs('#lessonStatsCourse'),
       lessonBestWpm: qs('#lessonBestWpm'), lessonBestAccuracy: qs('#lessonBestAccuracy'),
       lessonCompletedRuns: qs('#lessonCompletedRuns'), lessonStatsEmpty: qs('#lessonStatsEmpty'),
       lessonTitle: qs('#lessonTitle'), courseTag: qs('#courseTag'), lessonGoal: qs('#lessonGoal'),
       escapeSwitch: qs('#escapeSwitch'),
       globalStats: qs('#globalStats'), globalWpm: qs('#gStatWpm'), globalAcc: qs('#gStatAcc'), globalRuns: qs('#gStatRuns'),
+      badgeCount: qs('#badgeCount'), badgeList: qs('#badgeList'), badgeCurrentStreak:qs('#badgeCurrentStreak'),
+      badgeBestStreak:qs('#badgeBestStreak'), badgeChallengeForm: qs('#badgeChallengeForm'),
+      badgeChallengeCharacters: qs('#badgeChallengeCharacters'), badgeAnnouncement: qs('#badgeAnnouncement'),
+      badgeFragmentCount:qs('#badgeFragmentCount'), badgeUnvisitedFragments:qs('#badgeUnvisitedFragments'),
+      badgeFragmentTrack:qs('#badgeFragmentTrack'), badgeFragmentFill:qs('#badgeFragmentFill'),
+      badgePersonalFragmentCount:qs('#badgePersonalFragmentCount'), badgeFrontierCount:qs('#badgeFrontierCount'),
       userIdCopyBtn: qs('#userIdCopyBtn'), userIdValue: qs('#userIdValue'), userIdRegenerateBtn: qs('#userIdRegenerateBtn'),
       lessonProgress: qs('#lessonProgress'), lessonProgressFill: qs('#lessonProgressFill'), lessonProgressPct: qs('#lessonProgressPct'),
       soundBtn: qs('#soundBtn'), themeBtn: qs('#themeBtn'),
       restartBtn: qs('#restartBtn'), typeBtn: qs('#typeBtn'),
       textDisplay: qs('#textDisplay'), caret: qs('#caret'), startCue: qs('#startCue'), startCueText: qs('#startCueText'),
-      progressFill: qs('#progressFill'), captureInput: qs('#captureInput'),
+      captureInput: qs('#captureInput'),
       textShell: qs('#textShell'), readyPill: qs('#readyPill'), startCueSub: qs('#startCueSub'),
       stageWrap: qs('.stage-wrap'), stage: qs('#stage'),
       stagePip: qs('#stagePip'), stagePipBody: qs('#stagePipBody'),
@@ -1903,7 +2259,7 @@ const App = {
       editPill: qs('#editPill'),
       statWpm: qs('#statWpm'), statAcc: qs('#statAcc'), statTime: qs('#statTime'), statErrors: qs('#statErrors'), statPosition: qs('#statPosition'),
       statModeSplit: qs('#statModeSplit'), statRemaining: qs('#statRemaining'),
-      keyboardToggleRow: qs('.keyboard-toggle-row'), keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
+      typingDock: qs('.typing-dock'), keyboardToggleBtn: qs('#keyboardToggleBtn'), keyboardPanel: qs('#keyboardPanel'), keyboard: qs('#keyboard'),
       previousLessonBtn: qs('#previousLessonBtn'), nextLessonNavBtn: qs('#nextLessonNavBtn'), lessonNavPosition: qs('#lessonNavPosition'),
       modalScrim: qs('#modalScrim'), modalCloseBtn: qs('#modalCloseBtn'), modalTitle: qs('#modalTitle'), lessonForm: qs('#lessonForm'),
       actionModalScrim: qs('#actionModalScrim'), actionModalTitle: qs('#actionModalTitle'), actionModalMessage: qs('#actionModalMessage'),
@@ -1914,25 +2270,54 @@ const App = {
       completeOverlay: qs('#completeOverlay'), completeLessonTitle: qs('#completeLessonTitle'),
       completeWpm: qs('#completeWpm'), completeAcc: qs('#completeAcc'), completeTime: qs('#completeTime'),
       objectivesList: qs('#objectivesList'), retryBtn: qs('#retryBtn'), nextLessonBtn: qs('#nextLessonBtn'), closeCompleteBtn: qs('#closeCompleteBtn'),
+      exportCompletedLessonBtn: qs('#exportCompletedLessonBtn'),
       confettiLayer: qs('#confettiLayer'),
-      exportLessonsBtn: qs('#exportLessonsBtn'), selectAllLessonsBtn: qs('#selectAllLessonsBtn'),
+      exportLessonsBtn: qs('#exportLessonsBtn'), exportAllLessonsBtn: qs('#exportAllLessonsBtn'),
+      exportFreshCoursesBtn: qs('#exportFreshCoursesBtn'),
+      selectAllLessonsBtn: qs('#selectAllLessonsBtn'), lessonExportJsonBtn: qs('#lessonExportJsonBtn'),
+      lessonExportMarkdownBtn: qs('#lessonExportMarkdownBtn'),
       exportStatsBtn: qs('#exportStatsBtn'),
       exportSessionLessonsBtn: qs('#exportSessionLessonsBtn'),
-      exportSessionLessonsMarkdownBtn: qs('#exportSessionLessonsMarkdownBtn'),
-      exportLessonsMarkdownBtn: qs('#exportLessonsMarkdownBtn'),
       importOtherStatsBtn: qs('#importOtherStatsBtn'), importOtherStatsFileInput: qs('#importOtherStatsFileInput'),
       communityDashboardBtn: qs('#communityDashboardBtn'), communityDashboard: qs('#communityDashboard'),
       communityDashboardClose: qs('#communityDashboardClose'),
       communityDashboardMetrics: qs('#communityDashboardMetrics'),
+      communityDashboardAwards: qs('#communityDashboardAwards'),
+      communityDashboardCoverage: qs('#communityDashboardCoverage'),
+      communityDashboardInsights: qs('#communityDashboardInsights'),
       communityDashboardLeaderboard: qs('#communityDashboardLeaderboard'),
+      communityDashboardPodium: qs('#communityDashboardPodium'),
+      communityRankCaption: qs('#communityRankCaption'),
       communityPlayersCount: qs('#communityPlayersCount'),
       communityDashboardCourses: qs('#communityDashboardCourses'),
+      communityDashboardLessons: qs('#communityDashboardLessons'),
+      communityFossilCount: qs('#communityFossilCount'),
+      communityRankTabs: qs('.community-rank-tabs'),
       importLessonsBtn: qs('#importLessonsBtn'), importFileInput: qs('#importFileInput'),
       importConflictScrim: qs('#importConflictScrim'), importConflictIntro: qs('#importConflictIntro'),
       importConflictBody: qs('#importConflictBody'), importConflictApplyAll: qs('#importConflictApplyAll'),
       importConflictSkip: qs('#importConflictSkip'), importConflictNew: qs('#importConflictNew'),
       importConflictUpdate: qs('#importConflictUpdate'),
     };
+
+    this.achievements = Storage.loadBadges();
+    if(!this.achievements.historyImported){
+      const history = Storage.loadRunHistory().filter(run => run.completedAt && isRecord(run.stats));
+      const historicalCorrect = history.reduce((total, run) => {
+        const stats = run.stats;
+        const correct = Number.isFinite(Number(stats.correctKeystrokes))
+          ? Math.max(0, Math.floor(Number(stats.correctKeystrokes)))
+          : Math.max(0, Math.floor(Number(stats.keystrokes) || 0) - Math.floor(Number(stats.errors) || 0));
+        return total + correct;
+      }, 0);
+      this.achievements.correctCharacters = Math.max(this.achievements.correctCharacters, historicalCorrect);
+      this.achievements.completedRuns = Math.max(this.achievements.completedRuns, history.length);
+      this.achievements.historyImported = true;
+      this.achievements = normalizeBadgeProgress(this.achievements);
+      Storage.saveBadges(this.achievements);
+    }
+    this.dom.badgeChallengeCharacters.value = this.achievements.challengeCharacters;
+    this.updateBadgeShelf();
 
     this.mediaDeckHome = this.dom.mediaDeck
       ? { parent: this.dom.mediaDeck.parentNode, nextSibling: this.dom.mediaDeck.nextSibling }
@@ -1948,11 +2333,14 @@ const App = {
       position:this.dom.statPosition, modeSplit:this.dom.statModeSplit, remaining:this.dom.statRemaining
     });
 
-    // theme
-    this.setTheme(
-      prefs.theme === 'light' || prefs.theme === 'dark' || prefs.theme === 'gray' ? prefs.theme : 'system',
-      false
-    );
+    // Keep Solarized light/dark as the base theme; grayscale is an optional overlay.
+    this.baseTheme = prefs.theme === 'light' || prefs.theme === 'dark' ? prefs.theme : 'system';
+    this.grayscaleTheme = prefs.grayscaleTheme === true || prefs.theme === 'gray';
+    this.applyTheme();
+    if(prefs.theme === 'gray'){
+      this.savePref('theme', this.baseTheme);
+      this.savePref('grayscaleTheme', this.grayscaleTheme);
+    }
     // sound
     if(prefs.sound === false) this.sound.enabled = false;
     this.updateSoundButton();
@@ -2546,8 +2934,6 @@ const App = {
   updateLessonStats(){
     const lesson = this.currentLesson;
     if(!lesson) return;
-    this.dom.lessonStatsName.textContent = lesson.title || lesson.id;
-    this.dom.lessonStatsCourse.textContent = this.currentCourseTitle || lesson.course || '';
     const result = lessonStatsFor(Storage.loadStats(), lesson.id, this.lessonIdAliases);
     const hasResults = hasSavedLessonActivity(result);
     const bestWpm = isRecord(result) ? finiteStat(result.bestWpm ?? result.wpm) : null;
@@ -2656,21 +3042,48 @@ const App = {
     });
   },
   updateExportButton(){
-    const lessons = this.getAllCourses().flatMap(course => course.lessons);
+    const courses = this.getAllCourses();
+    const lessons = courses.flatMap(course => course.lessons);
     const lessonIds = new Set(lessons.map(l => l.id));
     const selected = Array.from(lessonIds).filter(id => this.exportSelection.has(id)).length;
-    this.dom.exportLessonsBtn.textContent = selected ? `Export selected (${selected})` : 'Export selected';
-    this.dom.selectAllLessonsBtn.textContent = selected === lessonIds.size && selected ? 'Unselect all' : 'Select all';
+    const formatLabel = this.lessonExportFormat === 'json' ? 'JSON' : 'Markdown';
+    const selectedCount = this.dom.exportLessonsBtn.querySelector('.course-action-count');
+    if(selectedCount) selectedCount.textContent = selected ? String(selected) : '';
+    this.dom.exportLessonsBtn.setAttribute('aria-label', selected
+      ? `Export ${selected} selected lessons as ${formatLabel}`
+      : `Export selected lessons as ${formatLabel}`);
+    this.dom.exportLessonsBtn.title = selected
+      ? `Download ${selected} selected lessons in ${formatLabel} format`
+      : 'Select lessons before exporting';
+    const selectAllLabel = this.dom.selectAllLessonsBtn.querySelector('.course-action-label');
+    const allSelected = selected === lessonIds.size && selected > 0;
+    if(selectAllLabel) selectAllLabel.textContent = allSelected ? 'Unselect all' : 'Select all';
+    this.dom.selectAllLessonsBtn.setAttribute('aria-pressed', allSelected ? 'true' : selected ? 'mixed' : 'false');
+    this.dom.exportAllLessonsBtn.querySelector('.course-action-count').textContent = lessonIds.size ? String(lessonIds.size) : '';
+    this.dom.exportAllLessonsBtn.setAttribute('aria-label', `Export all ${lessonIds.size} lessons as ${formatLabel}`);
+    this.dom.exportAllLessonsBtn.title = `Download all ${lessonIds.size} lessons in ${formatLabel} format`;
+    this.dom.exportFreshCoursesBtn.querySelector('.course-action-count').textContent = courses.length ? String(courses.length) : '';
+    this.dom.exportFreshCoursesBtn.setAttribute('aria-label', `Export ${courses.length} courses separately as ${formatLabel} files with fresh IDs`);
+    this.dom.exportFreshCoursesBtn.title = `Download each of ${courses.length} courses as a separate ${formatLabel} file with new course and lesson IDs`;
+    this.dom.exportFreshCoursesBtn.disabled = courses.length === 0;
     const changed = Array.from(lessonIds).filter(id => this.sessionLessonChanges.has(id)).length;
-    this.dom.exportSessionLessonsBtn.textContent = changed
-      ? `Export session changes (JSON, ${changed})`
-      : 'Export session changes (JSON)';
-    this.dom.exportSessionLessonsMarkdownBtn.textContent = changed
-      ? `Export session changes (Markdown, ${changed})`
-      : 'Export session changes (Markdown)';
-    this.dom.exportLessonsMarkdownBtn.textContent = selected
-      ? `Export selected (Markdown, ${selected})`
-      : 'Export selected (Markdown)';
+    const sessionJsonCount = this.dom.exportSessionLessonsBtn.querySelector('.course-action-count');
+    if(sessionJsonCount) sessionJsonCount.textContent = changed ? String(changed) : '';
+    this.dom.exportSessionLessonsBtn.setAttribute('aria-label', changed
+      ? `Export ${changed} session-edited lessons as ${formatLabel}`
+      : `Export session-edited lessons as ${formatLabel}`);
+    this.dom.exportSessionLessonsBtn.title = changed
+      ? `Download ${changed} session-edited lesson${changed === 1 ? '' : 's'} in ${formatLabel} format`
+      : 'No session-edited lessons to export';
+  },
+  setLessonExportFormat(format){
+    this.lessonExportFormat = format === 'markdown' ? 'markdown' : 'json';
+    const isJson = this.lessonExportFormat === 'json';
+    this.dom.lessonExportJsonBtn.classList.toggle('is-active', isJson);
+    this.dom.lessonExportJsonBtn.setAttribute('aria-pressed', String(isJson));
+    this.dom.lessonExportMarkdownBtn.classList.toggle('is-active', !isJson);
+    this.dom.lessonExportMarkdownBtn.setAttribute('aria-pressed', String(!isJson));
+    this.updateExportButton();
   },
   toggleAllLessonSelection(){
     const ids = Array.from(new Set(this.getAllCourses().flatMap(course => course.lessons).map(l => l.id)));
@@ -2743,7 +3156,6 @@ const App = {
     this.dom.lessonTitle.textContent = lesson.title;
     this.dom.courseTag.textContent = this.currentCourseTitle;
     this.dom.lessonGoal.textContent = `Goal: ${lesson.targetWPM} wpm · ${lesson.targetAccuracy}% accuracy`;
-    this.dom.progressFill.style.width = '0%';
     this.dom.captureInput.value = this.engine.text.slice(0, savedPosition);
     this.shadowValue = this.dom.captureInput.value;
     this.pauseReason = null;
@@ -2756,6 +3168,7 @@ const App = {
     this.syncCourseCollapse(this.currentCourseTitle);
     this.renderSidebarActive();
     this.updateLessonNavigation();
+    this.updateFragmentSummary();
     this.bus.dispatchEvent(new CustomEvent('lessonLoaded', { detail:{ lessonId:lesson.id } }));
     if(!this.lessonIntro && (opts.ready || savedPosition > 0)) this.beginReady(); // resume unfinished lessons without requiring the first key to wake the app
   },
@@ -2818,8 +3231,6 @@ const App = {
     this.applyAnnotations(); // masks made last run are active now
     this.hintNext();
     this.hideCompletion();
-    this.dom.progressFill.style.width = '0%';
-    this.dom.progressFill.style.background = 'var(--brass)';
     this.updateLessonProgress(0);
     this.dom.captureInput.value = '';
     this.shadowValue = '';
@@ -2843,6 +3254,7 @@ const App = {
   },
   onKeystroke(e){
     const { index, correct, char } = e.detail;
+    this.recordBadgeKeystroke(char, correct);
     this.lastKeyAt = performance.now();
     this.textView.setCharState(index, correct ? 'correct' : 'incorrect');
     this.textView.moveCaret(this.engine.pos);
@@ -2851,6 +3263,7 @@ const App = {
     this.textView.refreshWord(index);
     this.keyboardView.flashPressed(char, correct);
     this.sound.playKey({ error:!correct, space: char === ' ' });
+    this.flashSoundKey();
     if(!correct && this.maskSet.has(index)){
       // Typing from memory: a slip is remembered (it counts against that passage's recall score),
       // and a second miss on the same letter lets a faint hint show through the tape.
@@ -2861,6 +3274,7 @@ const App = {
     }
     this.hintNext();
     this.updateProgress();
+    this.recordBadgeFragment(index);
     if(this.captures.mark || this.captures.mask) this.refreshOverlays();
     this.bus.dispatchEvent(new CustomEvent('keystroke', { detail:e.detail }));
   },
@@ -2873,6 +3287,7 @@ const App = {
     this.updateTypingPosition();
     this.textView.refreshWord(index);
     this.sound.playKey({});
+    this.flashSoundKey();
     this.hintNext();
     this.updateProgress();
     if(this.captures.mark || this.captures.mask) this.refreshOverlays();
@@ -3559,6 +3974,7 @@ const App = {
     if(wpm >= target*1.2){ label = 'Great!'; good = true; }
     else if(wpm >= target){ label = 'Nice!'; good = true; }
     this.textView.addCheckpoint({ charIndex, wpm, label, good });
+    this.recordBadgePace(wpm, target);
     this.bus.dispatchEvent(new CustomEvent('checkpoint', { detail:e.detail }));
   },
   onComplete(e){
@@ -3568,6 +3984,7 @@ const App = {
     this.state = 'finished';
     this.stopReadingClock();
     this.saveRunRecord(e.detail);
+    this.recordBadgeCompletion();
     delete this.positions[this.currentLesson.id];
     Storage.savePositions(this.positions);
     this.stopTicker();
@@ -3607,6 +4024,7 @@ const App = {
         readingTimeMs:this.readingTimeMs,
         keystrokes:stats.keystrokes,
         correctKeystrokes:Math.max(0, stats.keystrokes - stats.errors),
+        longestCleanStreak:this.engine ? this.engine.longestCleanStreak : 0,
         errors:stats.errors,
         backspaces:stats.backspaces
       },
@@ -3616,19 +4034,305 @@ const App = {
     const runs = Storage.loadRunHistory();
     runs.push(run);
     Storage.saveRunHistory(runs);
+    this.completedLessonRun = run;
+  },
+
+  updateBadgeShelf(newlyEarned = []){
+    this.updateBadgeStreakSummary();
+    if(!this.dom.badgeList) return;
+    const badges = badgeStatuses(this.achievements || Storage.loadBadges());
+    const earnedCount = badges.filter(badge => badge.earned).length;
+    this.dom.badgeCount.textContent = `${earnedCount} / ${badges.length} earned`;
+    this.dom.badgeList.replaceChildren();
+    badges.forEach(badge => {
+      const item = document.createElement('li');
+      item.className = 'badge-item';
+      item.classList.toggle('is-earned', badge.earned);
+      item.classList.toggle('is-checkpoint', badge.metric === 'targetPaceReached' || badge.metric === 'greatPaceReached');
+      item.title = badge.description;
+
+      const symbol = document.createElement('span');
+      symbol.className = 'badge-symbol';
+      symbol.setAttribute('aria-hidden', 'true');
+      symbol.textContent = badge.metric === 'characters' ? badge.characters
+        : badge.metric === 'targetPaceReached' || badge.metric === 'greatPaceReached' ? 'WPM'
+          : badge.metric === 'fragmentsVisited' || badge.metric === 'fullyExploredLessons' ? '¼' : '✦';
+
+      const detail = document.createElement('span');
+      detail.className = 'badge-detail';
+      const name = document.createElement('span');
+      name.className = 'badge-name';
+      name.textContent = badge.label;
+      const progress = document.createElement('span');
+      progress.className = 'badge-progress-label';
+      const progressUnit = badge.metric === 'characters' ? ' characters'
+        : badge.metric === 'targetPaceReached' ? ' target checkpoints'
+          : badge.metric === 'greatPaceReached' ? ' great checkpoints'
+            : badge.metric === 'longestCleanStreak' ? ' error-free keystrokes'
+              : badge.metric === 'fragmentsVisited' ? ' fragments'
+                : badge.metric === 'fullyExploredLessons' ? ' lessons'
+                  : badge.metric === 'frontierFragments' ? ' first traces' : '';
+      progress.textContent = `${Math.min(badge.current, badge.target).toLocaleString()} / ${badge.target.toLocaleString()}${progressUnit}`;
+      const track = document.createElement('span');
+      track.className = 'badge-progress-track';
+      track.setAttribute('role', 'progressbar');
+      track.setAttribute('aria-label', `${badge.label} progress`);
+      track.setAttribute('aria-valuemin', '0');
+      track.setAttribute('aria-valuemax', String(badge.target));
+      track.setAttribute('aria-valuenow', String(Math.min(badge.current, badge.target)));
+      const fill = document.createElement('span');
+      fill.className = 'badge-progress-fill';
+      fill.style.width = `${Math.min(100, Math.round((badge.current / badge.target) * 100))}%`;
+      track.appendChild(fill);
+      detail.append(name, progress, track);
+      item.append(symbol, detail);
+      this.dom.badgeList.appendChild(item);
+    });
+    if(newlyEarned.length){
+      const paceBadges = newlyEarned.filter(badge => badge.metric === 'targetPaceReached' || badge.metric === 'greatPaceReached');
+      if(paceBadges.length){
+        const headline = paceBadges.some(badge => badge.metric === 'greatPaceReached') ? 'Great!' : 'Nice!';
+        this.announceBadgeMessage(`${headline} · WPM checkpoint badge${paceBadges.length === 1 ? '' : 's'}: ${paceBadges.map(badge => badge.label).join(', ')}.`, 'checkpoint');
+      }else{
+        this.announceBadgeMessage(`Badge earned: ${newlyEarned.map(badge => badge.label).join(', ')}.`);
+      }
+    }
+  },
+  updateBadgeStreakSummary(){
+    const progress = this.achievements || Storage.loadBadges();
+    if(this.dom.badgeCurrentStreak) this.dom.badgeCurrentStreak.textContent = progress.currentCleanStreak.toLocaleString();
+    if(this.dom.badgeBestStreak) this.dom.badgeBestStreak.textContent = progress.longestCleanStreak.toLocaleString();
+  },
+  getFragmentAtlas(){
+    const lessonCounts = new Map();
+    const lessonLengths = new Map();
+    this.getAllCourses().flatMap(course => course.lessons).forEach(lesson => {
+      if(!lesson || typeof lesson.id !== 'string') return;
+      const count = lessonFragmentCount(lesson.text);
+      if(count){
+        lessonCounts.set(lesson.id, count);
+        lessonLengths.set(lesson.id, String(lesson.text || '').length);
+      }
+    });
+    const reporters = new Map(Array.from(lessonCounts, ([lessonId, count]) => [
+      lessonId,
+      Array.from({ length:count }, () => new Set())
+    ]));
+    const profiles = new Set();
+    const addReport = (profileId, lessonId, fragment) => {
+      const ranges = reporters.get(lessonId);
+      if(!ranges || !Number.isInteger(fragment) || fragment < 0 || fragment >= ranges.length) return false;
+      ranges[fragment].add(profileId);
+      profiles.add(profileId);
+      return true;
+    };
+    const addCoverage = (profileId, rawCoverage) => {
+      const coverage = normalizeFragmentCoverage(rawCoverage);
+      if(!coverage) return;
+      Object.entries(coverage.lessons).forEach(([lessonId, report]) => {
+        const count = lessonCounts.get(lessonId);
+        if(count !== report.fragmentCount) return;
+        for(let fragment = 0; fragment < count; fragment++){
+          if(report.visitedMask & (1 << fragment)) addReport(profileId, lessonId, fragment);
+        }
+      });
+    };
+    const addCheckpoints = (profileId, runs) => {
+      if(!Array.isArray(runs)) return;
+      runs.slice(0, 10000).forEach(run => {
+        if(!isRecord(run) || typeof run.lessonId !== 'string' || !Array.isArray(run.checkpoints)) return;
+        const count = lessonCounts.get(run.lessonId);
+        const length = lessonLengths.get(run.lessonId) || 0;
+        if(!count || !length) return;
+        run.checkpoints.slice(0, 1000).forEach(checkpoint => {
+          const index = checkpoint && Number(checkpoint.charIndex);
+          if(!Number.isSafeInteger(index) || index < 0 || index >= length) return;
+          const fragment = clamp(Math.floor((index / length) * count), 0, count - 1);
+          addReport(profileId, run.lessonId, fragment);
+        });
+      });
+    };
+    const peerMap = new Map();
+    let importedPeers = [];
+    try{ importedPeers = Storage.loadOtherUserStats(); }catch(e){ /* an unreadable optional archive must not block local play */ }
+    [...(Array.isArray(this.staticPeerStats) ? this.staticPeerStats : []), ...importedPeers].forEach(peer => {
+      if(!isRecord(peer) || typeof peer.userId !== 'string' || !peer.userId) return;
+      const current = peerMap.get(peer.userId);
+      peerMap.set(peer.userId, current ? mergePeerStats(current, peer) : peer);
+    });
+    peerMap.forEach((peer, profileId) => {
+      addCoverage(profileId, peer.fragmentCoverage);
+      addCheckpoints(profileId, peer.runs);
+    });
+    const localId = this.identity && this.identity.userId ? this.identity.userId : 'local-browser';
+    addCoverage(localId, fragmentCoverageForProgress(this.achievements || Storage.loadBadges()));
+    addCheckpoints(localId, Storage.loadRunHistory());
+    return { lessonCounts, reporters, profiles };
+  },
+  updateFragmentSummary(atlas){
+    const { badgeFragmentCount, badgeUnvisitedFragments, badgeFragmentTrack, badgeFragmentFill,
+      badgePersonalFragmentCount, badgeFrontierCount } = this.dom;
+    if(!badgeFragmentCount || !badgeUnvisitedFragments || !badgeFragmentTrack || !badgeFragmentFill) return;
+    atlas = atlas || this.getFragmentAtlas();
+    const progress = this.achievements || Storage.loadBadges();
+    const { lessonCounts, reporters, profiles } = atlas;
+    const total = Array.from(lessonCounts.values()).reduce((sum, count) => sum + count, 0);
+    let traced = 0;
+    let personallyVisited = 0;
+    lessonCounts.forEach((count, lessonId) => {
+      const ranges = reporters.get(lessonId) || [];
+      ranges.forEach(reportersForRange => {
+        if(reportersForRange.size) traced++;
+      });
+      if(progress.fragmentCounts[lessonId] === count){
+        personallyVisited += countVisitedFragments(progress.visitedFragments[lessonId] || 0, count);
+      }
+    });
+    const unreported = Math.max(0, total - traced);
+    badgeFragmentCount.textContent = `${traced.toLocaleString()} / ${total.toLocaleString()}`;
+    badgeUnvisitedFragments.textContent = total
+      ? profiles.size
+        ? `${unreported.toLocaleString()} range${unreported === 1 ? '' : 's'} have no trace in ${profiles.size} reporting profile${profiles.size === 1 ? '' : 's'}; gaps are unknown.`
+        : 'No range reports yet; unreported does not mean untouched.'
+      : 'No lesson fragments available yet';
+    badgeFragmentTrack.setAttribute('aria-valuemax', String(Math.max(1, total)));
+    badgeFragmentTrack.setAttribute('aria-valuenow', String(traced));
+    badgeFragmentTrack.setAttribute('aria-valuetext', total
+      ? `${traced} of ${total} lesson ranges have a known report; ${unreported} have no report in this incomplete archive.`
+      : 'No lesson fragments are available yet.');
+    badgeFragmentFill.style.width = `${total ? Math.min(100, Math.round((traced / total) * 100)) : 0}%`;
+    if(badgePersonalFragmentCount) badgePersonalFragmentCount.textContent = `Your trail: ${personallyVisited.toLocaleString()} / ${total.toLocaleString()}`;
+    if(badgeFrontierCount) badgeFrontierCount.textContent = `${progress.frontierFragments.toLocaleString()} first-trace claims`;
+  },
+  announceBadgeMessage(message, kind = 'achievement'){
+    const announcement = this.dom.badgeAnnouncement;
+    if(!announcement) return;
+    announcement.classList.toggle('is-checkpoint', kind === 'checkpoint');
+    announcement.textContent = message;
+    announcement.hidden = false;
+    const { textShell, textDisplay, caret } = this.dom;
+    if(textShell && textDisplay && caret){
+      const shellRect = textShell.getBoundingClientRect();
+      const displayRect = textDisplay.getBoundingClientRect();
+      const caretRect = caret.getBoundingClientRect();
+      const left = clamp(caretRect.left - shellRect.left, 0, Math.max(0, textShell.clientWidth - announcement.offsetWidth));
+      const below = caretRect.bottom - shellRect.top + 3;
+      const displayBottom = displayRect.bottom - shellRect.top;
+      const top = below + announcement.offsetHeight <= displayBottom
+        ? below
+        : Math.max(0, caretRect.top - shellRect.top - announcement.offsetHeight - 3);
+      announcement.style.left = `${left}px`;
+      announcement.style.top = `${top}px`;
+    }
+    if(this.badgeAnnouncementTimer !== null) clearTimeout(this.badgeAnnouncementTimer);
+    this.badgeAnnouncementTimer = setTimeout(() => {
+      announcement.hidden = true;
+      this.badgeAnnouncementTimer = null;
+    }, 5000);
+  },
+  recordBadgeKeystroke(character, correct){
+    if(typeof character !== 'string') return;
+    const progress = this.achievements || Storage.loadBadges();
+    const previous = new Set(badgeStatuses(progress).filter(badge => badge.earned).map(badge => badge.id));
+    let newCharacter = false;
+    if(correct){
+      progress.correctCharacters = Math.min(Number.MAX_SAFE_INTEGER, progress.correctCharacters + 1);
+      progress.currentCleanStreak = Math.min(Number.MAX_SAFE_INTEGER, progress.currentCleanStreak + 1);
+      const typed = character.normalize('NFC');
+      const tracked = BADGE_TRACKED_CHARACTERS.has(typed) || Array.from(progress.challengeCharacters).includes(typed);
+      newCharacter = tracked && !progress.characters[typed];
+      if(tracked) progress.characters[typed] = true;
+    }else{
+      progress.currentCleanStreak = 0;
+    }
+    progress.longestCleanStreak = Math.max(progress.longestCleanStreak, progress.currentCleanStreak);
+    this.achievements = normalizeBadgeProgress(progress);
+    const newlyEarned = badgeStatuses(this.achievements)
+      .filter(badge => badge.earned && !previous.has(badge.id));
+    Storage.saveBadges(this.achievements);
+    this.updateBadgeStreakSummary();
+    if(newCharacter || newlyEarned.length || this.achievements.correctCharacters % 25 === 0){
+      this.updateBadgeShelf(newlyEarned);
+    }
+  },
+  recordBadgeFragment(index){
+    if(!this.currentLesson || !this.engine || !Number.isInteger(index) || this.engine.text.length === 0) return;
+    const fragmentCount = lessonFragmentCount(this.engine.text);
+    if(!fragmentCount) return;
+    const fragment = clamp(Math.floor((index / this.engine.text.length) * fragmentCount), 0, fragmentCount - 1);
+    const progress = this.achievements || Storage.loadBadges();
+    const lessonId = this.currentLesson.id;
+    const previousMask = progress.fragmentCounts[lessonId] === fragmentCount
+      ? progress.visitedFragments[lessonId] || 0
+      : 0;
+    const nextMask = previousMask | (1 << fragment);
+    if(nextMask === previousMask) return;
+    const previous = new Set(badgeStatuses(progress).filter(badge => badge.earned).map(badge => badge.id));
+    const atlas = this.getFragmentAtlas();
+    const knownRangeReports = atlas.reporters.get(lessonId);
+    const hasKnownTrace = !!(knownRangeReports && knownRangeReports[fragment] && knownRangeReports[fragment].size);
+    progress.visitedFragments[lessonId] = nextMask;
+    progress.fragmentCounts[lessonId] = fragmentCount;
+    const localId = this.identity && this.identity.userId ? this.identity.userId : 'local-browser';
+    if(knownRangeReports) knownRangeReports[fragment].add(localId);
+    atlas.profiles.add(localId);
+    if(!hasKnownTrace){
+      const previousFrontierMask = progress.frontierCounts[lessonId] === fragmentCount
+        ? progress.frontierClaims[lessonId] || 0
+        : 0;
+      progress.frontierClaims[lessonId] = previousFrontierMask | (1 << fragment);
+      progress.frontierCounts[lessonId] = fragmentCount;
+    }
+    this.achievements = normalizeBadgeProgress(progress);
+    const newlyEarned = badgeStatuses(this.achievements)
+      .filter(badge => badge.earned && !previous.has(badge.id));
+    Storage.saveBadges(this.achievements);
+    this.updateFragmentSummary(atlas);
+    this.updateBadgeShelf(newlyEarned);
+  },
+  recordBadgeCompletion(){
+    const progress = this.achievements || Storage.loadBadges();
+    const previous = new Set(badgeStatuses(progress).filter(badge => badge.earned).map(badge => badge.id));
+    progress.completedRuns = Math.min(Number.MAX_SAFE_INTEGER, progress.completedRuns + 1);
+    this.achievements = normalizeBadgeProgress(progress);
+    const newlyEarned = badgeStatuses(this.achievements)
+      .filter(badge => badge.earned && !previous.has(badge.id));
+    Storage.saveBadges(this.achievements);
+    this.updateBadgeShelf(newlyEarned);
+  },
+  recordBadgePace(wpm, target){
+    const speed = Number(wpm), goal = Number(target);
+    if(!Number.isFinite(speed) || !Number.isFinite(goal) || goal <= 0 || speed < goal) return;
+    const progress = this.achievements || Storage.loadBadges();
+    const previous = new Set(badgeStatuses(progress).filter(badge => badge.earned).map(badge => badge.id));
+    progress.targetPaceReached = 1;
+    if(speed >= goal * 1.2) progress.greatPaceReached = 1;
+    this.achievements = normalizeBadgeProgress(progress);
+    const newlyEarned = badgeStatuses(this.achievements)
+      .filter(badge => badge.earned && !previous.has(badge.id));
+    if(!newlyEarned.length) return;
+    Storage.saveBadges(this.achievements);
+    this.updateBadgeShelf(newlyEarned);
+  },
+  setBadgeChallenge(value){
+    const previous = new Set(badgeStatuses(this.achievements).filter(badge => badge.earned).map(badge => badge.id));
+    this.achievements.challengeCharacters = normalizeBadgeChallenge(value);
+    this.achievements = normalizeBadgeProgress(this.achievements);
+    this.dom.badgeChallengeCharacters.value = this.achievements.challengeCharacters;
+    const newlyEarned = badgeStatuses(this.achievements)
+      .filter(badge => badge.earned && !previous.has(badge.id));
+    Storage.saveBadges(this.achievements);
+    this.updateBadgeShelf(newlyEarned);
+    if(!newlyEarned.length){
+      this.announceBadgeMessage(this.achievements.challengeCharacters
+        ? `Challenge saved with ${Array.from(this.achievements.challengeCharacters).length} characters.`
+        : 'Personal character challenge cleared.');
+    }
   },
 
   updateProgress(){
     const pct = clamp(Math.round((this.engine.pos/this.engine.text.length)*100), 0, 100);
-    this.dom.progressFill.style.width = pct + '%';
     this.updateLessonProgress(pct);
-    const acc = this.engine.getStats().accuracy;
-    const hue = clamp((acc-70)*4, 0, 130); // 70%acc -> red-ish, 100%acc -> green-ish, feeding the brass baseline otherwise
-    if(acc < 90){
-      this.dom.progressFill.style.background = `hsl(${hue}, 55%, 45%)`;
-    } else {
-      this.dom.progressFill.style.background = 'var(--brass)';
-    }
   },
   updateLessonProgress(pct){
     if(!this.dom.lessonProgress) return;
@@ -3894,6 +4598,39 @@ const App = {
   hideCompletion(){
     this.dom.completeOverlay.classList.remove('open');
     this.dom.confettiLayer.innerHTML = '';
+    this.completedLessonRun = null;
+  },
+  exportCompletedLessonStats(){
+    const run = this.completedLessonRun;
+    if(!run) return;
+    const storedStats = Storage.loadStats();
+    const lessonStats = isRecord(storedStats) && isRecord(storedStats[run.lessonId])
+      ? { ...storedStats[run.lessonId] }
+      : null;
+    const data = {
+      format:'pomoudying-completed-lesson-stats.v1',
+      exportedAt:new Date().toISOString(),
+      lesson:{
+        id:run.lessonId,
+        title:run.lessonTitle,
+        courseTitle:run.courseTitle,
+        targetWpm:run.targetWpm,
+        targetAccuracy:run.targetAccuracy
+      },
+      lessonStats,
+      completedRun:{
+        startedAt:run.startedAt,
+        completedAt:run.completedAt,
+        stats:{ ...run.stats },
+        checkpoints:run.checkpoints,
+        pauses:run.pauses
+      }
+    };
+    const filenameTitle = String(run.lessonTitle || 'lesson').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'lesson';
+    const date = String(run.completedAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
+    this.downloadJson(JSON.stringify(data, null, 2), `pomoudying-${filenameTitle}-${date}-stats.json`);
   },
   updateUserIdDisplay(){
     const userId = this.identity ? this.identity.userId : '';
@@ -3969,7 +4706,6 @@ const App = {
   },
   openCommunityDashboard(){
     const peersById = new Map();
-    const lessonArchive = new Set();
     [...this.staticPeerStats, ...Storage.loadOtherUserStats()].forEach(peer => {
       if(!isRecord(peer) || typeof peer.userId !== 'string' ||
          !peer.userId || peer.userId === this.identity.userId) return;
@@ -3977,102 +4713,213 @@ const App = {
       peersById.set(peer.userId, current ? mergePeerStats(current, peer) : peer);
     });
 
-    const peers = Array.from(peersById.values()).map(peer => {
-      const summary = isRecord(peer.summary) ? peer.summary : {};
-      const runSummary = isRecord(peer.runSummary) ? peer.runSummary : {};
-      const runs = finiteStat(runSummary.runCount);
-      const reportedRuns = finiteStat(summary.runs);
-      const runCount = Math.max(0, Math.round(runs !== null ? runs : reportedRuns || 0));
-      const courseStats = Array.isArray(peer.courseStats)
-        ? peer.courseStats
-        : isRecord(peer.courseStats) ? Object.values(peer.courseStats) : [];
-      [peer.lessonStats, peer.lessonRunStats].forEach(section => {
-        if(Array.isArray(section)){
-          section.forEach(lesson => {
-            if(isRecord(lesson) && typeof (lesson.id || lesson.lessonId) === 'string'){
-              lessonArchive.add(lesson.id || lesson.lessonId);
-            }
-          });
-        }else if(isRecord(section)){
-          Object.keys(section).forEach(id => lessonArchive.add(id));
-        }
-      });
-      const courseIds = new Set();
-      (Array.isArray(peer.courses) ? peer.courses : []).forEach(course => {
-        if(!isRecord(course)) return;
-        const key = typeof course.courseId === 'string' && course.courseId
-          ? course.courseId
-          : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
-        if(key) courseIds.add(key);
-      });
-      courseStats.forEach(course => {
-        if(!isRecord(course)) return;
-        const key = typeof course.courseId === 'string' && course.courseId
-          ? course.courseId
-          : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
-        if(key) courseIds.add(key);
-      });
-      return {
-        userId:peer.userId,
-        runs:runCount,
-        bestWpm:Math.max(0, finiteStat(summary.bestWpm) || 0),
-        courseCount:courseIds.size,
-        typingTimeMs:Math.max(0, finiteStat(runSummary.totalTypingTimeMs) || 0),
-        courseStats
-      };
-    }).sort((a, b) => b.runs - a.runs || b.bestWpm - a.bestWpm || a.userId.localeCompare(b.userId));
-
-    const sum = (values) => values.reduce((total, value) => {
+    const recordsFrom = raw => {
+      if(Array.isArray(raw)) return raw.filter(isRecord);
+      if(!isRecord(raw)) return [];
+      return Object.entries(raw).filter(([, value]) => isRecord(value))
+        .map(([id, value]) => ({ id, ...value }));
+    };
+    const sum = values => values.reduce((total, value) => {
       const next = total + value;
       return Number.isFinite(next) ? next : Number.MAX_SAFE_INTEGER;
     }, 0);
+    const peers = Array.from(peersById.values()).map(peer => {
+      const summary = isRecord(peer.summary) ? peer.summary : {};
+      const runSummary = isRecord(peer.runSummary) ? peer.runSummary : {};
+      const runRecords = Array.isArray(peer.runs) ? peer.runs.filter(isRecord) : [];
+      const sumRunField = field => {
+        const values = runRecords.map(run => finiteStat(run.stats && run.stats[field])).filter(value => value !== null);
+        return values.length ? sum(values) : null;
+      };
+      const aggregateOrRunValue = (aggregateKey, runKey) => {
+        const aggregate = finiteStat(runSummary[aggregateKey]);
+        return aggregate !== null ? Math.max(0, aggregate) : sumRunField(runKey);
+      };
+      const courseStats = recordsFrom(peer.courseStats);
+      const courseRowsById = new Map();
+      const addCourse = (course, hasStats = false) => {
+        if(!isRecord(course)) return;
+        const id = typeof course.courseId === 'string' && course.courseId
+          ? course.courseId
+          : typeof course.id === 'string' && course.id
+            ? course.id
+            : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
+        if(!id) return;
+        const row = courseRowsById.get(id) || {
+          id,
+          title:typeof course.title === 'string' && course.title.trim() ? course.title.trim() : id,
+          runs:0,
+          lessonIds:new Set()
+        };
+        if(hasStats){
+          const count = finiteStat(course.runCount);
+          if(count !== null) row.runs = Math.max(row.runs, Math.max(0, count));
+        }
+        if(Array.isArray(course.lessonIds)) course.lessonIds.forEach(lessonId => {
+          if(typeof lessonId === 'string' && lessonId) row.lessonIds.add(lessonId);
+        });
+        courseRowsById.set(id, row);
+      };
+      (Array.isArray(peer.courses) ? peer.courses : []).forEach(course => addCourse(course));
+      courseStats.forEach(course => addCourse(course, true));
+      runRecords.forEach(run => {
+        if(!run.courseId) return;
+        const row = courseRowsById.get(run.courseId) || {
+          id:run.courseId,
+          title:typeof run.courseTitle === 'string' && run.courseTitle ? run.courseTitle : run.courseId,
+          runs:0,
+          lessonIds:new Set()
+        };
+        row.detailedRuns = (row.detailedRuns || 0) + 1;
+        if(typeof run.lessonId === 'string' && run.lessonId) row.lessonIds.add(run.lessonId);
+        courseRowsById.set(run.courseId, row);
+      });
+      const lessonRowsById = new Map();
+      const addLesson = (lessonId, lesson) => {
+        if(typeof lessonId !== 'string' || !lessonId || !isRecord(lesson)) return;
+        const row = lessonRowsById.get(lessonId) || {
+          id:lessonId,
+          title:typeof lesson.title === 'string' && lesson.title.trim() ? lesson.title.trim() : lessonId,
+          runs:0,
+          bestWpm:null
+        };
+        const bestWpm = finiteStat(lesson.bestWpm ?? lesson.wpm ?? lesson.averageWpm);
+        const runs = finiteStat(lesson.runCount ?? lesson.attempts);
+        if(bestWpm !== null && bestWpm > 0) row.bestWpm = row.bestWpm === null ? bestWpm : Math.max(row.bestWpm, bestWpm);
+        if(runs !== null) row.runs = Math.max(row.runs, Math.max(0, runs));
+        if(Array.isArray(lesson.courseIds)) lesson.courseIds.forEach(id => {
+          if(typeof id === 'string' && id) row.courseIds = new Set([...(row.courseIds || []), id]);
+        });
+        lessonRowsById.set(lessonId, row);
+      };
+      [peer.lessonStats, peer.lessonRunStats].forEach(section => {
+        recordsFrom(section).forEach(lesson => {
+          const id = lesson.id || lesson.lessonId;
+          if(typeof id === 'string') addLesson(id, lesson);
+        });
+      });
+      runRecords.forEach(run => {
+        if(typeof run.lessonId !== 'string' || !run.lessonId) return;
+        const row = lessonRowsById.get(run.lessonId) || {
+          id:run.lessonId,
+          title:typeof run.lessonTitle === 'string' && run.lessonTitle ? run.lessonTitle : run.lessonId,
+          runs:0,
+          bestWpm:null
+        };
+        row.detailedRuns = (row.detailedRuns || 0) + 1;
+        const wpm = finiteStat(run.stats && run.stats.wpm);
+        if(wpm !== null && wpm > 0) row.bestWpm = row.bestWpm === null ? wpm : Math.max(row.bestWpm, wpm);
+        lessonRowsById.set(run.lessonId, row);
+      });
+      const lessonRows = Array.from(lessonRowsById.values()).map(lesson => ({
+        ...lesson,
+        runs:Math.max(lesson.runs, lesson.detailedRuns || 0)
+      }));
+      const runCountValue = finiteStat(runSummary.runCount);
+      const reportedRuns = finiteStat(summary.runs);
+      const runCount = Math.max(0, Math.round(runCountValue !== null
+        ? runCountValue
+        : reportedRuns !== null ? reportedRuns : runRecords.length));
+      const errors = aggregateOrRunValue('errors', 'errors');
+      const keystrokes = aggregateOrRunValue('keystrokes', 'keystrokes');
+      const runWpm = runRecords.map(run => finiteStat(run.stats && run.stats.wpm)).filter(value => value !== null && value > 0);
+      const lessonWpm = lessonRows.map(lesson => lesson.bestWpm).filter(value => value !== null);
+      const summaryWpm = finiteStat(summary.bestWpm);
+      const bestWpm = summaryWpm !== null && summaryWpm > 0
+        ? summaryWpm
+        : [...runWpm, ...lessonWpm].reduce((best, value) => Math.max(best, value), 0) || null;
+      const accuracyValues = [runSummary.averageAccuracy, summary.avgAccuracy]
+        .map(finiteStat).filter(value => value !== null && value >= 0 && value <= 100);
+      const averageAccuracy = accuracyValues.length ? accuracyValues[0] : null;
+      const runTimes = runRecords.map(run => parseArchiveTimestamp(run.completedAt))
+        .filter(value => value !== null);
+      const paceRuns = runRecords.map(run => {
+        const wpm = finiteStat(run.stats && run.stats.wpm);
+        const targetWpm = finiteStat(run.targetWpm);
+        return wpm !== null && targetWpm !== null && targetWpm > 0 ? { wpm, targetWpm } : null;
+      }).filter(Boolean);
+      const cleanStreakValues = [
+        finiteStat(runSummary.longestCleanStreak),
+        finiteStat(summary.longestCleanStreak),
+        ...runRecords.map(run => finiteStat(run.stats && run.stats.longestCleanStreak))
+      ].filter(value => Number.isSafeInteger(value) && value >= 0);
+      const longestCleanStreak = cleanStreakValues.reduce((best, value) => Math.max(best, value), 0);
+      const courseRows = Array.from(courseRowsById.values()).map(course => ({
+        ...course,
+        runs:Math.max(course.runs, course.detailedRuns || 0)
+      }));
+      const hasArchive = Object.keys(summary).length > 0 || Object.keys(runSummary).length > 0 ||
+        courseRows.length > 0 || lessonRows.length > 0;
+      const hasReportedActivity = (finiteStat(summary.lessons) || 0) > 0 ||
+        (finiteStat(summary.runs) || 0) > 0 || (finiteStat(runSummary.runCount) || 0) > 0 || lessonRows.length > 0;
+      return {
+        userId:peer.userId,
+        runs:runCount,
+        bestWpm,
+        averageAccuracy,
+        longestCleanStreak:cleanStreakValues.length ? longestCleanStreak : null,
+        courseCount:courseRows.length,
+        typingTimeMs:aggregateOrRunValue('totalTypingTimeMs', 'elapsedMs'),
+        errors,
+        keystrokes,
+        errorRate:errors !== null && keystrokes !== null && keystrokes > 0 ? errors / keystrokes * 1000 : null,
+        detailedRunCount:runRecords.length,
+        paceRuns,
+        earliestRunAt:runTimes.length ? Math.min(...runTimes) : null,
+        latestRunAt:runTimes.length ? Math.max(...runTimes) : null,
+        courseRows,
+        lessonRows,
+        fossil:runRecords.length === 0 && hasArchive && hasReportedActivity
+      };
+    });
+
     const totalRuns = sum(peers.map(peer => peer.runs));
-    const totalTypingTimeMs = sum(peers.map(peer => peer.typingTimeMs));
+    const knownTimes = peers.map(peer => peer.typingTimeMs).filter(value => value !== null);
+    const totalTypingTimeMs = sum(knownTimes);
+    const knownErrors = peers.map(peer => peer.errors).filter(value => value !== null);
+    const totalErrors = sum(knownErrors);
+    const bestWpm = peers.map(peer => peer.bestWpm).filter(value => value !== null).reduce((best, value) => Math.max(best, value), 0);
+    const lessonArchive = new Map();
     const courseArchive = new Map();
-    peers.forEach(peer => (Array.isArray(peer.courses) ? peer.courses : []).forEach(course => {
-      if(!isRecord(course)) return;
-      const id = typeof course.courseId === 'string' && course.courseId
-        ? course.courseId
-        : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
-      if(!id) return;
-      const current = courseArchive.get(id) || {
-        id,
-        title:typeof course.title === 'string' && course.title.trim() ? course.title.trim() : id,
-        runs:0,
-        users:new Set()
-      };
-      current.users.add(peer.userId);
-      courseArchive.set(id, current);
-    }));
-    peers.forEach(peer => peer.courseStats.forEach(course => {
-      if(!isRecord(course)) return;
-      const id = typeof course.courseId === 'string' && course.courseId
-        ? course.courseId
-        : typeof course.title === 'string' ? course.title.trim().toLowerCase() : '';
-      if(!id) return;
-      const current = courseArchive.get(id) || {
-        id,
-        title:typeof course.title === 'string' && course.title.trim() ? course.title.trim() : id,
-        runs:0,
-        users:new Set()
-      };
-      current.runs = sum([current.runs, Math.max(0, finiteStat(course.runCount) || 0)]);
-      current.users.add(peer.userId);
-      if(typeof course.title === 'string' && course.title.trim() && current.title === id){
-        current.title = course.title.trim();
-      }
-      courseArchive.set(id, current);
-    }));
+    peers.forEach(peer => {
+      peer.courseRows.forEach(course => {
+        const row = courseArchive.get(course.id) || {
+          id:course.id, title:course.title, runs:0, users:new Set(), lessonIds:new Set()
+        };
+        row.runs = sum([row.runs, course.runs]);
+        row.users.add(peer.userId);
+        course.lessonIds.forEach(lessonId => row.lessonIds.add(lessonId));
+        if(row.title === row.id && course.title !== course.id) row.title = course.title;
+        courseArchive.set(course.id, row);
+      });
+      peer.lessonRows.forEach(lesson => {
+        const row = lessonArchive.get(lesson.id) || {
+          id:lesson.id, title:lesson.title, bestWpm:null, runs:0, users:new Set()
+        };
+        if(lesson.bestWpm !== null) row.bestWpm = row.bestWpm === null ? lesson.bestWpm : Math.max(row.bestWpm, lesson.bestWpm);
+        row.runs = sum([row.runs, lesson.runs]);
+        row.users.add(peer.userId);
+        if(row.title === row.id && lesson.title !== lesson.id) row.title = lesson.title;
+        lessonArchive.set(lesson.id, row);
+      });
+    });
     const courseRows = Array.from(courseArchive.values())
       .sort((a, b) => b.runs - a.runs || b.users.size - a.users.size || a.title.localeCompare(b.title))
-      .slice(0, 6);
-    const maxRuns = peers.reduce((maximum, peer) => Math.max(maximum, peer.runs), 1);
+      .slice(0, 8);
+    const lessonRows = Array.from(lessonArchive.values())
+      .filter(lesson => lesson.bestWpm !== null)
+      .sort((a, b) => b.bestWpm - a.bestWpm || b.runs - a.runs || a.title.localeCompare(b.title))
+      .slice(0, 8);
+    this.communityPeers = peers;
+    this.renderCommunityArchiveHighlights(peers, this.achievements.longestCleanStreak);
     const metrics = [
-      { label:'archive users', value:peers.length, format:value => Math.round(value).toLocaleString() },
+      { label:'archive learners', value:peers.length, format:value => Math.round(value).toLocaleString() },
+      { label:'top WPM', value:bestWpm, format:value => Math.round(value).toLocaleString() },
       { label:'reported runs', value:totalRuns, format:value => Math.round(value).toLocaleString() },
-      { label:'course fossils', value:courseArchive.size, format:value => Math.round(value).toLocaleString() },
-      { label:'lesson fossils', value:lessonArchive.size, format:value => Math.round(value).toLocaleString() },
-      { label:'practice hours', value:totalTypingTimeMs / 3600000, format:value => value.toLocaleString(undefined, { maximumFractionDigits:1 }) }
+      { label:'reported errors', value:totalErrors, format:value => Math.round(value).toLocaleString() },
+      { label:'practice hours', value:totalTypingTimeMs / 3600000, format:value => value.toLocaleString(undefined, { maximumFractionDigits:1 }) },
+      { label:'streak reports', value:peers.filter(peer => Number.isFinite(peer.longestCleanStreak)).length, format:value => Math.round(value).toLocaleString() },
+      { label:'fossil snapshots', value:peers.filter(peer => peer.fossil).length, format:value => Math.round(value).toLocaleString() }
     ];
     this.dom.communityDashboardMetrics.replaceChildren();
     metrics.forEach(metric => {
@@ -4080,78 +4927,71 @@ const App = {
       card.className = 'community-metric';
       const value = document.createElement('strong');
       value.className = 'community-metric-value';
-      value.dataset.countup = String(metric.value);
-      value.dataset.format = metric.label;
-      value.textContent = metric.format(0);
+      if(metric.value !== null){
+        value.dataset.countup = String(metric.value || 0);
+        value.dataset.format = metric.label;
+      }
+      value.textContent = metric.value === null ? '—' : metric.format(0);
       const label = document.createElement('span');
       label.textContent = metric.label;
       card.append(value, label);
       this.dom.communityDashboardMetrics.appendChild(card);
     });
 
-    this.dom.communityDashboardLeaderboard.replaceChildren();
-    this.dom.communityPlayersCount.textContent = peers.length
-      ? `top ${Math.min(8, peers.length)} / ${peers.length}`
-      : 'waiting for explorers';
-    peers.slice(0, 8).forEach((peer, index) => {
-      const item = document.createElement('li');
-      item.className = 'community-player';
-      item.style.setProperty('--player-index', String(index));
-      const rank = document.createElement('span');
-      rank.className = 'community-player-rank';
-      rank.textContent = String(index + 1).padStart(2, '0');
-      const details = document.createElement('span');
-      details.className = 'community-player-details';
-      const id = document.createElement('code');
-      id.textContent = peer.userId.length > 18
-        ? `${peer.userId.slice(0, 10)}…${peer.userId.slice(-5)}`
-        : peer.userId;
-      id.title = peer.userId;
-      const level = document.createElement('small');
-      const badge = peer.runs >= 25 ? 'STREAK KEEPER' : peer.runs >= 5 ? 'REGULAR' : 'NEW EXPLORER';
-      level.textContent = `${badge} · ${peer.courseCount} COURSE${peer.courseCount === 1 ? '' : 'S'}`;
-      details.append(id, level);
-      const score = document.createElement('span');
-      score.className = 'community-player-score';
-      const best = peer.bestWpm ? ` · best ${peer.bestWpm.toLocaleString()} wpm` : '';
-      score.textContent = `${peer.runs.toLocaleString()} runs${best}`;
-      const bar = document.createElement('span');
-      bar.className = 'community-player-bar';
-      const fill = document.createElement('span');
-      fill.style.setProperty('--player-progress', `${Math.max(5, (peer.runs / maxRuns) * 100)}%`);
-      bar.appendChild(fill);
-      item.append(rank, details, score, bar);
-      this.dom.communityDashboardLeaderboard.appendChild(item);
-    });
-    if(!peers.length){
-      const empty = document.createElement('li');
-      empty.className = 'community-empty';
-      empty.textContent = 'No imported histories yet. Add a stats export to the lessons archive or import one from the Courses drawer.';
-      this.dom.communityDashboardLeaderboard.appendChild(empty);
-    }
+    this.dom.communityFossilCount.textContent = `${peers.filter(peer => peer.fossil).length} fossil snapshot${peers.filter(peer => peer.fossil).length === 1 ? '' : 's'}`;
+    this.renderCommunityLeaderboard();
 
     this.dom.communityDashboardCourses.replaceChildren();
     courseRows.forEach((course, index) => {
       const item = document.createElement('li');
       item.className = 'community-course';
-      item.style.setProperty('--player-index', String(index));
+      const rank = document.createElement('span');
+      rank.className = 'community-course-rank';
+      rank.textContent = String(index + 1).padStart(2, '0');
       const title = document.createElement('span');
       title.className = 'community-course-title';
       title.textContent = course.title;
       title.title = course.id;
       const meta = document.createElement('small');
       const courseRuns = Math.round(course.runs);
-      meta.textContent = `${course.users.size} user${course.users.size === 1 ? '' : 's'} · ${courseRuns.toLocaleString()} run${courseRuns === 1 ? '' : 's'}`;
-      item.append(title, meta);
+      meta.textContent = courseRuns
+        ? `${courseRuns.toLocaleString()} runs · ${course.users.size} learner${course.users.size === 1 ? '' : 's'}`
+        : `${course.lessonIds.size} lesson${course.lessonIds.size === 1 ? '' : 's'} · archive`;
+      item.append(rank, title, meta);
       this.dom.communityDashboardCourses.appendChild(item);
     });
     if(!courseRows.length){
       const empty = document.createElement('li');
       empty.className = 'community-empty';
       empty.textContent = peers.length
-        ? 'Course IDs are missing from these snapshots; their practice still counts.'
-        : 'No course records have surfaced yet.';
+        ? 'No course records in these snapshots yet.'
+        : 'Import a stats history to reveal course trails.';
       this.dom.communityDashboardCourses.appendChild(empty);
+    }
+
+    this.dom.communityDashboardLessons.replaceChildren();
+    lessonRows.forEach((lesson, index) => {
+      const item = document.createElement('li');
+      item.className = 'community-lesson';
+      const rank = document.createElement('span');
+      rank.className = 'community-lesson-rank';
+      rank.textContent = String(index + 1).padStart(2, '0');
+      const title = document.createElement('span');
+      title.className = 'community-lesson-title';
+      title.textContent = lesson.title;
+      title.title = lesson.id;
+      const meta = document.createElement('small');
+      meta.textContent = `${lesson.bestWpm.toLocaleString()} WPM · ${lesson.users.size} learner${lesson.users.size === 1 ? '' : 's'}`;
+      item.append(rank, title, meta);
+      this.dom.communityDashboardLessons.appendChild(item);
+    });
+    if(!lessonRows.length){
+      const empty = document.createElement('li');
+      empty.className = 'community-empty';
+      empty.textContent = peers.length
+        ? 'No lesson WPM records surfaced in these snapshots.'
+        : 'The old lesson records are quiet for now.';
+      this.dom.communityDashboardLessons.appendChild(empty);
     }
 
     const reducedMotion = prefersReducedMotion();
@@ -4174,6 +5014,170 @@ const App = {
       requestAnimationFrame(tick);
     });
     if(!this.dom.communityDashboard.open) this.dom.communityDashboard.showModal();
+  },
+  renderCommunityLeaderboard(){
+    const definitions = {
+      wpm:{ label:'Top speed', caption:'Best reported WPM across imported histories.', value:peer => peer.bestWpm, format:value => `${value.toLocaleString()} WPM`, direction:-1 },
+      accuracy:{ label:'Accuracy', caption:'Reported average accuracy; older snapshots may summarize a different practice window.', value:peer => peer.averageAccuracy, format:value => `${value.toLocaleString(undefined, { maximumFractionDigits:1 })}% avg.`, direction:-1 },
+      streak:{ label:'Clean streak', caption:'Longest reported run of consecutive correct keystrokes; histories without a streak record are excluded.', value:peer => peer.longestCleanStreak, format:value => `${Math.round(value).toLocaleString()} clean keystrokes`, direction:-1 },
+      errors:{ label:'Cleanest', caption:'Fewest errors per 1,000 keystrokes; histories without both counts are excluded.', value:peer => peer.errorRate, format:value => `${value.toLocaleString(undefined, { maximumFractionDigits:1 })} / 1k`, direction:1 },
+      runs:{ label:'Most runs', caption:'Completed runs reported by each imported history.', value:peer => peer.runs > 0 ? peer.runs : null, format:value => `${Math.round(value).toLocaleString()} runs`, direction:-1 },
+      time:{ label:'Practice time', caption:'Total recorded typing time; older aggregates without duration are excluded.', value:peer => peer.typingTimeMs > 0 ? peer.typingTimeMs : null, format:value => `${(value / 3600000).toLocaleString(undefined, { maximumFractionDigits:1 })} hr`, direction:-1 }
+    };
+    const definition = definitions[this.communityLeaderboardMetric] || definitions.wpm;
+    this.dom.communityRankTabs.querySelectorAll('[data-rank-by]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.rankBy === this.communityLeaderboardMetric));
+    });
+    this.dom.communityRankCaption.textContent = definition.caption;
+    const ranked = this.communityPeers.map(peer => ({ peer, value:definition.value(peer) }))
+      .filter(item => item.value !== null && Number.isFinite(item.value))
+      .sort((a, b) => (a.value - b.value) * definition.direction || a.peer.userId.localeCompare(b.peer.userId));
+    this.dom.communityPlayersCount.textContent = `${ranked.length} ranked · ${this.communityPeers.length} archive`;
+    this.dom.communityDashboardPodium.replaceChildren();
+    this.dom.communityDashboardLeaderboard.replaceChildren();
+    ranked.slice(0, 3).forEach(({ peer, value }, index) => {
+      const card = document.createElement('div');
+      card.className = 'community-podium-card';
+      card.style.setProperty('--podium-index', String(index));
+      const medal = document.createElement('span');
+      medal.className = 'community-podium-medal';
+      medal.textContent = ['01 / GOLD', '02 / SILVER', '03 / BRONZE'][index];
+      const id = document.createElement('code');
+      id.textContent = peer.userId.length > 18 ? `${peer.userId.slice(0, 10)}…${peer.userId.slice(-5)}` : peer.userId;
+      id.title = peer.userId;
+      const score = document.createElement('strong');
+      score.className = 'community-podium-value';
+      score.textContent = definition.format(value);
+      const detail = document.createElement('small');
+      detail.textContent = `${peer.runs.toLocaleString()} run${peer.runs === 1 ? '' : 's'} · ${peer.courseCount} course${peer.courseCount === 1 ? '' : 's'}`;
+      card.append(medal, id, score, detail);
+      this.dom.communityDashboardPodium.appendChild(card);
+    });
+    if(!ranked.length){
+      const empty = document.createElement('p');
+      empty.className = 'community-empty';
+      empty.textContent = this.communityPeers.length
+        ? 'No imported history has this metric yet. Older snapshots may preserve only partial aggregates.'
+        : 'No imported histories yet. Use Import stats above to start the arcade.';
+      this.dom.communityDashboardPodium.appendChild(empty);
+    }
+    ranked.slice(3, 8).forEach(({ peer, value }, index) => {
+      const item = document.createElement('li');
+      item.className = 'community-player';
+      item.style.setProperty('--player-index', String(index));
+      const rank = document.createElement('span');
+      rank.className = 'community-player-rank';
+      rank.textContent = String(index + 4).padStart(2, '0');
+      const details = document.createElement('span');
+      details.className = 'community-player-details';
+      const id = document.createElement('code');
+      id.textContent = peer.userId.length > 18 ? `${peer.userId.slice(0, 10)}…${peer.userId.slice(-5)}` : peer.userId;
+      id.title = peer.userId;
+      const detail = document.createElement('small');
+      detail.textContent = `${peer.runs.toLocaleString()} runs · ${peer.courseCount} courses`;
+      details.append(id, detail);
+      if(peer.fossil){
+        const fossil = document.createElement('span');
+        fossil.className = 'community-fossil-badge';
+        fossil.textContent = 'FOSSIL';
+        details.appendChild(fossil);
+      }
+      const score = document.createElement('span');
+      score.className = 'community-player-score';
+      score.textContent = definition.format(value);
+      item.append(rank, details, score);
+      this.dom.communityDashboardLeaderboard.appendChild(item);
+    });
+  },
+  renderCommunityArchiveHighlights(peers, localCleanStreak){
+    const insight = buildCommunityArchiveInsights(peers, localCleanStreak);
+    const formatDate = value => value === null || !Number.isFinite(value)
+      ? '' : new Date(value).toLocaleString(undefined, { dateStyle:'medium', timeStyle:'short' });
+    const formatAwardValue = award => {
+      if(award.value === null) return '';
+      if(award.format === 'wpm') return `${Math.round(award.value).toLocaleString()} WPM`;
+      if(award.format === 'accuracy') return `${award.value.toLocaleString(undefined, { maximumFractionDigits:1 })}% average`;
+      if(award.format === 'errorRate') return `${award.value.toLocaleString(undefined, { maximumFractionDigits:1 })} errors / 1,000 keys`;
+      if(award.format === 'runs') return `${Math.round(award.value).toLocaleString()} reported runs`;
+      if(award.format === 'cleanStreak') return `${Math.round(award.value).toLocaleString()} error-free keystrokes`;
+      return 'Dated completed run';
+    };
+    this.dom.communityDashboardAwards.replaceChildren();
+    insight.awards.forEach(award => {
+      const card = document.createElement('article');
+      card.className = 'community-award';
+      const mark = document.createElement('span');
+      mark.className = 'community-award-mark';
+      mark.setAttribute('aria-hidden', 'true');
+      mark.textContent = '✦';
+      const details = document.createElement('div');
+      details.className = 'community-award-details';
+      const title = document.createElement('strong');
+      title.textContent = award.label;
+      details.appendChild(title);
+      if(award.holders.length){
+        award.holders.forEach(holder => {
+          const user = document.createElement('code');
+          user.textContent = holder.userId.length > 18 ? `${holder.userId.slice(0, 10)}…${holder.userId.slice(-5)}` : holder.userId;
+          user.title = holder.userId;
+          details.appendChild(user);
+        });
+        const value = document.createElement('small');
+        value.textContent = formatAwardValue(award);
+        details.appendChild(value);
+        const date = award.holders[0].date;
+        if(date !== null){
+          const when = document.createElement('small');
+          when.textContent = formatDate(date);
+          details.appendChild(when);
+        }
+      }else{
+        const empty = document.createElement('small');
+        empty.textContent = 'No matching record in these snapshots.';
+        details.appendChild(empty);
+      }
+      card.append(mark, details);
+      this.dom.communityDashboardAwards.appendChild(card);
+    });
+
+    this.dom.communityDashboardCoverage.replaceChildren();
+    insight.coverage.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'community-coverage-item';
+      const heading = document.createElement('div');
+      heading.className = 'community-coverage-head';
+      const label = document.createElement('span');
+      label.textContent = item.label;
+      const value = document.createElement('strong');
+      value.textContent = insight.total ? `${item.percent}% · ${item.count}/${insight.total}` : '—';
+      heading.append(label, value);
+      const track = document.createElement('span');
+      track.className = 'community-coverage-track';
+      track.setAttribute('role', 'progressbar');
+      track.setAttribute('aria-label', `${item.label} coverage`);
+      track.setAttribute('aria-valuemin', '0');
+      track.setAttribute('aria-valuemax', '100');
+      track.setAttribute('aria-valuenow', String(item.percent ?? 0));
+      track.setAttribute('aria-valuetext', insight.total ? `${item.percent}% of ${insight.total} archive learners` : 'No archive learners');
+      const fill = document.createElement('span');
+      fill.style.width = `${item.percent ?? 0}%`;
+      track.appendChild(fill);
+      row.append(heading, track);
+      this.dom.communityDashboardCoverage.appendChild(row);
+    });
+
+    this.dom.communityDashboardInsights.replaceChildren();
+    const accuracy = document.createElement('p');
+    accuracy.textContent = insight.accuracyProfiles
+      ? `95%+ reported average accuracy: ${insight.highAccuracyCount}/${insight.accuracyProfiles} profiles (${insight.highAccuracyPercent}%).`
+      : 'Accuracy insight unavailable: no profile reports an average.';
+    const pace = document.createElement('p');
+    pace.textContent = insight.paceRuns.eligible
+      ? `Detailed runs meeting their lesson target: ${insight.paceRuns.target}/${insight.paceRuns.eligible} (${Math.round(insight.paceRuns.target / insight.paceRuns.eligible * 100)}%); at 120% or more: ${insight.paceRuns.great}/${insight.paceRuns.eligible} (${Math.round(insight.paceRuns.great / insight.paceRuns.eligible * 100)}%).`
+      : 'Target-pace insight unavailable: no detailed run has both WPM and a lesson target.';
+    const shadow = document.createElement('p');
+    shadow.textContent = insight.cleanStreakShadow;
+    this.dom.communityDashboardInsights.append(accuracy, pace, shadow);
   },
   saveBestStats(stats){
     const stored = Storage.loadStats();
@@ -4563,11 +5567,11 @@ const App = {
   enterFigureFocus(){
     if(this.figureFocusActive) return;
     const d = this.dom;
-    if(!d.stagePip || !d.stagePipBody || !d.stage || !d.keyboardToggleRow) return;
+    if(!d.stagePip || !d.stagePipBody || !d.stage || !d.typingDock) return;
     // Interchange: the typing stage becomes the PiP thumbnail; the figure card
     // takes its slot while session stats remain in the top bar.
     d.stagePipBody.appendChild(d.stage);
-    d.stageWrap.insertBefore(d.mediaDeck, d.keyboardToggleRow);
+    d.stageWrap.insertBefore(d.mediaDeck, d.typingDock);
     d.stageWrap.classList.add('figure-focus');
     d.mediaDeck.classList.add('is-main');
     d.stagePip.hidden = false;
@@ -4578,7 +5582,7 @@ const App = {
     if(!this.figureFocusActive) return;
     const d = this.dom;
     d.stagePip.hidden = true;
-    if(d.stage && d.keyboardToggleRow) d.stageWrap.insertBefore(d.stage, d.keyboardToggleRow);
+    if(d.stage && d.typingDock) d.stageWrap.insertBefore(d.stage, d.typingDock);
     if(this.mediaDeckHome && this.mediaDeckHome.parent){
       const next = this.mediaDeckHome.nextSibling;
       if(next && next.parentNode === this.mediaDeckHome.parent) this.mediaDeckHome.parent.insertBefore(d.mediaDeck, next);
@@ -5793,8 +6797,8 @@ const App = {
      lesson they wrote can export it to a plain JSON file and send it to you
      however they like (email, a GitHub issue, a PR adding it to lessons/). You
      decide whether to fold it into a static pack in a future commit.
-     Marks and masks are exported/imported through their own file and controls,
-     so a digest can move between browsers without carrying lesson content. */
+     Marks and masks can travel in a fresh-ID lesson bundle or through their own
+     file and controls, so annotations stay attached when lesson IDs change. */
   downloadJson(payload, filename){
     const blob = new Blob([payload], { type:'application/json' });
     const url = URL.createObjectURL(blob);
@@ -5881,7 +6885,8 @@ const App = {
         currentSessionStartedAt:this.sessionIdentity.startedAt,
         sessionPersistent:this.sessionIdentity.persistent !== false
       },
-      summary:collectGlobalStats(Storage.loadStats()),
+      summary:{ ...collectGlobalStats(Storage.loadStats()), longestCleanStreak:this.achievements.longestCleanStreak },
+      fragmentCoverage:fragmentCoverageForProgress(this.achievements),
       courses,
       runSummary:this.summarizeRuns(runs),
       courseStats:Array.from(courseStats.values(), course => ({
@@ -5908,6 +6913,10 @@ const App = {
     };
   },
   summarizeRuns(runs){
+    const hasCleanStreak = runs.some(run => {
+      const cleanStreak = finiteStat(run.stats && run.stats.longestCleanStreak);
+      return Number.isSafeInteger(cleanStreak) && cleanStreak >= 0;
+    });
     const totals = runs.reduce((result, run) => {
       const stats = run.stats || {};
       result.typingTimeMs += finiteStat(stats.elapsedMs) || 0;
@@ -5916,6 +6925,10 @@ const App = {
       result.correctKeystrokes += finiteStat(stats.correctKeystrokes) || 0;
       result.errors += finiteStat(stats.errors) || 0;
       result.backspaces += finiteStat(stats.backspaces) || 0;
+      const cleanStreak = finiteStat(stats.longestCleanStreak);
+      if(Number.isSafeInteger(cleanStreak) && cleanStreak >= 0){
+        result.longestCleanStreak = Math.max(result.longestCleanStreak, cleanStreak);
+      }
       const wpm = finiteStat(stats.wpm);
       const accuracy = finiteStat(stats.accuracy);
       if(wpm !== null){ result.wpmTotal += wpm; result.wpmCount++; }
@@ -5923,7 +6936,8 @@ const App = {
       return result;
     }, {
       typingTimeMs:0, readingTimeMs:0, keystrokes:0, correctKeystrokes:0,
-      errors:0, backspaces:0, wpmTotal:0, wpmCount:0, accuracyTotal:0, accuracyCount:0
+      errors:0, backspaces:0, longestCleanStreak:0,
+      wpmTotal:0, wpmCount:0, accuracyTotal:0, accuracyCount:0
     });
     return {
       runCount:runs.length,
@@ -5934,7 +6948,8 @@ const App = {
       errors:totals.errors,
       backspaces:totals.backspaces,
       averageWpm:totals.wpmCount ? Math.round(totals.wpmTotal / totals.wpmCount) : null,
-      averageAccuracy:totals.accuracyCount ? Math.round(totals.accuracyTotal / totals.accuracyCount) : null
+      averageAccuracy:totals.accuracyCount ? Math.round(totals.accuracyTotal / totals.accuracyCount) : null,
+      longestCleanStreak:hasCleanStreak ? totals.longestCleanStreak : null
     };
   },
   exportStats(){
@@ -5953,6 +6968,7 @@ const App = {
     if(index < 0) records.push(peer);
     else records[index] = peer;
     Storage.saveOtherUserStats(records);
+    this.updateFragmentSummary();
     return {
       status:index < 0 ? 'added' : 'updated',
       userId:peer.userId,
@@ -5978,6 +6994,7 @@ const App = {
       if(result.warnings.length){
         message += ` Ignored malformed optional section${result.warnings.length === 1 ? '' : 's'}: ${result.warnings.join(', ')}.`;
       }
+      this.openCommunityDashboard();
       await this.showNotice('Other-user stats imported', message);
     }catch(err){
       console.warn('Pomoudying: other-user stats import failed', err);
@@ -5988,21 +7005,117 @@ const App = {
       this.importingStats = false;
     }
   },
-  async exportLessons(){
+  async exportLessonScope(scope){
     if(this.editing){
       this.endInlineEdit(true);
       if(this.editing) return;
     }
-    const selected = this.collectLessonsForExport(false);
-    if(!selected.length){ await this.showNotice('Nothing selected', 'Select at least one lesson to export.'); return; }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-lessons.v1', lessons:selected }, null, 2);
-    this.downloadJson(payload, `pomoudying-lessons-${selected.length}.json`);
+    const lessons = this.collectLessonsForExport(scope);
+    if(!lessons.length){
+      const notice = scope === 'session'
+        ? ['No session changes', 'Create or edit a lesson in this browser-tab session before exporting.']
+        : scope === 'selected'
+          ? ['Nothing selected', 'Select at least one lesson to export.']
+          : ['No lessons to export', 'There are no lessons available in this course list.'];
+      await this.showNotice(notice[0], notice[1]);
+      return;
+    }
+    const prefix = scope === 'session'
+      ? 'pomoudying-session-lessons'
+      : scope === 'all' ? 'pomoudying-lessons-all' : 'pomoudying-lessons';
+    if(this.lessonExportFormat === 'markdown'){
+      this.downloadText(buildMarkdownLessonBundle(lessons), `${prefix}-${lessons.length}.txt`);
+      return;
+    }
+    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-lessons.v1', lessons }, null, 2);
+    this.downloadJson(payload, `${prefix}-${lessons.length}.json`);
   },
-  collectLessonsForExport(sessionOnly){
-    const ids = sessionOnly ? this.sessionLessonChanges : this.exportSelection;
+  async exportAllCoursesWithFreshIds(){
+    if(this.editing){
+      this.endInlineEdit(true);
+      if(this.editing) return;
+    }
+    const courses = this.getAllCourses();
+    if(!courses.length){
+      await this.showNotice('No courses to export', 'There are no lessons available in the course list.');
+      return;
+    }
+    const exportedAt = new Date().toISOString();
+    const format = this.lessonExportFormat;
+    const usedCourseIds = new Set(courses.map(course => normalizeCourseId(course.courseId) || courseKey(course.title)));
+    const usedLessonIds = new Set(courses.flatMap(course => course.lessons.map(lesson => lesson.id)));
+    const usedMarkIds = new Set(this.marks.map(mark => mark && mark.id).filter(Boolean));
+    const usedMediaIds = new Set(this.marks.flatMap(mark => Array.isArray(mark && mark.media)
+      ? mark.media.map(media => media && media.id).filter(Boolean)
+      : []));
+    const generateUniqueId = (prefix, existingIds) => {
+      let id;
+      do{ id = generatedId(prefix); }while(existingIds.has(id));
+      existingIds.add(id);
+      return id;
+    };
+    courses.forEach((course, index) => {
+      const courseId = this.generateTitleBasedId(course.title, usedCourseIds);
+      usedCourseIds.add(courseId);
+      const courseOrder = (index + 1) * 10;
+      const lessonIds = new Map();
+      const lessons = course.lessons.map((lesson, lessonIndex) => {
+        const lessonId = this.generateTitleBasedId(lesson.title, usedLessonIds);
+        usedLessonIds.add(lessonId);
+        lessonIds.set(lesson.id, lessonId);
+        return {
+          id:lessonId,
+          title:lesson.title,
+          text:lesson.text,
+          course:course.title,
+          courseId,
+          targetWPM:lesson.targetWPM,
+          targetAccuracy:lesson.targetAccuracy,
+          order:(lessonIndex + 1) * 10,
+          courseOrder,
+          ...(Array.isArray(lesson.objectives) ? { objectives:lesson.objectives } : {}),
+          ...(Array.isArray(lesson.topics) ? { topics:lesson.topics } : {})
+        };
+      });
+      const lessonById = new Map(course.lessons.map(lesson => [lesson.id, lesson]));
+      const marks = this.marks.filter(mark => mark && lessonIds.has(mark.lessonId)).map(mark => {
+        const lesson = lessonById.get(mark.lessonId);
+        return {
+          ...mark,
+          id:generateUniqueId('mark', usedMarkIds),
+          lessonId:lessonIds.get(mark.lessonId),
+          lessonTitle:lesson ? lesson.title : mark.lessonTitle,
+          course:course.title,
+          ...(Array.isArray(mark.media) ? {
+            media:mark.media.map(media => ({
+              ...media,
+              id:generateUniqueId('media', usedMediaIds)
+            }))
+          } : {})
+        };
+      });
+      const fileStem = `pomoudying-course-${String(index + 1).padStart(2, '0')}-${slugify(course.title) || 'course'}-fresh-ids`;
+      if(format === 'markdown'){
+        this.downloadText(buildMarkdownLessonBundle(lessons, marks), `${fileStem}.txt`);
+        return;
+      }
+      const payload = JSON.stringify({
+        exportedAt,
+        format:'pomoudying-lessons.v1',
+        course:course.title,
+        courseId,
+        order:courseOrder,
+        lessons,
+        marks
+      }, null, 2);
+      this.downloadJson(payload, `${fileStem}.json`);
+    });
+  },
+  collectLessonsForExport(scope){
+    const ids = scope === 'session' ? this.sessionLessonChanges : scope === 'selected' ? this.exportSelection : null;
     const lessonsById = new Map();
-    this.getAllCourses().forEach(course => course.lessons.forEach(lesson => {
-      if(!ids.has(lesson.id) || lessonsById.has(lesson.id)) return;
+    this.getAllCourses().forEach((course, courseIndex) => course.lessons.forEach((lesson, lessonIndex) => {
+      if((ids && !ids.has(lesson.id)) || lessonsById.has(lesson.id)) return;
       lessonsById.set(lesson.id, {
         id:lesson.id,
         title:lesson.title,
@@ -6011,42 +7124,13 @@ const App = {
         courseId:course.courseId,
         targetWPM:lesson.targetWPM,
         targetAccuracy:lesson.targetAccuracy,
-        ...(lesson.order != null ? { order:lesson.order } : {}),
-        ...(lesson.courseOrder != null ? { courseOrder:lesson.courseOrder } : {}),
+        order:(lessonIndex + 1) * 10,
+        courseOrder:(courseIndex + 1) * 10,
         ...(Array.isArray(lesson.objectives) ? { objectives:lesson.objectives } : {}),
         ...(Array.isArray(lesson.topics) ? { topics:lesson.topics } : {})
       });
     }));
     return Array.from(lessonsById.values());
-  },
-  async exportSessionLessons(){
-    if(this.editing){
-      this.endInlineEdit(true);
-      if(this.editing) return;
-    }
-    const lessons = this.collectLessonsForExport(true);
-    if(!lessons.length){
-      await this.showNotice('No session changes', 'Create or edit a lesson in this browser-tab session before exporting.');
-      return;
-    }
-    const payload = JSON.stringify({ exportedAt:new Date().toISOString(), format:'pomoudying-lessons.v1', lessons }, null, 2);
-    this.downloadJson(payload, `pomoudying-session-lessons-${lessons.length}.json`);
-  },
-  async exportMarkdownLessons(sessionOnly){
-    if(this.editing){
-      this.endInlineEdit(true);
-      if(this.editing) return;
-    }
-    const lessons = this.collectLessonsForExport(sessionOnly);
-    if(!lessons.length){
-      await this.showNotice('Nothing to export', sessionOnly
-        ? 'Create or edit a lesson in this browser-tab session before exporting.'
-        : 'Select at least one lesson to export.');
-      return;
-    }
-    const payload = buildMarkdownLessonBundle(lessons);
-    const prefix = sessionOnly ? 'pomoudying-session-lessons' : 'pomoudying-lessons';
-    this.downloadText(payload, `${prefix}-${lessons.length}.txt`);
   },
   async exportMarks(){
     if(!this.marks.length){ await this.showNotice('Nothing to export', 'No marks or masks to export yet.'); return; }
@@ -6083,7 +7167,9 @@ const App = {
       }catch(jsonError){
         if(!/\.(?:md|txt)$/i.test(file.name)) throw jsonError;
         const bundle = parseMarkdownLessonBundle(source, file.name);
-        data = { lessons:bundle || [parseMarkdownLessonFile(source, file.name, true)] };
+        data = bundle
+          ? { lessons:bundle.lessons, ...(bundle.marks.length ? { marks:bundle.marks } : {}) }
+          : { lessons:[parseMarkdownLessonFile(source, file.name, true)] };
       }
       await this.importLessonData(data);
     }catch(err){
@@ -6124,10 +7210,14 @@ const App = {
 
     const result = await this.processImportedLessons(list, (info) => this.promptImportConflict(info));
     const overrideCount = Object.keys(ovr).length ? this.importOverrides(ovr) : 0;
+    const importedMarkCount = markList.length ? this.importMarks(markList) : 0;
+    if(importedMarkCount) this.renderMarks();
     this.renderSidebar();
 
     const markNote = markList.length
-      ? ` This file also contains ${plural(markList.length, 'mark')}; use Import marks to add ${markList.length === 1 ? 'it' : 'them'}.`
+      ? ` Imported ${plural(importedMarkCount, 'mark')}${markList.length > importedMarkCount
+        ? `; skipped ${plural(markList.length - importedMarkCount, 'duplicate or invalid mark')}`
+        : ''}.`
       : '';
     let message;
     if(list.length){
@@ -6511,27 +7601,30 @@ const App = {
   },
 
   /* ----- theme / sound / keyboard toggle ----- */
+  applyTheme(){
+    const theme = this.grayscaleTheme ? 'gray' : this.baseTheme;
+    if(theme === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.dataset.theme = theme;
+    this.dom.themeBtn.classList.toggle('is-gray', this.grayscaleTheme);
+    this.dom.themeBtn.setAttribute('aria-pressed', String(this.grayscaleTheme));
+    this.dom.themeBtn.title = this.grayscaleTheme ? 'Turn grayscale theme off' : 'Turn grayscale theme on';
+  },
   setTheme(theme, persist=true){
-    if(theme === 'system'){
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.dataset.theme = theme;
+    if(theme === 'gray') this.grayscaleTheme = true;
+    else {
+      this.baseTheme = theme === 'light' || theme === 'dark' ? theme : 'system';
+      this.grayscaleTheme = false;
     }
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    const isGray = theme === 'gray';
-    this.dom.themeBtn.classList.toggle('is-dark', isDark);
-    this.dom.themeBtn.classList.toggle('is-gray', isGray);
-    const nextTheme = isGray ? 'light' : isDark ? 'gray' : 'dark';
-    const nextLabel = nextTheme === 'gray' ? 'grayscale' : nextTheme;
-    this.dom.themeBtn.setAttribute('aria-label', `Switch to ${nextLabel} theme`);
-    this.dom.themeBtn.title = `Switch to ${nextLabel} theme`;
-    if(persist) this.savePref('theme', theme);
+    this.applyTheme();
+    if(persist){
+      this.savePref('theme', this.baseTheme);
+      this.savePref('grayscaleTheme', this.grayscaleTheme);
+    }
   },
   toggleTheme(){
-    const current = document.documentElement.dataset.theme ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const nextTheme = current === 'light' ? 'dark' : current === 'dark' ? 'gray' : 'light';
-    this.setTheme(nextTheme);
+    this.grayscaleTheme = !this.grayscaleTheme;
+    this.applyTheme();
+    this.savePref('grayscaleTheme', this.grayscaleTheme);
   },
   toggleSound(){
     this.sound.enabled = !this.sound.enabled;
@@ -6551,10 +7644,20 @@ const App = {
   },
   updateSoundButton(){
     const muted = !this.sound.enabled;
-    const action = muted ? 'Unmute sound' : 'Mute sound';
+    const action = muted ? 'Unmute stroke sounds' : 'Mute stroke sounds';
     this.dom.soundBtn.classList.toggle('is-muted', muted);
-    this.dom.soundBtn.setAttribute('aria-label', action);
+    this.dom.soundBtn.setAttribute('aria-pressed', String(this.sound.enabled));
+    this.dom.soundBtn.setAttribute('aria-label', 'Stroke sounds');
     this.dom.soundBtn.title = action;
+  },
+  flashSoundKey(){
+    if(!this.sound.enabled) return;
+    const button = this.dom.soundBtn;
+    button.classList.remove('is-pressed');
+    void button.offsetWidth;
+    button.classList.add('is-pressed');
+    window.clearTimeout(this.soundKeyAnimationTimer);
+    this.soundKeyAnimationTimer = window.setTimeout(() => button.classList.remove('is-pressed'), 160);
   },
   toggleKeyboard(){
     this.keyboardHidden = !this.keyboardHidden;
@@ -6595,6 +7698,10 @@ const App = {
     });
     d.menuBtn.addEventListener('click', () => this.openDrawer());
     d.courseSearch.addEventListener('input', () => this.applyCourseSearch());
+    d.badgeChallengeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.setBadgeChallenge(d.badgeChallengeCharacters.value);
+    });
     d.escapeSwitch.addEventListener('click', () => this.toggleEscapeCommands());
     d.shortcutToggle.addEventListener('click', () => this.toggleShortcuts());
     d.drawerCloseBtn.addEventListener('click', () => this.closeDrawer());
@@ -6723,12 +7830,18 @@ const App = {
 
     d.newLessonBtn.addEventListener('click', () => this.openModal());
     d.exportStatsBtn.addEventListener('click', () => this.exportStats());
-    d.exportSessionLessonsBtn.addEventListener('click', () => this.exportSessionLessons());
-    d.exportSessionLessonsMarkdownBtn.addEventListener('click', () => this.exportMarkdownLessons(true));
-    d.exportLessonsMarkdownBtn.addEventListener('click', () => this.exportMarkdownLessons(false));
+    d.exportSessionLessonsBtn.addEventListener('click', () => this.exportLessonScope('session'));
+    d.lessonExportJsonBtn.addEventListener('click', () => this.setLessonExportFormat('json'));
+    d.lessonExportMarkdownBtn.addEventListener('click', () => this.setLessonExportFormat('markdown'));
     d.communityDashboardBtn.addEventListener('click', () => this.openCommunityDashboard());
     d.communityDashboardClose.addEventListener('click', () => d.communityDashboard.close());
     d.communityDashboard.addEventListener('click', e => {
+      const rankButton = e.target.closest('[data-rank-by]');
+      if(rankButton){
+        this.communityLeaderboardMetric = rankButton.dataset.rankBy;
+        this.renderCommunityLeaderboard();
+        return;
+      }
       if(e.target === d.communityDashboard) d.communityDashboard.close();
     });
     d.importOtherStatsBtn.addEventListener('click', () => d.importOtherStatsFileInput.click());
@@ -6737,7 +7850,9 @@ const App = {
       if(file) this.importOtherUserStatsFromFile(file);
       d.importOtherStatsFileInput.value = '';
     });
-    d.exportLessonsBtn.addEventListener('click', () => this.exportLessons());
+    d.exportLessonsBtn.addEventListener('click', () => this.exportLessonScope('selected'));
+    d.exportAllLessonsBtn.addEventListener('click', () => this.exportLessonScope('all'));
+    d.exportFreshCoursesBtn.addEventListener('click', () => this.exportAllCoursesWithFreshIds());
     d.selectAllLessonsBtn.addEventListener('click', () => this.toggleAllLessonSelection());
     d.importLessonsBtn.addEventListener('click', () => d.importFileInput.click());
     d.importFileInput.addEventListener('change', () => {
@@ -6944,6 +8059,7 @@ const App = {
     d.retryBtn.addEventListener('click', () => this.restart());
     d.closeCompleteBtn.addEventListener('click', () => this.hideCompletion());
     d.nextLessonBtn.addEventListener('click', () => this.navigateLesson(1));
+    d.exportCompletedLessonBtn.addEventListener('click', () => this.exportCompletedLessonStats());
 
   }
 };
@@ -6965,6 +8081,7 @@ document.addEventListener('DOMContentLoaded', () => App.init());
      Pomoudying.courses()                 // -> [{ title, lessons:[...] }]
      Pomoudying.getState()                // -> { lessonId, state, stats }
      Pomoudying.getGlobalStats()          // -> { lessons, runs, avgWpm, avgAccuracy, ... }
+     Pomoudying.getBadges()               // -> earned and in-progress badge list
      Pomoudying.exportStats()             // -> detailed local stats export JSON
      Pomoudying.importOtherUserStats(json) // -> store one user's stats separately
      Pomoudying.getOtherUserStats()        // -> imported users' stats snapshots
@@ -7034,6 +8151,7 @@ window.Pomoudying = {
     };
   },
   getGlobalStats(){ return collectGlobalStats(Storage.loadStats()); },
+  getBadges(){ return badgeStatuses(App.achievements || Storage.loadBadges()); },
   exportStats(){ return JSON.stringify(App.buildStatsExport(), null, 2); },
   importOtherUserStats(json){ return App.importOtherUserStats(json); },
   getOtherUserStats(){ return JSON.parse(JSON.stringify(Storage.loadOtherUserStats())); },
@@ -7044,7 +8162,7 @@ window.Pomoudying = {
   },
   setTheme(t){ App.setTheme(t); },
   exportData(){
-    return JSON.stringify({ lessons: App.customLessons, stats: Storage.loadStats(), marks: App.marks, overrides: App.overrides, lessonIdAliases:App.lessonIdAliases, deletedLessons:Array.from(App.deletedLessons) }, null, 2);
+    return JSON.stringify({ lessons: App.customLessons, stats: Storage.loadStats(), badges:App.achievements || Storage.loadBadges(), marks: App.marks, overrides: App.overrides, lessonIdAliases:App.lessonIdAliases, deletedLessons:Array.from(App.deletedLessons) }, null, 2);
   },
   importData(json, options = {}){
     try{
@@ -7067,6 +8185,12 @@ window.Pomoudying = {
         const merged = Object.assign({}, Storage.loadStats(), data.stats);
         Storage.saveStats(merged);
         App.updateGlobalStats();
+      }
+      if(isRecord(data.badges)){
+        App.achievements = mergeBadgeProgress(App.achievements || Storage.loadBadges(), data.badges);
+        Storage.saveBadges(App.achievements);
+        App.dom.badgeChallengeCharacters.value = App.achievements.challengeCharacters;
+        App.updateBadgeShelf();
       }
       if(Array.isArray(data.marks)) App.importMarks(data.marks);
       if(data.overrides) App.importOverrides(data.overrides);

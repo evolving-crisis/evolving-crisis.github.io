@@ -1,0 +1,52 @@
+{
+  "format": "pomoudying-completed-lesson-stats.v1",
+  "exportedAt": "2026-11-27T00:16:21.559Z",
+  "lesson": {
+    "id": "day-ay",
+    "title": "today",
+    "courseTitle": "TODOS",
+    "targetWpm": 30,
+    "targetAccuracy": 95
+  },
+  "lessonStats": {
+    "bestWpm": 49,
+    "bestAccuracy": 96,
+    "attempts": 1,
+    "lastAt": 1795738575012
+  },
+  "completedRun": {
+    "startedAt": "2026-11-27T00:15:28.252Z",
+    "completedAt": "2026-11-27T00:16:15.010Z",
+    "stats": {
+      "wpm": 49,
+      "accuracy": 96,
+      "elapsedMs": 45435,
+      "readingTimeMs": 0,
+      "keystrokes": 192,
+      "correctKeystrokes": 185,
+      "longestCleanStreak": 78,
+      "errors": 7,
+      "backspaces": 7
+    },
+    "checkpoints": [
+      {
+        "elapsedMs": 19558,
+        "charIndex": 79,
+        "wpm": 53
+      },
+      {
+        "elapsedMs": 36009,
+        "charIndex": 148,
+        "wpm": 50
+      }
+    ],
+    "pauses": [
+      {
+        "startedAt": "2026-11-27T00:15:29.383Z",
+        "reason": "blur",
+        "resumedAt": "2026-11-27T00:15:30.704Z",
+        "durationMs": 1321
+      }
+    ]
+  }
+}

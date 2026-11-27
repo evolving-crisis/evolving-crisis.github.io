@@ -1,19 +1,34 @@
 <style>
   .radio-chaito-header {
-    grid-area: radio;
     display: block;
-    width: 100%;
-    min-width: 0;
-    height: 55px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: min(380px, calc(100vw - 24px));
+    height: 60px;
     margin: 0;
     border: 0;
+    border-radius: 999px;
+    background: transparent;
     vertical-align: middle;
+    will-change: transform;
+    transition: width .45s ease, height .45s ease;
+  }
+
+  .radio-chaito-header.is-folded {
+    width: 48px;
+    height: 48px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .radio-chaito-header { transition: none; }
   }
 
   .site-header .wrapper {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    grid-template-areas: "radio title nav";
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title nav";
     align-items: center;
     gap: clamp(8px, 1.5vw, 20px);
   }
@@ -21,7 +36,7 @@
   .site-header .site-title {
     grid-area: title;
     float: none;
-    justify-self: center;
+    justify-self: start;
     min-width: 0;
   }
 
@@ -34,7 +49,7 @@
 
   @media screen and (max-width: 900px) {
     .site-header .wrapper {
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 8px;
     }
   }
@@ -42,14 +57,8 @@
   @media screen and (max-width: 720px) {
     .site-header .wrapper {
       grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas:
-        "title nav"
-        "radio radio";
+      grid-template-areas: "title nav";
       gap: 4px 12px;
-    }
-
-    .radio-chaito-header {
-      height: 54px;
     }
 
     .site-header .site-title {
@@ -95,15 +104,145 @@
 </header>
 
 <script>
-  window.addEventListener('message', event => {
-    if (event.origin !== window.location.origin ||
-        !['pomoudying:radio', 'studyping:radio'].includes(event.data?.type) ||
-        !['on', 'off'].includes(event.data.action)) return;
-
-    const studyPing = document.querySelector('.pomoudying-fullscreen iframe, .studyping-fullscreen iframe');
+  (() => {
     const radio = document.querySelector('.radio-chaito-header');
-    if (!studyPing || event.source !== studyPing.contentWindow || !radio) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const margin = 14;
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
+    const randomBetween = (min, max) => min + Math.random() * (max - min);
+    radio.classList.add('is-folded');
 
-    radio.contentWindow.postMessage({ type: 'radio-chaito:command', action: event.data.action }, window.location.origin);
-  });
+    function limits() {
+      return {
+        x: Math.max(margin, window.innerWidth - radio.offsetWidth - margin),
+        y: Math.max(margin, window.innerHeight - radio.offsetHeight - margin)
+      };
+    }
+
+    const bounds = limits();
+    const position = {
+      x: clamp((window.innerWidth - radio.offsetWidth) * .54, margin, bounds.x),
+      y: clamp(88, margin, bounds.y)
+    };
+    let movement = null;
+    let animationFrame = 0;
+    let nextDrift = 0;
+    let activityTimer = 0;
+    let lastActivity = 0;
+
+    function paint() {
+      radio.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+    }
+
+    function nextPoint(hint) {
+      const max = limits();
+      if (hint) {
+        return {
+          x: clamp(hint.x + randomBetween(-190, 190) - radio.offsetWidth / 2, margin, max.x),
+          y: clamp(hint.y + randomBetween(-150, 150) - radio.offsetHeight / 2, margin, max.y)
+        };
+      }
+      return { x: randomBetween(margin, max.x), y: randomBetween(margin, max.y) };
+    }
+
+    function moveTo(hint) {
+      clearTimeout(nextDrift);
+      if (reducedMotion.matches) return;
+      movement = {
+        from: { x: position.x, y: position.y },
+        to: nextPoint(hint),
+        startedAt: performance.now(),
+        duration: randomBetween(26000, 52000)
+      };
+      if (!animationFrame) animationFrame = requestAnimationFrame(moveFrame);
+    }
+
+    function moveFrame(now) {
+      animationFrame = 0;
+      if (!movement || reducedMotion.matches) return;
+      const progress = Math.min(1, (now - movement.startedAt) / movement.duration);
+      const eased = progress * progress * (3 - 2 * progress);
+      position.x = movement.from.x + (movement.to.x - movement.from.x) * eased;
+      position.y = movement.from.y + (movement.to.y - movement.from.y) * eased;
+      paint();
+      if (progress < 1) animationFrame = requestAnimationFrame(moveFrame);
+      else {
+        movement = null;
+        nextDrift = setTimeout(() => moveTo(null), randomBetween(7000, 19000));
+      }
+    }
+
+    function reactToActivity(point) {
+      const now = Date.now();
+      if (now - lastActivity < 1300) return;
+      lastActivity = now;
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(() => moveTo(point), 450);
+    }
+
+    function handleWidgetMessage(event) {
+      if (event.origin !== window.location.origin || event.source !== radio.contentWindow) return false;
+      const data = event.data;
+      if (data?.type !== 'radio-chaito:widget') return false;
+      if (data.action === 'fold' && typeof data.folded === 'boolean') {
+        radio.classList.toggle('is-folded', data.folded);
+        const max = limits();
+        position.x = clamp(position.x, margin, max.x);
+        position.y = clamp(position.y, margin, max.y);
+        paint();
+        if (!reducedMotion.matches) moveTo(null);
+      } else if (data.action === 'activity' && ['pointer', 'key', 'click'].includes(data.kind)) {
+        const rect = radio.getBoundingClientRect();
+        const point = data.point && Number.isFinite(data.point.x) && Number.isFinite(data.point.y)
+          ? { x: rect.left + data.point.x * rect.width, y: rect.top + data.point.y * rect.height }
+          : null;
+        reactToActivity(point);
+      }
+      return true;
+    }
+
+    paint();
+    window.addEventListener('message', event => {
+      if (handleWidgetMessage(event)) return;
+
+      if (event.origin !== window.location.origin ||
+          !['pomoudying:radio', 'studyping:radio'].includes(event.data?.type) ||
+          !['on', 'off'].includes(event.data.action)) return;
+
+      const studyPing = document.querySelector('.pomoudying-fullscreen iframe, .studyping-fullscreen iframe');
+      if (!studyPing || event.source !== studyPing.contentWindow) return;
+      radio.contentWindow.postMessage({ type: 'radio-chaito:command', action: event.data.action }, window.location.origin);
+    });
+
+    let lastPointer = { x: 0, y: 0 };
+    window.addEventListener('pointermove', event => {
+      if (event.target === radio) return;
+      if (Math.hypot(event.clientX - lastPointer.x, event.clientY - lastPointer.y) < 70) return;
+      lastPointer = { x: event.clientX, y: event.clientY };
+      reactToActivity(lastPointer);
+    }, { passive: true });
+    window.addEventListener('pointerdown', event => {
+      if (event.target !== radio) reactToActivity({ x: event.clientX, y: event.clientY });
+    }, { passive: true });
+    window.addEventListener('keydown', event => {
+      if (!event.repeat && !['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) reactToActivity(null);
+    });
+    window.addEventListener('resize', () => {
+      const max = limits();
+      position.x = clamp(position.x, margin, max.x);
+      position.y = clamp(position.y, margin, max.y);
+      paint();
+      if (!reducedMotion.matches) moveTo(null);
+    });
+    reducedMotion.addEventListener?.('change', event => {
+      if (event.matches) {
+        clearTimeout(nextDrift);
+        clearTimeout(activityTimer);
+        movement = null;
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      } else moveTo(null);
+    });
+    if (!reducedMotion.matches) nextDrift = setTimeout(() => moveTo(null), randomBetween(7000, 15000));
+  })();
 </script>

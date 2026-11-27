@@ -3,6 +3,9 @@
 
 const CACHE_PREFIX = 'evolving-crisis-site-';
 const CACHE_NAME = `${CACHE_PREFIX}{{ site.time | date: "%s" }}`;
+const RADIO_URL = {{ "/modules/radio-chaito/" | relative_url | jsonify }};
+const RADIO_PATH = new URL(RADIO_URL, self.location.origin).pathname;
+const IMAGE_EXTENSIONS = "avif,bmp,gif,ico,jpeg,jpg,png,svg,tif,tiff,webp".split(",");
 const PRECACHE_URLS = [
   {{ "/" | relative_url | jsonify }},
   {% for page in site.pages %}
@@ -10,12 +13,16 @@ const PRECACHE_URLS = [
       {{ page.url | relative_url | jsonify }},
     {% endunless %}
   {% endfor %}
+  {% assign image_extensions = "avif,bmp,gif,ico,jpeg,jpg,png,svg,tif,tiff,webp" | split: "," %}
   {% for file in site.static_files %}
-    {{ file.path | relative_url | jsonify }},
-    {% if file.name == "index.html" %}
-      {% assign directory_url = file.path | remove: "index.html" %}
-      {{ directory_url | relative_url | jsonify }},
-    {% endif %}
+    {% assign file_extension = file.name | split: "." | last | downcase %}
+    {% unless image_extensions contains file_extension %}
+      {{ file.path | relative_url | jsonify }},
+      {% if file.name == "index.html" %}
+        {% assign directory_url = file.path | remove: "index.html" %}
+        {{ directory_url | relative_url | jsonify }},
+      {% endif %}
+    {% endunless %}
   {% endfor %}
 ];
 
@@ -50,13 +57,19 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
 
-  if (request.method !== 'GET' ||
-      url.origin !== self.location.origin ||
-      request.headers.has('range')) return;
+  if (request.method !== 'GET') return;
+
+  if (request.destination === 'image' || IMAGE_EXTENSIONS.includes(url.pathname.split('.').pop().toLowerCase())) {
+    event.respondWith(fetch(new Request(request, { cache: 'no-store' })));
+    return;
+  }
+
+  if (url.origin !== self.location.origin || request.headers.has('range')) return;
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cachedResponse = await cache.match(request);
+    const cachedResponse = await cache.match(request) ||
+      (url.pathname === RADIO_PATH ? await cache.match(RADIO_URL) : undefined);
     const forceFresh = request.cache === 'no-store' || request.cache === 'reload';
     const networkRequest = fetch(request).then(async response => {
       if (response.ok && response.type === 'basic' && response.status === 200) {

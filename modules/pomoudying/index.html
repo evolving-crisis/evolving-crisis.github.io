@@ -65,6 +65,31 @@
             <span class="lesson-progress-fill" id="globalLessonProgressFill"></span>
           </div>
         </section>
+        <details class="badge-shelf">
+          <summary><span>WPM checkpoints &amp; badges</span><span id="badgeCount">0 / 30 earned</span></summary>
+          <div class="badge-shelf-body">
+            <p class="badge-intro"><strong>Nice!</strong> marks target WPM; <strong>Great!</strong> marks 120%. These checkpoints lead the badge shelf. Other rewards cover typing streaks, exact characters, lesson exploration, and first traces in the available archive.</p>
+            <p class="badge-streaks">Clean keystrokes now <strong id="badgeCurrentStreak">0</strong><span aria-hidden="true"> · </span>all-time best <strong id="badgeBestStreak">0</strong></p>
+            <section class="badge-fragment-summary" aria-label="Archive fragment frontier">
+              <div class="badge-fragment-head"><span>Known archive traces</span><strong id="badgeFragmentCount">0 / 0</strong></div>
+              <p id="badgeUnvisitedFragments">No range reports yet; unreported does not mean untouched.</p>
+              <div class="badge-fragment-track" id="badgeFragmentTrack" role="progressbar" aria-label="Lesson ranges with a known archive trace" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0" aria-valuetext="No lesson ranges have a known archive report.">
+                <span id="badgeFragmentFill"></span>
+              </div>
+              <p class="badge-fragment-personal"><span id="badgePersonalFragmentCount">Your trail: 0 / 0</span><span aria-hidden="true"> · </span><span id="badgeFrontierCount">0 first-trace claims</span></p>
+              <small>Four coarse ranges per lesson. Old WPM checkpoints and shared stats exports give partial evidence; absent or stale reports remain unknown. First-trace rewards are deliberately uneven and only unique within the archive snapshot this browser can see—not a live global claim.</small>
+            </section>
+            <ul class="badge-list" id="badgeList" aria-live="off"></ul>
+            <form class="badge-challenge-form" id="badgeChallengeForm">
+              <label for="badgeChallengeCharacters">Your exact character challenge</label>
+              <div class="badge-challenge-controls">
+                <input id="badgeChallengeCharacters" type="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="— «» é ë ü ñ “ ”" aria-describedby="badgeChallengeHint">
+                <button class="text-btn" type="submit">Save challenge</button>
+              </div>
+              <small id="badgeChallengeHint">Enter up to 32 distinct symbols; spaces are ignored. Type each one correctly in a lesson to earn its badge.</small>
+            </form>
+          </div>
+        </details>
       </div>
       <section class="session-stats" aria-label="Session stats">
         <span class="session-stats-label">Session stats</span>
@@ -82,60 +107,6 @@
           </section>
         </div>
       </section>
-      <section class="lesson-stats-card" aria-labelledby="lessonStatsTitle">
-        <div class="lesson-stats-card-head">
-          <h2 class="lesson-stats-title" id="lessonStatsTitle">Current lesson stats</h2>
-          <div class="lesson-stats-lesson">
-            <span class="lesson-stats-lesson-name" id="lessonStatsName">No lesson selected</span>
-            <span class="lesson-stats-course-name" id="lessonStatsCourse"></span>
-          </div>
-        </div>
-        <div class="lesson-run-progress">
-          <div class="lesson-run-progress-head">
-            <span>Lesson position</span>
-            <span><span id="statPosition">0/0</span> · <span id="lessonProgressPct">0%</span></span>
-            <span class="lesson-run-progress-estimate">Est. time left <span id="statRemaining">—</span></span>
-          </div>
-          <div class="lesson-run-progress-track" id="lessonProgress" role="progressbar"
-               aria-label="Cursor position through current lesson" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-               aria-valuetext="Cursor is at the start of the current lesson" title="Cursor position through current lesson">
-            <span id="lessonProgressFill"></span>
-          </div>
-        </div>
-        <div class="lesson-stats-metrics">
-          <div class="lesson-stat">
-            <span class="lesson-stat-value" id="lessonBestWpm">—</span>
-            <span class="lesson-stat-label">best WPM</span>
-          </div>
-          <div class="lesson-stat">
-            <span class="lesson-stat-value" id="lessonBestAccuracy">—</span>
-            <span class="lesson-stat-label">best accuracy</span>
-          </div>
-          <div class="lesson-stat">
-            <span class="lesson-stat-value" id="lessonCompletedRuns">—</span>
-            <span class="lesson-stat-label">completed runs</span>
-          </div>
-        </div>
-        <p class="lesson-stats-empty" id="lessonStatsEmpty">No saved results for this lesson yet.</p>
-      </section>
-    </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" id="soundBtn" aria-label="Mute sound" title="Mute sound">
-        <span class="alt-icon icon-action-mute"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13 7a4 4 0 0 1 0 6"/><path d="M15.3 4.7a8 8 0 0 1 0 10.6"/></svg></span>
-        <span class="alt-icon icon-action-unmute"><svg viewBox="0 0 20 20"><path d="M3 8v4h3l4 3V5L6 8H3z"/><line x1="13" y1="7" x2="17" y2="13"/><line x1="17" y1="7" x2="13" y2="13"/></svg></span>
-      </button>
-      <button class="icon-btn" id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme">
-        <span class="alt-icon icon-sun"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.1"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.4" y1="4.4" x2="5.7" y2="5.7"/><line x1="14.3" y1="14.3" x2="15.6" y2="15.6"/><line x1="4.4" y1="15.6" x2="5.7" y2="14.3"/><line x1="14.3" y1="5.7" x2="15.6" y2="4.4"/></svg></span>
-        <span class="alt-icon icon-moon"><svg viewBox="0 0 20 20"><path d="M16 11.6A6.5 6.5 0 1 1 8.4 4 5.2 5.2 0 0 0 16 11.6z"/></svg></span>
-        <span class="alt-icon icon-gray"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="4" rx="1" fill="currentColor" opacity=".35" stroke="none"/><rect x="3" y="8" width="14" height="4" rx="1" fill="currentColor" opacity=".65" stroke="none"/><rect x="3" y="13" width="14" height="4" rx="1" fill="currentColor" stroke="none"/></svg></span>
-      </button>
-      <button class="icon-btn" id="restartBtn" aria-label="Restart lesson">
-        <svg viewBox="0 0 20 20"><path d="M15.5 10a5.5 5.5 0 1 1-1.7-3.97"/><path d="M15.5 4v3.6h-3.6"/></svg>
-      </button>
-      <button class="icon-btn primary" id="typeBtn" aria-label="Type!" title="Type!">
-        <span class="alt-icon icon-type"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6V4z" fill="currentColor" stroke="none"/></svg></span>
-        <span class="alt-icon icon-pause"><svg viewBox="0 0 20 20"><rect x="5" y="4" width="3.2" height="12" fill="currentColor" stroke="none"/><rect x="11.8" y="4" width="3.2" height="12" fill="currentColor" stroke="none"/></svg></span>
-      </button>
     </div>
   </header>
 
@@ -178,45 +149,120 @@
         </ul>
       </section>
       <section class="drawer-half drawer-content" aria-labelledby="courseTitle">
-        <div class="drawer-head">
-          <h2 id="courseTitle">Courses</h2>
+        <div class="course-browser-header">
+          <div class="drawer-head">
+            <h2 id="courseTitle">Courses</h2>
+          </div>
         </div>
-        <input class="course-search" id="courseSearch" type="search" aria-label="Search courses and lessons" placeholder="Search lessons or courses" autocomplete="off">
-        <div class="course-list" id="courseList"></div>
-        <p class="course-search-empty" id="courseSearchEmpty" hidden>No matching courses or lessons.</p>
-        <button class="new-lesson-btn" id="newLessonBtn">+ New custom lesson</button>
-        <div class="drawer-tools">
-          <button class="text-btn stats-export-btn" id="exportStatsBtn" title="Download your local run history, course and lesson statistics, and pseudonymous IDs; raw browser details are not included">Export my stats</button>
-          <button class="text-btn" id="importOtherStatsBtn" title="Add another user's stats to a separate local collection for future comparisons">Import other stats</button>
-          <button class="text-btn community-dashboard-btn" id="communityDashboardBtn" type="button">Open stats arcade</button>
-          <button class="text-btn" id="exportSessionLessonsBtn" title="Download JSON for lessons created or edited in this browser-tab session">Export session changes (JSON)</button>
-          <button class="text-btn" id="exportSessionLessonsMarkdownBtn" title="Download a Markdown .txt bundle of lessons created or edited in this browser-tab session">Export session changes (Markdown)</button>
-          <button class="text-btn" id="exportLessonsBtn">Export selected</button>
-          <button class="text-btn" id="exportLessonsMarkdownBtn" title="Download selected lessons as a Markdown .txt bundle">Export selected (Markdown)</button>
-          <button class="text-btn" id="selectAllLessonsBtn">Select all</button>
-          <button class="text-btn" id="importLessonsBtn">Import lessons</button>
-          <input type="file" id="importFileInput" accept="application/json,.json,.txt,.md,text/plain" hidden>
-          <input type="file" id="importOtherStatsFileInput" accept="application/json" hidden>
+        <div class="course-browser-results">
+          <div class="course-list" id="courseList"></div>
+          <p class="course-search-empty" id="courseSearchEmpty" hidden>No matching courses or lessons.</p>
+          <div class="drawer-tools">
+            <button class="text-btn community-dashboard-btn" id="communityDashboardBtn" type="button">Open arcztlatzde</button>
+          </div>
+          <div class="drawer-prefs">
+            <button class="text-btn" id="marksOpenBtn">Marks &amp; masks<span class="count-badge empty" id="marksCount">0</span></button>
+          </div>
         </div>
-        <div class="drawer-prefs">
-          <button class="text-btn" id="marksOpenBtn">Marks &amp; masks<span class="count-badge empty" id="marksCount">0</span></button>
-          <button class="text-btn" id="maskToggleBtn" aria-pressed="true">Hide masked passages: on</button>
-          <button class="text-btn" id="figuresToggleBtn" aria-pressed="true">Figure deck: on</button>
+        <div class="course-browser-controls">
+          <input class="course-search" id="courseSearch" type="search" aria-label="Search courses and lessons" placeholder="Search lessons or courses" autocomplete="off">
+          <div class="course-browser-actions" role="group" aria-label="Course and lesson toolbar">
+            <button class="course-action course-action-select" id="selectAllLessonsBtn" type="button" aria-pressed="false"
+                    title="Select or unselect all lessons">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path class="course-select-check" d="m5 8 2 2 4-4"/><path class="course-select-mixed" d="M5 8h6"/></svg>
+              <span class="course-action-label">Select all</span>
+            </button>
+            <span class="course-toolbar-divider" aria-hidden="true"></span>
+            <div class="course-export-actions" role="group" aria-label="Export lessons">
+              <div class="course-format-toggle" role="group" aria-label="Export format">
+                <button class="course-format-btn is-active" id="lessonExportJsonBtn" type="button" aria-pressed="true">JSON</button>
+                <button class="course-format-btn" id="lessonExportMarkdownBtn" type="button" aria-pressed="false">MD</button>
+              </div>
+              <button class="course-action course-action-export" id="exportLessonsBtn" type="button"
+                      aria-label="Export selected lessons" title="Download selected lessons in the chosen format">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M3 12.5h10"/><path d="M2.5 4.5h2"/></svg>
+                <span>Selected</span><span class="course-action-count" aria-hidden="true"></span>
+              </button>
+              <button class="course-action course-action-export" id="exportAllLessonsBtn" type="button"
+                      aria-label="Export all lessons" title="Download every lesson in the chosen format">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m-3-3 3 3 3-3M3 12.5h10"/><path d="M3 3.5h2M3 5.5h2"/></svg>
+                <span>All</span><span class="course-action-count" aria-hidden="true"></span>
+              </button>
+              <button class="course-action course-action-export course-action-export-fresh" id="exportFreshCoursesBtn" type="button"
+                      aria-label="Export each course separately with fresh IDs" title="Download each course as a separate file with new course and lesson IDs">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 2.5h4l2 2v3M5.5 2.5v5h3M9 10.5h4m-2-2v4m-6-4v4m-2-2h4"/><path d="m11.5 1 .45 1.05L13 2.5l-1.05.45L11.5 4l-.45-1.05L10 2.5l1.05-.45z"/></svg>
+                <span>Fresh IDs</span><span class="course-action-count" aria-hidden="true"></span>
+              </button>
+              <button class="course-action course-action-export" id="exportSessionLessonsBtn" type="button"
+                      aria-label="Export session-edited lessons" title="Download lessons created or edited in this tab session">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 4.5V8l2.5 1.5M8 2v1"/></svg>
+                <span>Session edits</span><span class="course-action-count" aria-hidden="true"></span>
+              </button>
+            </div>
+            <span class="course-toolbar-divider" aria-hidden="true"></span>
+            <div class="course-content-actions" role="group" aria-label="Create or import lessons">
+              <button class="course-action course-action-new" id="newLessonBtn" type="button"
+                      aria-label="New custom lesson" title="Create a new custom lesson"><span aria-hidden="true">+</span><span class="course-action-label">New</span></button>
+              <button class="course-action course-action-import" id="importLessonsBtn" type="button"
+                      aria-label="Import lessons or course bundles"
+                      title="Import lessons or course-assigned lesson bundles from JSON or Markdown">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10V2m-3 3 3-3 3 3M3 9.5v3h10v-3"/></svg>
+                <span>Import</span>
+              </button>
+              <input type="file" id="importFileInput" accept="application/json,.json,.txt,.md,text/plain" hidden>
+            </div>
+          </div>
         </div>
       </section>
     </nav>
     <div class="drawer-scrim" id="drawerScrim"></div>
 
     <main class="stage-wrap">
-      <section class="stage" id="stage">
-        <div class="lesson-head">
-          <span class="course-tag" id="courseTag">Foundations</span>
-          <h1 id="lessonTitle">Home Row Warm-Up</h1>
+      <section class="lesson-overview-card" aria-label="Current lesson information and stats">
+        <div class="lesson-toolbar">
+          <div class="lesson-head">
+            <span class="course-tag" id="courseTag">Foundations</span>
+            <h1 id="lessonTitle">Home Row Warm-Up</h1>
+            <p class="lesson-goal" id="lessonGoal">Goal: 25 wpm · 95% accuracy</p>
+          </div>
         </div>
+        <div class="lesson-overview-stats">
+          <div class="lesson-run-progress">
+            <div class="lesson-run-progress-head">
+              <span>Lesson position</span>
+              <span><span id="statPosition">0/0</span> · <span id="lessonProgressPct">0%</span></span>
+              <span class="lesson-run-progress-estimate">Est. time left <span id="statRemaining">—</span></span>
+            </div>
+            <div class="lesson-run-progress-track" id="lessonProgress" role="progressbar"
+                 aria-label="Cursor position through current lesson" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+                 aria-valuetext="Cursor is at the start of the current lesson" title="Cursor position through current lesson">
+              <span id="lessonProgressFill"></span>
+            </div>
+          </div>
+          <div class="lesson-stats-metrics">
+            <div class="lesson-stat">
+              <span class="lesson-stat-value" id="lessonBestWpm">—</span>
+              <span class="lesson-stat-label">best WPM</span>
+            </div>
+            <div class="lesson-stat">
+              <span class="lesson-stat-value" id="lessonBestAccuracy">—</span>
+              <span class="lesson-stat-label">best accuracy</span>
+            </div>
+            <div class="lesson-stat">
+              <span class="lesson-stat-value" id="lessonCompletedRuns">—</span>
+              <span class="lesson-stat-label">completed runs</span>
+            </div>
+          </div>
+          <p class="lesson-stats-empty" id="lessonStatsEmpty">No saved results for this lesson yet.</p>
+        </div>
+      </section>
+
+      <section class="stage" id="stage">
         <div class="text-shell" id="textShell">
           <div class="text-display" id="textDisplay">
             <div class="caret idle" id="caret"></div>
           </div>
+          <p class="badge-announcement" id="badgeAnnouncement" role="status" aria-live="polite" hidden></p>
           <div class="ready-pill" id="readyPill" aria-hidden="true">Type to begin</div>
           <div class="pill-row" aria-hidden="true">
             <div class="ready-pill mark-pill" id="markPill"></div>
@@ -231,25 +277,51 @@
             </span>
           </div>
         </div>
-        <div class="progress-rule"><div class="progress-fill" id="progressFill"></div></div>
-        <p class="lesson-goal" id="lessonGoal">Goal: 25 wpm · 95% accuracy</p>
         <textarea id="captureInput" class="capture-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true"></textarea>
       </section>
 
-      <div class="keyboard-toggle-row">
-        <nav class="lesson-navigation" aria-label="Lesson navigation">
-          <button class="lesson-nav-btn" id="previousLessonBtn" type="button" aria-label="Previous lesson" title="Previous lesson" disabled>‹ <span class="lesson-nav-label">Previous</span></button>
-          <span class="lesson-nav-position" id="lessonNavPosition" aria-live="polite">— / —</span>
-          <button class="lesson-nav-btn" id="nextLessonNavBtn" type="button" aria-label="Next lesson" title="Next lesson" disabled><span class="lesson-nav-label">Next</span> ›</button>
-        </nav>
-        <span class="keyboard-toggle-divider" aria-hidden="true"></span>
-        <button class="text-btn" id="keyboardToggleBtn" type="button"
-                aria-expanded="true" aria-controls="keyboardPanel">Hide keyboard</button>
+      <div class="typing-dock">
+        <div class="practice-toolbar" role="group" aria-label="Lesson and practice controls">
+          <nav class="lesson-navigation" aria-label="Lesson navigation">
+            <button class="lesson-nav-btn" id="previousLessonBtn" type="button" aria-label="Previous lesson" title="Previous lesson" disabled>‹ <span class="lesson-nav-label">Previous</span></button>
+            <span class="lesson-nav-position" id="lessonNavPosition" aria-live="polite">— / —</span>
+            <button class="lesson-nav-btn" id="nextLessonNavBtn" type="button" aria-label="Next lesson" title="Next lesson" disabled><span class="lesson-nav-label">Next</span> ›</button>
+          </nav>
+          <div class="practice-toolbar-actions" role="group" aria-label="Practice controls">
+            <div class="practice-start-controls" role="group" aria-label="Start or restart practice">
+              <button class="icon-btn primary practice-primary" id="typeBtn" type="button" aria-label="Type!" title="Type!">
+                <span class="alt-icon icon-type"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6V4z" fill="currentColor" stroke="none"/></svg></span>
+                <span class="alt-icon icon-pause"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="4" width="3.2" height="12" fill="currentColor" stroke="none"/><rect x="11.8" y="4" width="3.2" height="12" fill="currentColor" stroke="none"/></svg></span>
+              </button>
+              <button class="icon-btn" id="restartBtn" type="button" aria-label="Restart lesson" title="Restart lesson">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 10a5.5 5.5 0 1 1-1.7-3.97"/><path d="M15.5 4v3.6h-3.6"/></svg>
+              </button>
+            </div>
+            <div class="practice-view-controls" role="group" aria-label="Typing display controls">
+              <button class="text-btn" id="keyboardToggleBtn" type="button"
+                      aria-expanded="true" aria-controls="keyboardPanel">Hide keyboard</button>
+              <button class="text-btn" id="maskToggleBtn" type="button" aria-pressed="true">Hide masked passages: on</button>
+              <button class="text-btn" id="figuresToggleBtn" type="button" aria-pressed="true">Figure deck: on</button>
+            </div>
+            <div class="practice-preference-controls" role="group" aria-label="Sound and appearance">
+              <button class="icon-btn sound-toggle" id="soundBtn" type="button" aria-label="Stroke sounds" aria-pressed="true" title="Mute stroke sounds">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <rect class="sound-keycap" x="3" y="5" width="9" height="9" rx="1.7"/>
+                  <path class="sound-key-mark" d="M5.5 8h4M7.5 6.5v3"/>
+                  <path class="sound-waves" d="M14 7.5a3.5 3.5 0 0 1 0 4.9M15.8 5.7a6 6 0 0 1 0 8.5"/>
+                  <path class="sound-muted-mark" d="m14 7 4 5m0-5-4 5"/>
+                </svg>
+              </button>
+              <button class="icon-btn theme-toggle" id="themeBtn" type="button" aria-label="Grayscale theme" aria-pressed="false" title="Turn grayscale theme on">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="4" rx="1" fill="currentColor" opacity=".35" stroke="none"/><rect x="3" y="8" width="14" height="4" rx="1" fill="currentColor" opacity=".65" stroke="none"/><rect x="3" y="13" width="14" height="4" fill="currentColor" stroke="none"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <section class="keyboard-panel" id="keyboardPanel">
+          <div class="keyboard" id="keyboard"></div>
+        </section>
       </div>
-
-      <section class="keyboard-panel" id="keyboardPanel">
-        <div class="keyboard" id="keyboard"></div>
-      </section>
     </main>
   </div>
 
@@ -425,6 +497,7 @@
       <div class="complete-actions">
         <button class="btn" id="retryBtn">Try again</button>
         <button class="btn primary" id="nextLessonBtn">Next lesson</button>
+        <button class="btn complete-export-btn" id="exportCompletedLessonBtn" type="button" title="Download stats for only this completed lesson">Export lesson stats</button>
       </div>
     </div>
   </div>
@@ -432,33 +505,82 @@
   <dialog class="community-dashboard" id="communityDashboard" aria-labelledby="communityDashboardTitle">
     <div class="community-dashboard-head">
       <div>
-        <p class="community-kicker">POMOUDYING / FIELD NOTES</p>
-        <h2 id="communityDashboardTitle">The stats arcade</h2>
-        <p class="community-subtitle">A playful snapshot of imported practice histories.</p>
+        <p class="community-kicker">POMOUDYING / arcztlatzde</p>
+        <h2 id="communityDashboardTitle">arcztlatzde</h2>
+        <p class="community-subtitle">A local arcade for reported practice, record badges, progress signals, and retired lessons.</p>
       </div>
-      <button class="icon-btn community-dashboard-close" id="communityDashboardClose" type="button" aria-label="Close stats arcade">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
-      </button>
+      <div class="community-head-actions">
+        <button class="community-action community-action-export" id="exportStatsBtn" type="button" title="Download your local run history, course and lesson statistics, and pseudonymous IDs; raw browser details are not included">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 14.5v2h12v-2"/></svg><span>Export my stats</span>
+        </button>
+        <button class="community-action community-action-import" id="importOtherStatsBtn" type="button" title="Add another learner’s stats export for local comparison">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 12V3m0 0L6.5 6.5M10 3l3.5 3.5M4 14.5v2h12v-2"/></svg><span>Import stats</span>
+        </button>
+        <input type="file" id="importOtherStatsFileInput" accept="application/json" hidden>
+        <button class="icon-btn community-dashboard-close" id="communityDashboardClose" type="button" aria-label="Close arcztlatzde">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>
+        </button>
+      </div>
     </div>
+    <section class="community-haunt" aria-label="Archive spirit">
+      <span class="pixel-phantom" aria-hidden="true"></span>
+      <div class="community-haunt-copy">
+        <p class="community-haunt-kicker">THE PRACTICE AFTERLIFE</p>
+        <p>Every imported run leaves a little trace. Chase a record, revisit a course, or give an old lesson a new life.</p>
+      </div>
+      <span class="community-fossil-count" id="communityFossilCount">0 fossil snapshots</span>
+    </section>
     <div class="community-metrics" id="communityDashboardMetrics" aria-live="polite"></div>
-    <div class="community-dashboard-columns">
-      <section class="community-section" aria-labelledby="communityPlayersTitle">
+    <div class="community-highlights">
+      <section class="community-section community-awards-section" aria-labelledby="communityAwardsTitle">
         <div class="community-section-head">
-          <h3 id="communityPlayersTitle">Practice crew</h3>
+          <h3 id="communityAwardsTitle">Archive badges</h3>
+          <span class="community-section-note">derived from reported records</span>
+        </div>
+        <div class="community-awards" id="communityDashboardAwards"></div>
+      </section>
+      <section class="community-section community-signal-section" aria-labelledby="communitySignalsTitle">
+        <div class="community-section-head">
+          <h3 id="communitySignalsTitle">Progress signals</h3>
+          <span class="community-section-note">coverage of archive learners</span>
+        </div>
+        <div class="community-coverage" id="communityDashboardCoverage"></div>
+        <div class="community-insights" id="communityDashboardInsights" aria-live="polite"></div>
+      </section>
+    </div>
+    <div class="community-dashboard-columns">
+      <section class="community-section community-rank-section" aria-labelledby="communityPlayersTitle">
+        <div class="community-section-head">
+          <h3 id="communityPlayersTitle">Arcade podium</h3>
           <span class="community-section-note" id="communityPlayersCount"></span>
         </div>
+        <div class="community-rank-tabs" role="group" aria-label="Rank histories by">
+          <button type="button" data-rank-by="wpm" aria-pressed="true">Top speed</button>
+          <button type="button" data-rank-by="accuracy" aria-pressed="false">Accuracy</button>
+          <button type="button" data-rank-by="streak" aria-pressed="false">Clean streak</button>
+          <button type="button" data-rank-by="errors" aria-pressed="false">Cleanest</button>
+          <button type="button" data-rank-by="runs" aria-pressed="false">Most runs</button>
+          <button type="button" data-rank-by="time" aria-pressed="false">Practice time</button>
+        </div>
+        <p class="community-rank-caption" id="communityRankCaption" aria-live="polite">Best reported WPM across imported histories.</p>
+        <div class="community-podium" id="communityDashboardPodium"></div>
         <ol class="community-leaderboard" id="communityDashboardLeaderboard"></ol>
       </section>
-      <section class="community-section" aria-labelledby="communityCoursesTitle">
+      <section class="community-section community-archive-section" aria-labelledby="communityCoursesTitle">
         <div class="community-section-head">
-          <h3 id="communityCoursesTitle">Course fossils</h3>
-          <span class="community-section-note">even the vanished ones</span>
+          <h3 id="communityCoursesTitle">Course trails</h3>
+          <span class="community-section-note">shared practice</span>
         </div>
         <ol class="community-course-list" id="communityDashboardCourses"></ol>
+        <div class="community-section-head community-lesson-head">
+          <h3 id="communityLessonsTitle">Lesson spirits</h3>
+          <span class="community-section-note">fastest reported</span>
+        </div>
+        <ol class="community-lesson-list" id="communityDashboardLessons"></ol>
       </section>
     </div>
     <p class="community-archive-note" id="communityArchiveNote">
-      Stats files in the lessons archive load on refresh. Renamed IDs, retired lessons, duplicate histories, and gloriously impossible totals are part of the fossil record.
+      This arcade summarizes imported snapshots stored in this browser; it is not a live leaderboard. Archive badges are derived from reported records, not the live character-badge shelf. First and latest finishers use dated completed runs only; clean-streak ranks require a reported streak value. Coverage percentages show how many archive profiles contain each signal. Older exports may contain aggregates only, and overlapping or inconsistent totals remain possible.
     </p>
   </dialog>
 

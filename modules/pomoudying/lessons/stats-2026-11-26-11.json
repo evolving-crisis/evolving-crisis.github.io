@@ -1,0 +1,348 @@
+{
+  "format": "pomoudying-user-stats.v1",
+  "exportedAt": "2026-11-26T15:40:22.530Z",
+  "app": {
+    "name": "Pomoudying",
+    "statsSchemaVersion": 1,
+    "historyNote": "Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates."
+  },
+  "identity": {
+    "userId": "ty85420da9c65bcd932519de40perr",
+    "firstSeenAt": "2026-11-18T19:07:39.006Z",
+    "idGeneratedAt": "2026-11-26T15:09:06.699Z",
+    "idStrategy": "coarse-derived.v1",
+    "persistent": true,
+    "currentSessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+    "currentSessionStartedAt": "2026-11-26T14:44:12.483Z",
+    "sessionPersistent": true
+  },
+  "summary": {
+    "lessons": 3,
+    "runs": 3,
+    "avgWpm": 42,
+    "avgAccuracy": 97,
+    "bestWpm": 43,
+    "lastAt": 1795707517746
+  },
+  "courses": [
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "lessonIds": [
+        "evolving-crisis-code-intro",
+        "evolving-crisis-code-startup",
+        "evolving-crisis-code-html",
+        "evolving-crisis-code-boundaries",
+        "evolving-crisis-code-css",
+        "evolving-crisis-code-events",
+        "evolving-crisis-code-state",
+        "evolving-crisis-code-text",
+        "evolving-crisis-code-data",
+        "evolving-crisis-code-storage",
+        "evolving-crisis-code-engine",
+        "evolving-crisis-code-identity",
+        "evolving-crisis-code-challenge",
+        "evolving-crisis-code-commands",
+        "evolving-crisis-code-memory",
+        "evolving-crisis-code-time",
+        "evolving-crisis-code-review"
+      ]
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "lessonIds": [
+        "custom-mwfilq13-e9yy",
+        "custom-mwfkktyf-b7ln",
+        "custom-mw2t7vo6-b5zn",
+        "custom-mwfjmtxy-nwqo"
+      ]
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "lessonIds": [
+        "margrtikst-copy",
+        "margrtikst"
+      ]
+    }
+  ],
+  "runSummary": {
+    "runCount": 3,
+    "totalTypingTimeMs": 454233,
+    "totalReadingTimeMs": 0,
+    "keystrokes": 1667,
+    "correctKeystrokes": 1611,
+    "errors": 56,
+    "backspaces": 67,
+    "averageWpm": 42,
+    "averageAccuracy": 97
+  },
+  "courseStats": [
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "runCount": 3,
+      "totalTypingTimeMs": 454233,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 1667,
+      "correctKeystrokes": 1611,
+      "errors": 56,
+      "backspaces": 67,
+      "averageWpm": 42,
+      "averageAccuracy": 97
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    }
+  ],
+  "lessonRunStats": {
+    "evolving-crisis-code-intro": {
+      "title": "01 · Le plan du module",
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 135394,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 493,
+      "correctKeystrokes": 475,
+      "errors": 18,
+      "backspaces": 20,
+      "averageWpm": 42,
+      "averageAccuracy": 96
+    },
+    "evolving-crisis-code-startup": {
+      "title": "02 · Le démarrage a un contrat",
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 213844,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 796,
+      "correctKeystrokes": 771,
+      "errors": 25,
+      "backspaces": 28,
+      "averageWpm": 43,
+      "averageAccuracy": 97
+    },
+    "evolving-crisis-code-boundaries": {
+      "title": "03 · Des responsabilités dans un seul fichier",
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 104995,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 378,
+      "correctKeystrokes": 365,
+      "errors": 13,
+      "backspaces": 19,
+      "averageWpm": 42,
+      "averageAccuracy": 97
+    }
+  },
+  "lessonStats": {
+    "evolving-crisis-code-intro": {
+      "bestWpm": 42,
+      "bestAccuracy": 96,
+      "attempts": 1,
+      "lastAt": 1795705725896
+    },
+    "evolving-crisis-code-startup": {
+      "bestWpm": 43,
+      "bestAccuracy": 97,
+      "attempts": 1,
+      "lastAt": 1795706708080
+    },
+    "evolving-crisis-code-boundaries": {
+      "bestWpm": 42,
+      "bestAccuracy": 97,
+      "attempts": 1,
+      "lastAt": 1795707517746
+    }
+  },
+  "sessions": [
+    {
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "firstRunAt": "2026-11-26T15:06:30.499Z",
+      "lastRunAt": "2026-11-26T15:38:37.739Z",
+      "runCount": 3,
+      "totalTypingTimeMs": 454233,
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "lessonIds": [
+        "evolving-crisis-code-intro",
+        "evolving-crisis-code-startup",
+        "evolving-crisis-code-boundaries"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "runId": "run-fbf81cfd-117d-4720-bd37-d0304e9f4583",
+      "userId": "ty85420da9c65bcd932519de40perr",
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "startedAt": "2026-11-26T15:06:30.499Z",
+      "completedAt": "2026-11-26T15:08:45.894Z",
+      "courseId": "evolving-crisis-code-fr",
+      "courseTitle": "Comprendre Evolving Crisis",
+      "lessonId": "evolving-crisis-code-intro",
+      "lessonTitle": "01 · Le plan du module",
+      "targetWpm": 24,
+      "targetAccuracy": 94,
+      "stats": {
+        "wpm": 42,
+        "accuracy": 96,
+        "elapsedMs": 135394,
+        "readingTimeMs": 0,
+        "keystrokes": 493,
+        "correctKeystrokes": 475,
+        "errors": 18,
+        "backspaces": 20
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 8835,
+          "charIndex": 133,
+          "wpm": 182
+        },
+        {
+          "elapsedMs": 47622,
+          "charIndex": 282,
+          "wpm": 46
+        },
+        {
+          "elapsedMs": 86560,
+          "charIndex": 430,
+          "wpm": 46
+        },
+        {
+          "elapsedMs": 133040,
+          "charIndex": 565,
+          "wpm": 35
+        }
+      ],
+      "pauses": []
+    },
+    {
+      "runId": "run-43b445c3-c2a7-4254-a2f2-0dda5f566bb6",
+      "userId": "ty85420da9c65bcd932519de40perr",
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "startedAt": "2026-11-26T15:21:16.505Z",
+      "completedAt": "2026-11-26T15:25:08.078Z",
+      "courseId": "evolving-crisis-code-fr",
+      "courseTitle": "Comprendre Evolving Crisis",
+      "lessonId": "evolving-crisis-code-startup",
+      "lessonTitle": "02 · Le démarrage a un contrat",
+      "targetWpm": 26,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 43,
+        "accuracy": 97,
+        "elapsedMs": 213844,
+        "readingTimeMs": 0,
+        "keystrokes": 796,
+        "correctKeystrokes": 771,
+        "errors": 25,
+        "backspaces": 28
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 72906,
+          "charIndex": 203,
+          "wpm": 44
+        },
+        {
+          "elapsedMs": 134875,
+          "charIndex": 410,
+          "wpm": 40
+        },
+        {
+          "elapsedMs": 185875,
+          "charIndex": 595,
+          "wpm": 44
+        },
+        {
+          "elapsedMs": 229115,
+          "charIndex": 756,
+          "wpm": 45
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-26T15:21:24.604Z",
+          "reason": "blur",
+          "resumedAt": "2026-11-26T15:21:42.332Z",
+          "durationMs": 17728
+        }
+      ]
+    },
+    {
+      "runId": "run-c6543b68-badc-4de4-b40e-2775a9e82ee8",
+      "userId": "ty85420da9c65bcd932519de40perr",
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "startedAt": "2026-11-26T15:36:52.742Z",
+      "completedAt": "2026-11-26T15:38:37.739Z",
+      "courseId": "evolving-crisis-code-fr",
+      "courseTitle": "Comprendre Evolving Crisis",
+      "lessonId": "evolving-crisis-code-boundaries",
+      "lessonTitle": "03 · Des responsabilités dans un seul fichier",
+      "targetWpm": 27,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 42,
+        "accuracy": 97,
+        "elapsedMs": 104995,
+        "readingTimeMs": 0,
+        "keystrokes": 378,
+        "correctKeystrokes": 365,
+        "errors": 13,
+        "backspaces": 19
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 3,
+          "charIndex": 351,
+          "wpm": 1408000
+        },
+        {
+          "elapsedMs": 51789,
+          "charIndex": 528,
+          "wpm": 41
+        },
+        {
+          "elapsedMs": 96887,
+          "charIndex": 689,
+          "wpm": 43
+        }
+      ],
+      "pauses": []
+    }
+  ]
+}

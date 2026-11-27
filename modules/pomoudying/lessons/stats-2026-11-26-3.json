@@ -1,0 +1,210 @@
+{
+  "format": "pomoudying-user-stats.v1",
+  "exportedAt": "2026-11-26T15:09:14.099Z",
+  "app": {
+    "name": "Pomoudying",
+    "statsSchemaVersion": 1,
+    "historyNote": "Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates."
+  },
+  "identity": {
+    "userId": "ty85420da9c65bcd932519de40perr",
+    "firstSeenAt": "2026-11-18T19:07:39.006Z",
+    "idGeneratedAt": "2026-11-26T15:09:06.699Z",
+    "idStrategy": "coarse-derived.v1",
+    "persistent": true,
+    "currentSessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+    "currentSessionStartedAt": "2026-11-26T14:44:12.483Z",
+    "sessionPersistent": true
+  },
+  "summary": {
+    "lessons": 1,
+    "runs": 1,
+    "avgWpm": 42,
+    "avgAccuracy": 96,
+    "bestWpm": 42,
+    "lastAt": 1795705725896
+  },
+  "courses": [
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "lessonIds": [
+        "evolving-crisis-code-intro",
+        "evolving-crisis-code-startup",
+        "evolving-crisis-code-html",
+        "evolving-crisis-code-boundaries",
+        "evolving-crisis-code-css",
+        "evolving-crisis-code-events",
+        "evolving-crisis-code-state",
+        "evolving-crisis-code-text",
+        "evolving-crisis-code-data",
+        "evolving-crisis-code-storage",
+        "evolving-crisis-code-engine",
+        "evolving-crisis-code-identity",
+        "evolving-crisis-code-challenge",
+        "evolving-crisis-code-commands",
+        "evolving-crisis-code-memory",
+        "evolving-crisis-code-time",
+        "evolving-crisis-code-review"
+      ]
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "lessonIds": [
+        "custom-mwfilq13-e9yy",
+        "custom-mwfkktyf-b7ln",
+        "custom-mw2t7vo6-b5zn",
+        "custom-mwfjmtxy-nwqo"
+      ]
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "lessonIds": [
+        "margrtikst-copy",
+        "margrtikst"
+      ]
+    }
+  ],
+  "runSummary": {
+    "runCount": 1,
+    "totalTypingTimeMs": 135394,
+    "totalReadingTimeMs": 0,
+    "keystrokes": 493,
+    "correctKeystrokes": 475,
+    "errors": 18,
+    "backspaces": 20,
+    "averageWpm": 42,
+    "averageAccuracy": 96
+  },
+  "courseStats": [
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "runCount": 1,
+      "totalTypingTimeMs": 135394,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 493,
+      "correctKeystrokes": 475,
+      "errors": 18,
+      "backspaces": 20,
+      "averageWpm": 42,
+      "averageAccuracy": 96
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    }
+  ],
+  "lessonRunStats": {
+    "evolving-crisis-code-intro": {
+      "title": "01 · Le plan du module",
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 135394,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 493,
+      "correctKeystrokes": 475,
+      "errors": 18,
+      "backspaces": 20,
+      "averageWpm": 42,
+      "averageAccuracy": 96
+    }
+  },
+  "lessonStats": {
+    "evolving-crisis-code-intro": {
+      "bestWpm": 42,
+      "bestAccuracy": 96,
+      "attempts": 1,
+      "lastAt": 1795705725896
+    }
+  },
+  "sessions": [
+    {
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "firstRunAt": "2026-11-26T15:06:30.499Z",
+      "lastRunAt": "2026-11-26T15:08:45.894Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 135394,
+      "courseIds": [
+        "evolving-crisis-code-fr"
+      ],
+      "lessonIds": [
+        "evolving-crisis-code-intro"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "runId": "run-fbf81cfd-117d-4720-bd37-d0304e9f4583",
+      "userId": "ty85420da9c65bcd932519de40perr",
+      "sessionId": "session-832e03b3-f796-4d1a-a06e-bb14d2e6064b",
+      "startedAt": "2026-11-26T15:06:30.499Z",
+      "completedAt": "2026-11-26T15:08:45.894Z",
+      "courseId": "evolving-crisis-code-fr",
+      "courseTitle": "Comprendre Evolving Crisis",
+      "lessonId": "evolving-crisis-code-intro",
+      "lessonTitle": "01 · Le plan du module",
+      "targetWpm": 24,
+      "targetAccuracy": 94,
+      "stats": {
+        "wpm": 42,
+        "accuracy": 96,
+        "elapsedMs": 135394,
+        "readingTimeMs": 0,
+        "keystrokes": 493,
+        "correctKeystrokes": 475,
+        "errors": 18,
+        "backspaces": 20
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 8835,
+          "charIndex": 133,
+          "wpm": 182
+        },
+        {
+          "elapsedMs": 47622,
+          "charIndex": 282,
+          "wpm": 46
+        },
+        {
+          "elapsedMs": 86560,
+          "charIndex": 430,
+          "wpm": 46
+        },
+        {
+          "elapsedMs": 133040,
+          "charIndex": 565,
+          "wpm": 35
+        }
+      ],
+      "pauses": []
+    }
+  ]
+}

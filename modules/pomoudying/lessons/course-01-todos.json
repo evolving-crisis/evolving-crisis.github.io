@@ -1,0 +1,21 @@
+{
+  "exportedAt": "2026-11-26T18:57:20.140Z",
+  "format": "pomoudying-lessons.v1",
+  "course": "TODOS",
+  "courseId": "odos-odo",
+  "order": 10,
+  "lessons": [
+    {
+      "id": "day-ay",
+      "title": "today",
+      "text": "reporte raven\nparcial animal\nbitacora animal\ncomprar botas\ncomprar mecato\nguias animal\ncommit\nmaleta\npropuesta papers ornito\ntarea primato registros titie inaturalist \n français devoirs",
+      "course": "TODOS",
+      "courseId": "odos-odo",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 10,
+      "courseOrder": 10
+    }
+  ],
+  "marks": []
+}

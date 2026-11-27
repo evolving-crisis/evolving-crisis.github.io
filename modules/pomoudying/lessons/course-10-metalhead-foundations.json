@@ -1,0 +1,21 @@
+{
+  "exportedAt": "2026-11-26T18:57:20.140Z",
+  "format": "pomoudying-lessons.v1",
+  "course": "metalhead-foundations",
+  "courseId": "ta-ndat",
+  "order": 100,
+  "lessons": [
+    {
+      "id": "ngo-fang",
+      "title": "Fango",
+      "text": "13 millones cerzenados\nun ministro asesinao'\npodredumbre y corrupción\ntodo es causa en la nación\nanarquía es la solución\nfango fango fango !",
+      "course": "metalhead-foundations",
+      "courseId": "ta-ndat",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 10,
+      "courseOrder": 100
+    }
+  ],
+  "marks": []
+}

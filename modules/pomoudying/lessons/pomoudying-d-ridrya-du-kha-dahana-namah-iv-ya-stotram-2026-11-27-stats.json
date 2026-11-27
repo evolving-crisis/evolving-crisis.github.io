@@ -1,0 +1,45 @@
+{
+  "format": "pomoudying-completed-lesson-stats.v1",
+  "exportedAt": "2026-11-27T00:28:22.247Z",
+  "lesson": {
+    "id": "dr-hkha-dah-am-vaya-sto",
+    "title": "Dāridrya Duḥkha Dahana Namah Śivāya Stotram",
+    "courseTitle": "Sanskrit",
+    "targetWpm": 30,
+    "targetAccuracy": 95
+  },
+  "lessonStats": {
+    "bestWpm": 42,
+    "bestAccuracy": 93,
+    "attempts": 1,
+    "lastAt": 1795739298395
+  },
+  "completedRun": {
+    "startedAt": "2026-11-27T00:24:44.722Z",
+    "completedAt": "2026-11-27T00:28:18.390Z",
+    "stats": {
+      "wpm": 42,
+      "accuracy": 93,
+      "elapsedMs": 213668,
+      "readingTimeMs": 0,
+      "keystrokes": 801,
+      "correctKeystrokes": 747,
+      "longestCleanStreak": 127,
+      "errors": 54,
+      "backspaces": 13
+    },
+    "checkpoints": [
+      {
+        "elapsedMs": 976,
+        "charIndex": 1293,
+        "wpm": 15910
+      },
+      {
+        "elapsedMs": 162111,
+        "charIndex": 1884,
+        "wpm": 44
+      }
+    ],
+    "pauses": []
+  }
+}

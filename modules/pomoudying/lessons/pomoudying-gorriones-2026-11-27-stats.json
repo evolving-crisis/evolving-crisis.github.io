@@ -1,0 +1,65 @@
+{
+  "format": "pomoudying-completed-lesson-stats.v1",
+  "exportedAt": "2026-11-27T00:05:55.495Z",
+  "lesson": {
+    "id": "nes-io",
+    "title": "gorriones",
+    "courseTitle": "ornito",
+    "targetWpm": 30,
+    "targetAccuracy": 95
+  },
+  "lessonStats": {
+    "bestWpm": 27,
+    "bestAccuracy": 94,
+    "attempts": 1,
+    "lastAt": 1795737950574
+  },
+  "completedRun": {
+    "startedAt": "2026-11-26T23:54:06.608Z",
+    "completedAt": "2026-11-27T00:05:50.572Z",
+    "stats": {
+      "wpm": 27,
+      "accuracy": 94,
+      "elapsedMs": 586337,
+      "readingTimeMs": 0,
+      "keystrokes": 1399,
+      "correctKeystrokes": 1310,
+      "longestCleanStreak": 167,
+      "errors": 89,
+      "backspaces": 32
+    },
+    "checkpoints": [
+      {
+        "elapsedMs": 5922,
+        "charIndex": 6023,
+        "wpm": 12207
+      }
+    ],
+    "pauses": [
+      {
+        "startedAt": "2026-11-26T23:56:28.242Z",
+        "reason": "blur",
+        "resumedAt": "2026-11-26T23:57:07.034Z",
+        "durationMs": 38792
+      },
+      {
+        "startedAt": "2026-11-26T23:57:15.862Z",
+        "reason": "blur",
+        "resumedAt": "2026-11-26T23:57:42.839Z",
+        "durationMs": 26977
+      },
+      {
+        "startedAt": "2026-11-26T23:57:54.050Z",
+        "reason": "blur",
+        "resumedAt": "2026-11-26T23:58:28.078Z",
+        "durationMs": 34028
+      },
+      {
+        "startedAt": "2026-11-27T00:01:56.236Z",
+        "reason": "blur",
+        "resumedAt": "2026-11-27T00:02:14.068Z",
+        "durationMs": 17832
+      }
+    ]
+  }
+}

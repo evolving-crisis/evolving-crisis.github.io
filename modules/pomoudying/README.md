@@ -147,11 +147,36 @@ origin, not a path, so projects hosted under the same `username.github.io`
 origin share the browser's storage area; the Pomoudying key prefix helps avoid
 collisions.
 
+The expandable **WPM checkpoints & badges** shelf leads with `Nice!` at the
+lesson target and `Great!` at 120% of the target. Other rewards cover correct
+keystroke and completed-lesson milestones, error-free streak tiers, exact
+characters (including em dashes, guillemets, typographic quotes, French
+accents, German umlauts and sharp s, tilde letters, and Latin `ē`/`Ē`), lesson
+fragments, and first traces in the archive. The live clean streak resets on an
+incorrect key; its all-time best persists locally and feeds the shadow, ghost,
+and impossible badges. It starts counting with this version, since older totals
+cannot reveal uninterrupted sequences. Visitors can add a personal challenge
+of up to 32 exact characters.
+
+Each lesson is split into up to four coarse ranges. Typing in a range records a
+local trace; old WPM checkpoint positions and new stats exports provide partial
+archive evidence. The shelf reports ranges with known traces and ranges with no
+trace in the available snapshots, but missing or stale reports are unknown,
+not proof that nobody typed there. First-trace rewards are intentionally
+uneven: the first profile in the archive view available to a browser can claim
+them, while later profiles may find those ranges already claimed. There is no
+live shared service, so separate browsers can award the same apparent first;
+exported coverage contains only lesson IDs and coarse range masks, not lesson
+text or typed characters. Personal progress and first-trace awards persist
+locally; full browser-data exports include them.
+
 The Courses drawer has an **Export my stats** button. It downloads a
 `pomoudying-user-stats.v1` JSON file containing lesson aggregates, completed
 run-by-run results, checkpoint speeds, pause intervals, course/lesson IDs,
-and session summaries. The local user ID is derived from coarse browser-family,
-platform, language, and timezone signals combined with a one-time random value.
+session summaries, and the longest reported error-free keystroke streak. The
+streak count does not reveal the typed sequence. The local user ID is derived
+from coarse browser-family, platform, language, and timezone signals combined
+with a one-time random value.
 Only the opaque ID is exported: neither the raw signals nor the random value is
 included. The ID is stored locally, not sent anywhere, and is not an account or
 a reliable cross-device identifier; clearing site storage creates a new one.
@@ -185,6 +210,23 @@ reported course IDs even if their lessons have since disappeared or changed
 names. Counts and histories are self-reported snapshots, not a live user
 database: overlapping exports, retired IDs, and inconsistent totals are
 expected archive artifacts.
+
+The arcade's **Archive badges** are recalculated from reported records (speed,
+average accuracy, error rate, run totals, and dated completed runs); they are
+not imported character-badge awards and do not claim when a live badge was
+earned. First/latest finisher honors require a `completedAt` timestamp. Coverage
+percentages use the imported archive-learner count, while accuracy and target-
+pace rates use only profiles or detailed runs that report the required values.
+Archive fragment evidence is opportunistic: older run checkpoints mark only
+the range at their recorded character position, and new exports share coarse
+range masks. Missing, stale, or text-version-mismatched reports are not proof
+that a range was never visited; no server synchronizes first-trace claims.
+Clean-streak rankings require the new reported streak field; old aggregate
+exports cannot reconstruct consecutive correct keys from total counts. The
+dashboard's archive ghost/shadow comparison recalculates when snapshots are
+loaded or imported; it is a local comparison, not a live global service.
+Missing data is left out rather than treated as zero, and summaries may still
+reflect different time windows across exports.
 
 Visitors can:
 
@@ -222,9 +264,9 @@ Visitors can:
   `Pomoudying.importData()`.
 
 The header separates **Global stats** (averages, completed runs, and overall
-lesson-results coverage), **Session stats** (live speed, accuracy, elapsed
-time, errors, and typing/reading split for the active run), and **Current
-lesson stats**. The current-lesson card combines position and estimated time
+lesson-results coverage, and the expandable badge shelf), **Session stats**
+(live speed, accuracy, elapsed time, errors, and typing/reading split for the
+active run), and **Current lesson stats**. The current-lesson card combines position and estimated time
 left in the selected lesson with its saved best speed, accuracy, and completed
 runs. The **Lessons with results** bar counts currently
 available canonical lessons with recognizable saved activity, out of all

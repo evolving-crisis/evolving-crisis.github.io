@@ -1,0 +1,21 @@
+{
+  "exportedAt": "2026-11-26T18:57:20.140Z",
+  "format": "pomoudying-lessons.v1",
+  "course": "chapter-three",
+  "courseId": "apt-hr",
+  "order": 120,
+  "lessons": [
+    {
+      "id": "ion-to-the-ma-ingd",
+      "title": "Introduction to the Animal Kingdom",
+      "text": "Animal Architecture and Body Plans",
+      "course": "chapter-three",
+      "courseId": "apt-hr",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 10,
+      "courseOrder": 120
+    }
+  ],
+  "marks": []
+}

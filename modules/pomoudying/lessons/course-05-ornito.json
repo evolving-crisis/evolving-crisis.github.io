@@ -1,0 +1,2405 @@
+{
+  "exportedAt": "2026-11-26T18:57:20.140Z",
+  "format": "pomoudying-lessons.v1",
+  "course": "ornito",
+  "courseId": "rnit-to",
+  "order": 50,
+  "lessons": [
+    {
+      "id": "prel-lud",
+      "title": "prelude",
+      "text": "\"Birds are the spoiled children of nature - the favourites of Creation... Mankind has a profound sympathy with these little winged beings, which charm at once by the elegance of their form, the melody of their song, and the graceful impetuosity of their movements\"",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 10,
+      "courseOrder": 50
+    },
+    {
+      "id": "que-es-un-ave-5d",
+      "title": "¿qué es un ave?",
+      "text": "¿cuáles son las características de las aves?\nvertebrados - bípedos\ncapacidad de vuelo\ncorazón 4 cámaras\nalas\nplumas\nmolleja\npico\nhuesos\nreducción de huesos por fusión\nfúrcula\nsacos aéreos\nhuevos con cáscara dura\ncerebro grande y bien desarrollado\nun cóndilo occipital",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 20,
+      "courseOrder": 50
+    },
+    {
+      "id": "ogy-mol",
+      "title": "etimology",
+      "text": "Su acuñación formal se debe al naturalista boloñés Ulisse Aldrovandi, quien en 1599 publicó su obra monumental Ornithologiae. Posteriormente, en el siglo XVII, John Ray y Francis Willughby consolidaron el término en su Ornithology (1676-1678), seguido por Jacques Brisson en 1760 con su Ornithologie.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 30,
+      "courseOrder": 50
+    },
+    {
+      "id": "la-olid-st-y-el-ca-de-ma-tivo",
+      "title": "La consolidación sistemática y el cambio de paradigma evolutivo",
+      "text": "En el siglo XVII, Francis Willughby y John Ray revolucionaron la disciplina al publicar en 1676 Ornithologiae Libri Tres. Ellos rechazaron los arreglos alfabéticos o místicos y propusieron la primera clasificación basada estrictamente en la morfología del pico, las patas y las proporciones corporales.   En el siglo XVIII, Albertus Seba publicó sus tesauros ilustrados, Mathurin Jacques Brisson perfeccionó el concepto de orden y género, y el Conde de Buffon escribió su monumental Histoire Naturelle (1770). Miren la Diapositiva 87: los grabados iluminados a mano de colibríes (Oiseau mouche), donde la precisión del dibujo capta la iridisciencia y la curvatura del pico con elegancia estética.   El siglo XIX trajo la gran ruptura epistemológica. Durante el segundo viaje del HMS Beagle (1831-1836), Charles Darwin exploró el archipiélago de las Galápagos. Observen la Diapositiva 89: la famosa lámina de los pinzones de las Galápagos.   Figura 1: Geospiza magnirostris, con un pico masivo adaptado a romper semillas duras.   Figura 2: Geospiza fortis, de pico intermedio.   Figura 3: Geospiza parvula, de pico pequeño.   Figura 4: Certhidea olivacea, con un pico delgado y agudo para la captura de insectos.   Esta gradación morfológica en el aparato trófico, junto con los análisis biogeográficos de Alfred Russel Wallace (Diapositiva 81), demostró que las especies no eran entidades fijas creadas de manera independiente, sino linajes dinámicos moldeados por la divergencia adaptativa a partir de un ancestro común.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 40,
+      "courseOrder": 50
+    },
+    {
+      "id": "ur-to",
+      "title": "estructuras anatomicas",
+      "text": "Miren con atención las imágenes anatómicas en pantalla.   En la Diapositiva 108 observamos la ranfoteca, la cubierta queratinizada que reviste las maxilas del pico. Su forma no es arbitraria: es una herramienta trófica moldeada por la fuerza de selección de la dieta.   En la Diapositiva 109 tenemos la sección transversal de un hueso largo. Observen las trabéculas óseas. Son puntales internos de hueso compacto dispuestos en diagonal que refuerzan la pared del hueso neumático. Esta arquitectura es un prodigio de la ingeniería natural: minimiza la masa total del esqueleto sin perder resistencia a la torsión y al impacto biomecánico del vuelo.   En la Diapositiva 110 contemplamos la microestructura de la plma. El raquis central emite barbas de las cuales se desprenden bárbulas con microscópicos ganchillos o barbicelos. Este sistema de enganche tipo cremallera es el responsable de mantener la cohesión del estandarte aéreo, permitiendo soportar la presión del aire durante el batido de alas.   En las Diapositivas 111 y 112 se ilustra el aparato digestivo y la molleja. Ante la ausencia de dientes y la necesidad de mantener el centro de gravedad cerca del eje del cuerpo, la digestión mecánica se trasladó al estómago muscular, donde las gruesas paredes de queratina (coilina) y la ingestión de pequeñas piedras (gastrolitos) trituran las semillas más duras.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 50,
+      "courseOrder": 50
+    },
+    {
+      "id": "erm-y-ra-vi",
+      "title": "terminología y topografía aviar",
+      "text": "la corona, la lora, las coberteras auriculares, el supercilio, el manto, el obispillo o rabadilla, las remiges primarias y secundarias, las rectrices de la cola y las escutelas de los tarsos.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 60,
+      "courseOrder": 50
+    },
+    {
+      "id": "i-la-enog-ic",
+      "title": "I: La Escenografía Mesozoica",
+      "text": "el origen e historia evolutiva de las aves. antes de interrogar a la anatomía o debatir la filogenia, debemos reconstruir el escenario biofísico y el tiempo profundo donde ocurrieron estas transiciones macroevolutivas.   Observen la arquitectura cronológica que abre nuestro recorrido. La línea temporal nos posiciona en la era Mesozoica, segmentada en los periodos Triásico (245 millones de años), Jurásico (202 millones de años) y Cretácico (145 a 66 millones de años), para luego proyectarse hacia la radiación explosiva de las aves modernas en el Cenozoico. Esta escala no es una mera abstracción: en las representaciones de las primeras tres diapositivas observamos la figura estilizada de un ave cantora actual enfrentada a las reconstrucciones de formas fósiles. Es la invitación visual a rastrear cómo una estructura corporal tan altamente especializada emergió a lo largo de eones.   La cuarta diapositiva nos traslada a la geodinámica del planeta. En este mapa paleogeográfico con océanos en tonos azul profundo y masas continentales en verdes y pardo claro, el círculo rojo resalta la fisuración del supercontinente Pangea durante el Jurásico, dividiéndose en Laurasia al norte y Gondwana al sur. La flecha roja señala directamente al Jurásico en la barra temporal superior, enfatizando que la tectónica de placas configuró barreras geográficas y patrones de aislamiento insular que detonaron los procesos de vicarianza y especiación en los linajes de saurópsidos.   Para enriquecer este marco ecológico, la quinta diapositiva presenta el modelo del contenido de oxígeno atmosférico a lo largo del Eón Fanerozoico, documentado por las estimaciones de los modelos COPSE y GEOCARB y contrastado con la evidencia de carbón vegetal. La curva de color azul y la línea discontinua muestran fluctuaciones notables donde los niveles de oxígeno se elevan sustancialmente, alcanzando picos cercanos al 30%. La ilustración del árbol verde en la base marca la expansión masiva de los bosques continentales. Este incremento en la disponibilidad de oxígeno atmosférico proporcionó la presión metabólica y el sustrato funcional para la evolución de endotermias elevadas, sistemas respiratorios de alto rendimiento y tasas de crecimiento aceleradas en los linajes de arcosaurios.   La diapositiva seis materializa este ambiente en una ilustración artística de tonos cálidos y ocres. Vemos un valle jurásico rodeado de laderas rocosas y coníferas primitivas, poblado por terópodos en primer plano, saurópodos colosales al fondo y pequeñas formas emplumadas descendiendo de las ramas. Esta imagen evoca la complejidad trófica del Mesozoico: las aves no surgieron en un vacío estructural, sino en ecosistemas saturados de nichos competitivos.   Al pasar a las diapositivas siete, ocho y nueve, entramos de lleno en la filogenia y la sistemática. La fig. 7 despliega el árbol filogenético de los Amniotas, destacando la dicotomía fundamental entre Sinápsidos —linaje del cual derivan los mamíferos, ilustrados aquí con roedores y primates— y Laurópsidos o Saurópsidos. Dentro de los Saurópsidos, la rama de los Arcosaurios hermana directamente a Crocodilianos y Aves. Las fig. 8 y 9 formulan las preguntas epistemológicas centrales: ¿constituye la clase Aves un grupo monofilético y cuál es su origen evolutivo específico dentro de Archosauria? El cladograma formal encierra en una elipse roja a Sauropsida y Archosauria, posicionando al clado Aves como el grupo hermano de Crocodylia. los caracteres clave: vertebrados bípedos con capacidad de vuelo, corazón tetracameral, alas, plumas, molleja, pico córneo sin dientes, huesos neumáticos, fúrcula, sacos aéreos, huevos de cáscara calcárea dura, encéfalo altamente desarrollado y un único cóndilo occipital. once las plesiomorfias compartidas con otros reptiles: el cráneo diápsido, el hueso único en el oído medio —la columela—, la estructura de las escamas podotecas que recubren sus patas -una fotografía de garras de rapaz— y la heterogametia femenina con cromosomas ZW.  las tres geometrías craneales básicas: anápsida, sinápsida y diápsida, esta caracterizada por las dos fosas temporales que definen a la estirpe arcosauriana. En la diapositiva trece, la microfotografía teñida en violeta revela los eritrocitos nucleados característicos del linaje, mientras que la fotografía contigua muestra a dos polluelos eclosionando de sus cascarones, recordando la continuidad de la ontogenia ovípara amniótica.   Finalmente, las diapositivas catorce y quince sintetizan la posición taxonómica de las aves en la escala evolutiva global de los vertebrados. El diagrama estratigráfico de la diapositiva catorce rastrea a los cordados ancestrales desde el Ordovícico hasta el Cuaternario, trazando el surgimiento convergente de mamíferos y aves a partir de reptiles primitivos distintos. La diapositiva quince consolida esta jerarquía linaje por linaje: Tetrapoda, Amniota, Sauropsida, Diapsida, Archosauria y Aves. La razón por la cual la presentación establece esta base anatómica y taxonómica tan rigurosa es obvia: para evaluar las hipótesis sobre el origen de un grupo, primero debemos definir con precisión técnica cuáles de sus rasgos son sinapomorfias derivadas y cuáles son simples homologías heredadas de ancestros profundos.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 70,
+      "courseOrder": 50
+    },
+    {
+      "id": "ii-omia-y-la-ci-fosi-de-las-zas-de-ofen-a-los-ac",
+      "title": "II: Tafonomía y la Evidencia Fósil – De las Calizas de Solnhofen a los Yaci",
+      "text": "Una vez definida la matriz cladística de las aves, el orden lógico del mazo de diapositivas nos exige confrontar la teoría con el registro fósil. Las hipótesis filogenéticas requieren validación empírica en el tiempo estratigráfico y en el espacio geológico.La diapositiva dieciséis lanza el interrogante definitivo: ¿cuál es el registro fósil más antiguo de un ave o de una estructura aviana? La diapositiva diecisiete señala que la respuesta depende de hallar formaciones geológicas con características geomorfológicas y tafonómicas idóneas para preservar tejidos blandos e improntas delicadas. Esto nos conduce directamente a la diapositiva dieciocho, que nos muestra la cantera de Solnhofen en Baviera, Alemania. La fotografía exhibe un acantilado de finas capas horizontales de caliza laminada de tono amarillo dorado y textura finísima. Este ambiente de laguna costera jurásica, anóxico y hipersalino, permitió una preservación excepcional de detalles microscópicos.   La diapositiva diecinueve nos muestra el primer hallazgo histórico en Solnhofen, datado en aproximadamente 150 millones de años: el fósil de una pluma aislada, grabado en la piedra de tono crema, donde se aprecian con claridad prístina el raquis y las barbas. La diapositiva veinte expone el espécimen clásico de Archaeopteryx lithographica. En la losa de piedra beige se observa la silueta esquelética completa, destacándose las nítidas impresiones de las plumas remeras abiertas en forma de abanico a lo largo de los miembros anteriores y la cola.   Las diapositivas veintiuno a veintiséis profundizan en la reconstrucción analítica de Archaeopteryx. La diapositiva veintiuno presenta una reconstrucción en vida sobre un fondo forestal denso, acompañada de una barra de escala de 10 centímetros. La diapositiva veintidós ilustra la variabilidad anatómica entre los doce especímenes fósiles conocidos de Archaeopteryx —incluyendo los especímenes de Berlín, Londres, München, Eichstätt y Thermopolis— demostrando diferencias en tamaño y madurez ontogenética. La diapositiva veintitrés diagrama con rigor la anatomía en mosaico de Archaeopteryx: cuello en forma de 'S', presencia de dientes en los maxilares, mano con tres dedos libres dotados de garras, escápula alargada, fúrcula, tobillo fusionado a la tibia y una larga cola ósea rectilínea bordeada de plumas.   La diapositiva veinticuatro realiza una comparación morfológica directa entre el esqueleto de Archaeopteryx y el de un ave moderna. Mientras que el ave moderna exhibe un esternón con quilla desarrollada, las clavículas fusionadas en fúrcula robusta, los dedos de la mano fusionados y reducidos, y las vértebras caudales atrofiadas en un pigostilo, Archaeopteryx retiene la cola ósea primitiva, costillas gastrales y mandíbulas dentadas. La diapositiva veinticinco ofrece la vibrante reconstrucción artística realizada por John Sibbick, pintando a Archaeopteryx posado en una rama de conífera con plumaje azul grisáceo y rostro verdoso. La diapositiva veintiséis añade un detalle microscópico fascinante: análisis recientes de melanosomas en los fósiles revelaron que las plumas de las alas y la cola presentaban una pigmentación oscura, posiblemente un color negro uniforme.   A continuación, las diapositivas veintisiete a treinta y cinco nos trasladan espacialmente hacia uno de los descubrimientos más revolucionarios de la paleontología moderna: los yacimientos de Liaoning, en el noreste de China. La diapositiva veintisiete muestra la interfaz de Google Maps localizando la provincia de Liaoning. La diapositiva veintiocho expone el mapa geológico detallado de la cuenca de Jianchang, coloreado en tonos amarillos, verdes y azules que representan las unidades del Jurásico Medio-Superior y Cretácico Inferior. La diapositiva veintinueve reitera la ubicación temporal en la barra mesozoica.   En la diapositiva treinta se presenta a Aurornis xui, fósil descrito por Godefroit y colaboradores en 2013, proveniente del Jurásico Tardío Chino (aproximadamente 160 millones de años). La losa muestra el esqueleto alargado de unos 50 centímetros. La diapositiva treinta y uno exhibe su reconstrucción en vida: un organismo de plumaje dorado y pardo, con garras desarrolladas y cola emplumada. La diapositiva treinta y dos es crucial para comprender la evolución del vuelo: compara una pluma fósil asimétrica de Liaoning con las plumas remeras secundarias y primarias de un ratonero común (Buteo buteo). La asimetría del estandarte es una marca de diseño aerodinámico, pues genera la diferencia de presión necesaria para producir sustentación según el principio de Bernoulli.   Las diapositivas treinta y tres a treinta y cinco integran este contexto. La diapositiva treinta y tres contrapone el tamaño de Archaeopteryx (10 cm de escala) con Aurornis (50 cm de escala). La diapositiva treinta y cuatro introduce a Anchiornis huxleyi, otro avialan jurásico de 160 millones de años. La diapositiva treinta y cinco presenta la filogenia estratigráfica de Godefroit et al. (2013), situando a Aurornis, Anchiornis, Archaeopteryx y Xiaotingia en la base del clado Avialae durante el Oxfordiano y Kimmeridgiano, demostrando que la radiación aviana ya estaba diversificada mucho antes del Cretácico.   Las diapositivas treinta y seis a treinta y nueve cierran esta sección concluyendo que Aurornis y Archaeopteryx representan el eslabón anatómico y cronológico perfecto entre los reptiles arcosaurios no avianos y las aves modernas. La estructura del mazo nos ha conducido desde las rocas hasta los clados: con los fósiles en la mano, el siguiente paso inevitable es confrontar las grandes hipótesis históricas sobre quién fue exactamente el ancestro de las aves.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 80,
+      "courseOrder": 50
+    },
+    {
+      "id": "iii-pis-e-io-de-la-ienc-la-po-opo-f",
+      "title": "III: Epistemología e Historiografía de la Ciencia – La Hipótesis Terópoda f",
+      "text": "Ingresamos ahora al núcleo analítico y filosófico de la clase. Una vez establecida la existencia de estas formas de transición, el mazo organiza el debate en torno a dos grandes paradigmas contrapuestos: ¿descienden las aves de dinosaurios terópodos terrestres o derivan directamente de arcosaurios primitivos triásicos, históricamente denominados \"tecodontos\"?   La diapositiva cuarenta esquematiza estas dos rutas filogenéticas. La ruta superior traza la línea desde los tecodontos triásicos (245 ma) pasando por los dinosaurios terópodos jurásicos hasta las aves en el Cretácico. La ruta alternativa conecta a los tecodontos directamente con las aves de forma independiente a los terópodos. La diapositiva cuarenta y uno refuerza esta topología mostrando la posición cladística de Thecodontosaurus en la base de Archosauria.   Las diapositivas cuarenta y dos a cuarenta y seis ofrecen una valiosísima lección de historia de la biología evolutiva. La diapositiva cuarenta y cuatro nos recuerda que tras la publicación de El Origen de las Especies de Charles Darwin en 1859 y el descubrimiento de la primera pluma fósil en 1860, fue Thomas Henry Huxley en 1868 quien propuso formalmente que las aves descendían de los dinosaurios, tras notar las abrumadoras semejanzas esqueléticas entre Archaeopteryx y el pequeño terópodo Compsognathus.   Sin embargo, como muestra la diapositiva cuarenta y cinco, en 1926 el ornitólogo danés Gerhard Heilmann publicó The Origin of Birds. Heilmann ilustró minuciosamente la anatomía aviana y concluyó que, dado que los terópodos conocidos en su época carecían aparentemente de clavículas —mientras que las aves poseen fúrcula—, los terópodos no podían ser los ancestros de las aves debido a la ley de irrestricción de Dollo. Heilmann postuló entonces que las aves debían proceder de arcosaurios \"tecodontos\" primitivos del Triásico que conservaban clavículas vestigiales. Este dogma perduró durante casi medio siglo.   La diapositiva cuarenta y seis marca el cambio de paradigma. En 1969, John Ostrom describió a Deinonychus antirrhopus, un dromaeosáurido del Cretácico Temprano. Ostrom no solo demostró que los terópodos poseían clavículas fusionadas en verdaderas fúrculas, sino que reabrió la hipótesis de Huxley con una rigurosidad anatómica incontestable.   A partir de la diapositiva cuarenta y siete, el mazo sistematiza las evidencias a favor del origen terópodo. La diapositiva cuarenta y ocho ilustra la extraordinaria diversidad del clado Theropoda, desde gigantes como Spinosaurus y Tyrannosaurus rex hasta formas gráciles como Concavenator y Gigantoraptor.   La Evidencia 1, planteada en la diapositiva cuarenta y nueve, abarca las homologías anatómicas y fisiológicas entre terópodos y aves. Las diapositivas cincuenta a cincuenta y tres detallan los esqueletos de Compsognathus, Deinonychus y Buitreraptor —este último un dromaeosáurido sudamericano de 90 millones de años procedente de La Buitrera, Argentina— exhibiendo cuellos en 'S', extremidades anteriores alargadas y cinturas pélvicas modificadas.   Las diapositivas cincuenta y cuatro a sesenta y cuatro presentan una de las pruebas funcionales más elegantes: el sistema respiratorio y la neumatisidad ósea. La diapositiva cincuenta y cuatro muestra los forámenes neumáticos en fúrculas fósiles analizados por Sereno et al. en 2008. La diapositiva cincuenta y cinco detalla el esqueleto de Aerosteon riocoloradensis, un alosauroideo cretácico cuyas vértebras e ilion muestran cavidades neumáticas profundas invadidas por sacos aéreos. La diapositiva cincuenta y seis diagrama el flujo respiratorio unidireccional aviano: la inhalación y exhalación conducen el aire continuamente por los pulmones rígidos gracias al trabajo de los sacos aéreos anteriores y posteriores.   Las diapositivas cincuenta y siete y cincuenta y ocho exponen los análisis de O'Connor y Claessens (2005) sobre Majungasaurus (Majungatholus), demostrando la presencia de sacos aéreos cervicales y abdominales en abelisáuridos del Cretácico. Las diapositivas cincuenta y nueve y sesenta mapean la evolución de la neumatisidad a lo largo del cladograma de Theropoda, comprobando que los sacos aéreos caudales surgieron tempranamente en Tetanurae y se optimizaron en Maniraptora. Sorprendentemente, las diapositivas sesenta y uno a sesenta y cuatro muestran que los saurópodos colosales también desarrollaron sistemas extensos de sacos aéreos vertebrales para aliviar el peso esquelético, como evidencian las fosas neumáticas en las vértebras de Haplocanthosaurus documentadas por Wedel en 2009.   La diapositiva sesenta y cinco despliega la gráfica histórica de National Geographic sobre la evolución de las plumas en Saurischia, mostrando una transición continua desde filamentos simples en celurosaurios hasta plumas de estandarte cerrado en manirraptores. Las diapositivas sesenta y seis a sesenta y ocho presentan a Microraptor gui, un dromaeosáurido de 120 millones de años de Liaoning que poseía plumas pennáceas largas no solo en las extremidades anteriores, sino también en las patas posteriores. La diapositiva sesenta y siete compara de forma muy recordable la anatomía de cuatro alas de Microraptor con la configuración aerodinámica de un avión biplano, sugiriendo un modelo de planeo en dos niveles estalonados.   Las diapositivas sesenta y nueve a setenta y cuatro analizan las etapas filogenéticas de la pluma: desde escamas cutáneas, filamentos simples (tipo plumón en Megalosauridae y Tyrannosauroidea), plumas ramificadas con raquis (Ornithomimosauria), hasta plumas pennáceas asimétricas adaptadas al vuelo en Troodontidae, Dromaeosauridae y Avialae. La diapositiva setenta y cinco resume la macroevolución del tegumento según Benton et al. (2019), debatiendo entre un origen temprano de las estructuras filamentosa en la base de Avemetatarsalia o un origen más tardío dentro de Coelurosauria. Las diapositivas setenta y seis a setenta y ocho tabulan el conjunto de sinapomorfias que antes se creían exclusivas de las aves y que hoy sabemos presentes en terópodos: fúrcula, pubis retrovertido, plumas asimétricas, cuidado parental y comportamiento de anidación sobre los huevos —evidenciado en fósiles de oviraptóridos—, y sacos aéreos.   La Evidencia 2 se presenta en la diapositiva setenta y nueve: la biología molecular. Asara et al. (2007) lograron recuperar y secuencias microfracciones de la proteína colágeno conservada en los huesos de un Tyrannosaurus rex de 68 millones de años. Al realizar el alineamiento de secuencias proteicas, el colágeno de T. rex mostró una afinidad filogenética significativamente mayor con las aves modernas que con cualquier reptil actual.   Las diapositivas ochenta a ochenta y siete integran esta batería de datos con la evolución del carpo semilunar —que permite la flexión lateral de la muñeca para el batido de alas—, la orientación de la pelvis saurísquida versus ornitísquida (diapositiva ochenta y cuatro), la reestructuración de la filogenia de Dinosauria propuesta por Baron et al. en 2017 (diapositiva ochenta y cinco), y la reclasificación del espécimen de Haarlem como Ostromia por Foth y Rauhut en 2017 (diapositiva ochenta y seis). La diapositiva ochenta y siete (Cau et al. 2017) consolida la topología de Paraves, mostrando a los enigmas Halszkaraptorinae y Unenlagiinae en el árbol.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 90,
+      "courseOrder": 50
+    },
+    {
+      "id": "iv-luc-de-as-ni-del-elo-y-om-evol",
+      "title": "IV: Resolución de Paradojas, Mecánica del Vuelo y Biomecánica Evolutiva",
+      "text": "El mazo nos conduce ahora a una fase de profunda reflexión crítica. Si la hipótesis terópoda es tan consistente, ¿por qué existió una resistencia histórica tan tenaz y cómo responde la ciencia moderna a sus aparentes contradicciones?Las diapositivas ochenta y ocho a noventa y uno retoman la hipótesis alternativa: el origen a partir de \"tecodontos\" o arcosaurios basales del Triásico, sostenida vigorosamente por el ornitólogo Alan Feduccia (ilustrado en la diapositiva ochenta y nueve). Esta escuela planteaba cuatro objeciones o paradojas principales que el mazo aborda y resuelve de manera secuencial.   La primera objeción es ecológica y se refiere al origen del vuelo, articulada en las diapositivas noventa y dos a noventa y nueve. La hipótesis terópoda tradicionalmente favorecía un origen cursorial (\"desde el suelo hacia arriba\"), en el cual terópodos corredores utilizaban sus extremidades anteriores emplumadas para ganar impulso, capturar presas o impulsarse en pendientes inclinadas (mecanismo conocido como WAIR, Wing-Assisted Incline Running, mostrado en las diapositivas noventa y seis y noventa y ocho). Por el contrario, la hipótesis tecodonta argumentaba un origen arbóreo (\"desde los árboles hacia abajo\"), donde pequeños arcosaurios trepadores planeaban de rama en rama (diapositivas noventa y siete y noventa y nueve). La diapositiva noventa y cuatro resuelve este dilema al mostrar que terópodos basales como Microraptor y Anchiornis poseían plumas desarrolladas en las patas traseras que actuaban como verdaderas alas secundarias para el planeo arbóreo, demostrando que el linaje terópodo también exploró y conquistó el nicho arbóreo.   La segunda objeción es la paradoja del tamaño, abordada en las diapositivas cien a ciento cinco. ¿Cómo podía un grupo de reptiles continentales gigantescos dar origen a criaturas voladoras de apenas unos gramos? La diapositiva cien ilustra la escala de saurópodos y terópodos masivos que superaban las decenas de toneladas. La diapositiva ciento tres y ciento cinco, apoyadas en el trabajo emblemático de Turner et al. (2007) publicado en Science, resuelve la paradoja: la línea filogenética que conduce a los Paraves experimentó un proceso continuo, acelerado y sostenido de miniaturización durante más de 50 millones de años. La miniaturización no fue una consecuencia del vuelo, sino una precondición anatómica necesaria para reducir la carga alar y posibilitar la sustentación aerodinámica.   La tercera objeción es la paradoja temporal, expuesta en las diapositivas ciento seis a ciento ocho. Los críticos señalaban que fósiles de dromaeosáuridos derivados altamente emplumados como Microraptor (120 ma) o Velociraptor (84 ma) aparecían en el Cretácico, es decir, decenas de millones de años después de Archaeopteryx (150 ma, Jurásico). ¿Cómo podía el supuesto \"ancestro\" ser más joven que su \"descendiente\"? La resolución de esta paradoja vino con los hallazgos de Liaoning descritos anteriormente: el descubrimiento de Aurornis xui y Anchiornis huxleyi en sedimentos jurásicos de 160 millones de años demostró que los terópodos manirraptores emplumados ya existían mucho antes de la aparición de Archaeopteryx en las calizas alemanas.   La cuarta objeción es la paradoja digital o de la homologización de la mano, analizada en las diapositivas ciento nueve a ciento quince. La paleontología demuestra que la reducción de dígitos en la mano tripartita de los terópodos conservó los dedos I, II y III (perdiendo el IV y V). Sin embargo, los estudios de embriología evolutiva en aves modernas realizados por Burke y Feduccia (1997) mostraban que el primordio condensado en el huevo correspondía a los dígitos II, III y IV.   Esta aparente contradicción entre la paleontología y la embriología se resolvió mediante la teoría del \"cambio de marco\" o frame-shift hypothesis y el estudio de genes precursores, documentado por Towers et al. (2011) en Nature Communications y el descubrimiento del terópodo Ceratosauria Limusaurus inexspectatus por Xu et al. (2009). Limusaurus muestra una reducción drástica del primer dedo y la conservación de los dígitos centrales, demostrando que un cambio homeótico en la expresión de los genes Hox desplazó las identidades digitales en el primordio embrionario: los dígitos morfológicos I, II y III se desarrollan a partir de las posiciones primordiales II, III y IV.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 100,
+      "courseOrder": 50
+    },
+    {
+      "id": "v-las-tera-el-on-y-epi",
+      "title": "V: Las Fronteras del Consenso y Epílogo",
+      "text": "Llegamos a la sección final del mazo, que abarca las diapositivas ciento dieciséis a ciento treinta y tres. ¿Por qué la presentación cierra con estas diapositivas en lugar de ofrecer una respuesta dogmática y estática? Porque la biología evolutiva es una ciencia viva, donde cada nuevo fósil recalibra nuestras matrices cladísticas.   Las diapositivas ciento dieciocho a ciento veintitrés formulan la pregunta clave: ¿hay algo nuevo? Trabajos recientes de Godefroit et al. (2013), Brusatte et al. (2015) y Agnolín et al. (2019) revelan que la frontera anatómica entre un terópodo no aviano y un ave basal es extremadamente difusa. Si evaluáramos únicamente fragmentos óseos aislados de Unenlagia, Rahonavis o Anchiornis, la asignación al clado Avialae o Dromaeosauridae cambiaría dependiendo de la ponderación de caracteres en el software de parsimonia. La diapositiva ciento veintitrés lo expresa con claridad: todavía no hay un consenso absoluto en los nodos terminales, lo cual reflejaría la continuidad del proceso de especiación en un matorral evolutivo intrincado.   Las diapositivas ciento veinticuatro a ciento veintiséis muestran las reestructuraciones profundas de la filogenia de los arcosaurios, como la propuesta de Baron et al. (2017) que revive el clado Ornithoscelida al hermanar Theropoda con Ornithischia, o la revisión de Paraves por Rauhut y Foth (2020).   Las diapositivas ciento veintisiete a ciento treinta plantean el interrogante biogeográfico: ¿dónde ocurrió el origen de las aves? Aunque la mayoría de los hallazgos fósiles excepcionales provienen del hemisferio norte —Laurasia—, la presencia de dromaeosáuridos basales en América del Sur, África y la Antártida plantea la posibilidad de un origen o diversificación muy temprana en Gondwana.   Las diapositivas ciento treinta y uno a ciento treinta y tres sintetizan las publicaciones más recientes, incluyendo los aportes de Zhou & Wang (2025) y Foth & Rauhut (2017). El mazo concluye contrapuesto en forma de balance sintético las dos grandes teorías —el origen terópodo, hoy respaldado de forma abrumadora por la evidencia morfológica, osteológica, tegumentaria, respiratoria, endocrina y molecular, frente al modelo tecodonto histórico— y nos invita a visualizar el video complementario titulado \"El origen de las aves\".   Al concluir este recorrido conceptual, nos queda claro que las aves no son simplemente \"descendientes\" de los dinosaurios en el sentido de un reemplazo taxonómico: las aves son, rigurosamente, dinosaurios terópodos manirraptores especializados para el vuelo que sobrevivieron a la extinción masiva del límite Cretácico-Paleógeno. Cada vez que observamos a un colibrí o a un halcón surcar el cielo de Antioquia, estamos contemplando la supervivencia viva de la estirpe de los dinosaurios.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 110,
+      "courseOrder": 50
+    },
+    {
+      "id": "2do-nfo",
+      "title": "2do informe",
+      "text": "Orden: Columbiformes\ndel latin columba, paloma, tórtola, agrupa palomas y tórtolas definidas por cabezas pequeñas\ncuellos cortos, picos delgados con una cera carnosa opérculo en la base, pueden producir leche de\nbuche​\n​ Familia: Columbidae\nlas palomas verdaderas, plumaje grisáceo o pardo con iridiscencias metálicas​ ​\nColumbina talpacoti, tortolita, columbina colorada\nOrden: Cuculiformes\n​ del latin cuculus cuclillo o cuco, onomatopeya de su canto cu-cu, incluye cucos, críalos y\ngarrapateros definidos por su zigodactilia generalmente dos dedos adelante dos atrás, cola larga y\ngraduada y pico ligeramente curvado\n​ Familia: Cuculidae\n​ ​\n se agrupan los cucos típicos, se caracterizan por su plumaje críptico, costumbres arbóreas y\nparasitismo de cría en muchas spp\n​ ​\n Crotophaga ani, garrapatero\nOrden: Steatornithiformes\n​ del griego steatos grasa sebo, contiene únicamente al guácharo, nocturnas y frugívoras extremas,\ncapacidad de ecolocalización\n​ Familia: Steatornithidae\n​ ​\n caracterizada por pico robusto y ganchudo, grandes ojos adaptados a la noche, y el hábito\nde anidar en colonias en cavernas\n​ ​\n Steatornis caripensis, guácharo\nOrden: Apodiformes\n​ del griego a sin pous, podos pie, sin patas, se refiere a lo extremamente reducidas y débiles,\nadaptación para vivir existir casi por completo de manera aérea\nFamilia: Trochilidae\n​\n del griego trokhilos, ave pequeña, definida por el hallux invertido, oscilación rápida de las\nalas creando un zumbido característico humming, picos largos tubulares y derivados con una\nprotuberancia, lengua para alimentarse de néctar\nHeliangelus exortis\nFamilia: Apodidae\n​\n vencejos y salanganas, patas reducidas y débiles, adaptadas para la vida aérea, alas largas\ny falciformes, vuelo rápido\nChaetura sp.\n​\nOrden: Gruiformes\ndel latin grus grulla, unifica morfológicamente un grupo disparejo de aves terrestres y de agua\nfresca, grullas, rascones, tinguas, pollas de agua que comparten una pelvis primitiva y una tendencia\nalas reducidas en especies sedentarias\nFamilia: Rallidae\ndel neolatín ralus, ralido, de ralidos y gallinulas, habitantes de los pantanos, cuerpos\nreducidos lateralmente, patas largas para flotar sobre la vegetación y repertorio vocal territorial\ncrepuscular\nPorphyrio martinica, gallineta morada, polla de agua\nOrden: Charadriiformes\n​ del griego charadrios, ave acuatica de vientre amarillo, chorlitejo, derivado de charadra barrante o\ntorrente, ave de rivera, incluye playeros, gaviotas, rayadores y jacanas, alas generalmente largas y\npuntiagudas\n​ Familia: Jacanidae\n​ ​\n del portugués jaçanã, del tupí jasanã, que camina sobre plantas flotantes, definidas por sus\ndedos y uñas extremadamente largos para caminar sobre nenúfares, espolones alares córneos en el\ncarpo\n​ ​\n Jacana jacana, gallito de agua\nOrden: Pelecaniformes\n​ del griego pelekán pelícano derivado de pelekys hacha en alusión a la forma del pico ancha y\naplanada, agrupa aves acuáticas, pelícanos, garzas, ibis, espátulas y la fragata, se definen por la bolsa\ngular, algunas patas totipalmadas algunas con anisodactilia, adaptado a la pesca\nFamilia: Arderdeidae\n​\n del latin ardea garza, incluye garzas, garcetas y avetoros, definidas por ser zancudas de\ncuello largo en forma de S\nTigrisoma fasciatum\nOrden: Accipitriformes\n​ del latin accipiter, gavilán o azor, derivado de accipere tomar asir en referencia a la captura de\npresas, aves rapaces diurnas, águilas, gavilanes, buitres del nuevo mundo, milanos, pico ganchudo\ncon cerea carnosa amarilla, garras poderosas, visión binocular y vuelo planeador\n​ Familia: Accipitridae\n​ ​\n definida por su dieta carnívora y nidos grandes\n​ ​\n Buteo platypterus, busardo, gavilán aludo\nOrden: Strigiformes\n​ del latin strix, nombre de una aven nocturna de mal agüero en mitología, buho o lechuza, rapaces\nexclusivamente nocturnas, definidas por adaptaciones como ojos grandes y orientados hacia adelante,\nplumas de vuelo con borde serrado\nFamilia: Strigidae\n​\n los búhos verdaderos, excluye a las lechuzas, se distinguen por presentar orejas y aberturas\nauditivas asimétricas\nMegascops choliba\nOrden: Trogoniformes\n​ del griego trogo roer masticar triturar en ref a la costumbre de arrancar trozos de fruta, se definen\npor heterodactyla exclusiva 1 y 2 hacia atras y 3 y 4 hacia adelante, vuelo débil errático\nFamilia: trogonidae\n​\n incluye trogones y quetzales, definidos por su particular plumaje, iridiscencias metálicas,\ncavícolas\nTrogon violaceus\nOrden: Coraciiforme\n​ del latin coracius del griego korakias similar a cuervo o carraca, une martín pescadores, abejarucos,\ncarracas y momotos, generalmente arbóreos, anidan en una cavidad, poseen dedos delanteros\nfusionados, con tendencia a brillantes e iridiscentes\n​ Familia: Alcedinidae\n​ ​\n del latin alcedo martin pescador, del griego alkyón ave mitológica, incluye también\ncucaburras y martines pescadores del paraíso, se definen por adaptaciones a la depredación de\npresas acuáticas\nChloroceryle amazona, martín pescador amazónico, amazonian kingfisher\nFamilia: Momotidae\nde la familia de lenguas indígena tupi-guaraní, el nombre nativo mutum para estas aves.\n​ Momotus aequatorialis\nOrden: Piciformes\n​\ndel latin picus, picos adaptados al perforación, patas con zigodactilia\nFamilia: Bucconidae\nmonjas búhos\nMonasa morphoeus\nFamilia: Ramphastidae\nlos tucanes, tucán, proviene del tupí-guaraní tuka, se caracterizan por poseer un pico muy\ndesarrollado y de vivos colores, miden entre 18 y 65 cm\nRamphastos brevis, tucán del chocó, toucan\n​ Familia Picidae\n​ ​\n carpinteros reales, popularmente como carpinteros, carpinteritos, picapalos pitos, picos,\npicamaderos, picatroncos, picapinos, chupasavias y torcecuellos.​\n ​\n​ ​\n Campephilus\nOrden: Psittaciformes\n​ del latin psittacus, del griego pisttakos loro guacamayos, cotorras y pericos, definidas por pico corto\nganchudo y móvil y una lengua carnosa y musculosa\n​ Familia: Psittacidae\n​ los loros típicos del nuevo mundo y afro tópico caracterizados por su zigodactilia, longevidad\nextrema y capacidad de imitación vocal\n​ ​\n Psittacara wagleri, cotorra, aratinga de Wagler",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 120,
+      "courseOrder": 50
+    },
+    {
+      "id": "nes-io",
+      "title": "gorriones",
+      "text": "géneros\n\n**Gymnopithys** — De *gymnós* (desnudo) + *Pithys* (otro género de hormigueros). Alude a la piel desnuda alrededor del ojo en algunas especies.\n\n**Grallaria** — Del lat. moderno *grallarius* = “que camina sobre zancos”. Hace referencia a las patas largas y robustas de estas aves terrestres.\n\n**Margarornis** — De *margaron* (perla) + *ornis* (ave). “Ave perlada”, por las motas claras del plumaje del subepalo perlado.\n\n**Xiphorhynchus** — De *xiphos* (espada) + *rhynchos* (pico). “Pico en forma de espada”, por el pico largo y recto de los trepatroncos.\n\n**Lepidothrix** — De *lepidus* (bonito) + *thrix* (pelo). “Pelo hermoso”, en referencia al plumaje sedoso de los saltarines.\n\n**Cephalopterus** — De *kephalē* (cabeza) + *pteron* (pluma). “Cabeza emplumada”, por las llamativas plumas cefálicas del paragüero.\n\n**Tyrannus** — Lat. *tyrannus* = “tirano”. Nombre motivado por la agresividad territorial de los mosqueros reyes.\n\n**Hylophilus** — De *húlē* (bosque) + *philos* (amante). “Amante del bosque”, por el hábitat de los verdillos.\n\n**Donacobius** — De *dónax* (junco) + *bíos* (vida). “El que vive entre juncos”, por su hábitat de marisma.\n\n**Pygochelidon** — De *pygē* (rabadilla) + *khelidōn* (golondrina). “Golondrina de rabadilla [blanca]”, por el contraste de color en esa zona.\n\n**Stelgidopteryx** — De *stelgís* (raspador, estrígil) + *pterón* (ala). “Ala con raspador”, por el borde aserrado del ala de estas golondrinas.\n\n**Ramphocaenus** — De *rhamphos* (pico) + *kainós* (nuevo, extraño). “Pico extraño”, por la forma inusual del pico de los soterillos.\n\n**Cantorchilus** — De *cantus* (canto) + *órchilos* (reyezuelo). “Reyezuelo cantor”, por el canto potente de los cucaracheros de este género.\n\n**Catharus** — Del gr. *katharós* = “puro, limpio”. El nombre alude al plumaje nítido de algunas especies del género.\n\n**Turdus** — Lat. *turdus* = “tordo”. Nombre clásico para los zorzales y mirlos.\n\n**Arremon** — Del gr. *arrhēmōn* = “silencioso, sin habla”. Probablemente por el comportamiento discreto de estas aves entre la hojarasca.\n\n**Psarocolius** — De *psár* (estornino) + *koloios* (grajilla). “Estornino-grajilla”, por la forma y el comportamiento de las oropéndolas.\n\n**Hypopyrrhus** — De *hypó* (debajo) + *pyrrhós* (rojo fuego). “De vientre rojo”, por el color ventral del chango ventrirrojo.\n\n**Leistes** — Del gr. *lēistēs* = “ladrón”. Nombre quizá relacionado con el hábito de saquear nidos o con su comportamiento conspicuo en campo abierto.\n\n**Myioborus** — De *myia* (mosca) + *borós* (devorador). “Devorador de moscas”, por su dieta insectívora de captura al vuelo.\n\n**Pheucticus** — Del gr. *pheuktikós* = “tímido, que rehúye”. Alude al comportamiento esquivo de los picogruesos.\n\n**Chlorophanes** — De *khlōrós* (verde) + *-phanēs* (que muestra). “Que muestra verde”, por el plumaje verde brillante del mielero verde.\n\n**Chrysothlypis** — De *khrusós* (oro) + *thlupis* (pájaro desconocido). “Pájaro dorado”, por el color amarillo-anaranjado de estas tangaras.\n\n**Sporophila** — De *sporós* (semilla) + *philos* (amante). “Amante de las semillas”, por su dieta granívora y su pico adaptado a ellas.\n\n**Tangara** — Del tupí *tangará* = “bailarín”. Nombre originalmente aplicado a aves brillantes y activas, luego extendido a este gran género de tangaras.\n\n\nespecies \n\n|Family, Genus, Species, English common name, Spanish common name, Etimología sintética\nThamnophilidae, Gymnopithys, Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco, gymnós (desnudo) + Pithys (hormiguero); leucaspis (escudo blanco); por la mancha facial clara.\nGrallariidae, Grallaria, Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre, grallarius (zancudo); rufus (rojo) + capilla (gorra); por la corona castaña.\nFurnariidae, Margarornis, Margarornis squamiger, Pearled Treerunner, Subepalo Perlado, margaron (perla) + ornis (ave); squama (escama) + gerere (llevar); por el plumaje escamoso.\nFurnariidae, Xiphorhynchus, Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva, xiphos (espada) + rhynchos (pico); triangularis (triangular); por las motas triangulares.\nPipridae, Lepidothrix, Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul, lepidus (bonito) + thrix (pelo); coronatus (coronado); por la corona azul del macho.\nCotingidae, Cephalopterus, Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado, kephalē (cabeza) + pteron (pluma); ornatus (adornado); por el penacho cefálico.\nTyrannidae, Tyrannus, Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental, tyrannus (tirano) duplicado; por su agresividad territorial.\nVireonidae, Hylophilus, Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro, húlē (bosque) + philos (amante); flavus (amarillo) + pes (pie); por las patas claras.\nDonacobiidae, Donacobius, Donacobius atricapilla, Black-capped Donacobius, Angú, dónax (junco) + bíos (vida); ater (negro) + capillus (cabello); por la capucha negra.\nHirundinidae, Pygochelidon, Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera, pygē (rabadilla) + khelidōn (golondrina); kyanos (azul) + leukos (blanco).\nHirundinidae, Stelgidopteryx, Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa, stelgís (raspador) + pterón (ala); rufus (rojo) + collum (cuello).\nPolioptilidae, Ramphocaenus, Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo, rhamphos (pico) + kainós (extraño); melas (negro) + oura (cola).\nTroglodytidae, Cantorchilus, Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro, cantus (canto) + órchilos (reyezuelo); niger (negro) + capillus (cabello).\nTurdidae, Catharus, Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson, katharós (puro); ustulatus (quemado); por el tono tostado del dorso.\nTurdidae, Turdus, Turdus serranus, Glossy-black Thrush, Mirlo Serrano, turdus (tordo); serranus (de la sierra); por su hábitat andino.\nPasserellidae, Arremon, Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño, arrhēmōn (silencioso); brunneus (marrón) + nucha (nuca).\nIcteridae, Psarocolius, Psarocolius decumanus, Crested Oropendola, Cacique Crestado, psár (estornino) + koloios (grajilla); decumanus (de la décima legión); por el pico en forma de daga.\nIcteridae, Hypopyrrhus, Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo, hypó (debajo) + pyrrhós (rojo fuego); pyr (fuego) + hypó (debajo) + gaster (vientre).\nIcteridae, Leistes, Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja, lēistēs (ladrón); militaris (militar); por el color rojo como uniforme.\nParulidae, Myioborus, Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada, myia (mosca) + borós (devorador); ornatus (adornado); por el patrón facial llamativo.\nCardinalidae, Pheucticus, Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado, pheuktikós (tímido); ludovicianus (de Luisiana; por Luis XIV).\nThraupidae, Chlorophanes, Chlorophanes spiza, Green Honeycreeper, Mielero Verde, khlōrós (verde) + -phanēs (que muestra); spiza (pinzón; gr.).\nThraupidae, Chrysothlypis, Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca, khrusós (oro) + thlupis (pájaro); salmoni (de Salmon; naturalista).\nThraupidae, Sporophila, Sporophila corvina, Variable Seedeater, Semillero Corvino, sporós (semilla) + philos (amante); corvina (como cuervo); por el plumaje oscuro.\nThraupidae, Tangara, Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas, tangará (bailarín; tupí); niger (negro) + viridis (verde).",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 130,
+      "courseOrder": 50
+    },
+    {
+      "id": "ar-no-as",
+      "title": "parcial no-passeriformes",
+      "text": "Anseriformes Anatidae Dendrocygna viduata White-faced Whistling Duck - del griego dendron (árbol) y Cygnus (cisne), y del latín viduata (viuda), por su cara blanca y su llamada silbante.  \nAnseriformes Anhimidae Anhima cornuta Horned Screamer - Anhima proviene del tupí ña'un (ave negra) y cornuta del latín cornutus (con cuernos), por el apéndice córneo en su cabeza.  \nGalliformes Cracidae Penelope purpurascens Crested Guan - Penelope hace referencia a la esposa de Ulises en la mitología griega, y purpurascens al latín purpurascens (que se vuelve púrpura).  \nGalliformes Odontophoridae Colinus cristatus Crested Bobwhite - Colinus deriva del náhuatl zolin (codorniz) y cristatus del latín cristatus (crestado).  \nPodicipediformes Podicipedidae Podilymbus podiceps Pied-billed Grebe - Podilymbus es una contracción del latín podicipes (pies en las posaderas) y del griego kolymbos (zambullidor), y podiceps del latín podicis (posaderas) y pedis (pie).  \nColumbiformes Columbidae Zenaida auriculata Eared Dove - Zenaida honra a Zénaïde Bonaparte, y auriculata del latín auriculatus (con orejas pequeñas), por la mancha oscura tras el ojo.  \nColumbiformes Columbidae Columbina talpacoti Ruddy Ground Dove - Columbina es diminutivo de Columba (paloma) y talpacoti proviene del nombre indígena náhuatl tlapalcocotli.  \nCuculiformes Cuculidae Coccyzus americanus Yellow-billed Cuckoo - Coccyzus del griego kokkuzo (llamar como un cuco) y americanus (de América).  \nCuculiformes Cuculidae Crotophaga ani Smooth-billed Ani - Crotophaga del griego krotōn (garrapata) y phagos (comedor), y ani del tupí anim (ave social).  \nSteatornithiformes Steatornithidae Steatornis caripensis Oilbird - Steatornis del griego stear (grasa) y ornis (ave), y caripensis (de Caripe, Venezuela), por la grasa de los polluelos.  \nCaprimulgiformes Caprimulgidae Nyctipolus nigrescens Blackish Nightjar - Nyctipolus del griego nuktipolos (que deambula de noche) y nigrescens del latín nigrescens (negruzco).  \nCaprimulgiformes Caprimulgidae Nyctidromus albicollis Pauraque - Nyctidromus del griego nukti- (noche) y -dromos (corredor), y albicollis del latín albus (blanco) y collis (cuello).  \nApodiformes Apodidae Streptoprocne rutila Chestnut-collared Swift - Streptoprocne del griego streptos (collar) y prokne (golondrina), y rutila del latín rutilus (rojizo, castaño).  \nApodiformes Apodidae Chaetura sp. Swift - Chaetura del griego khaitē (cabello largo) y oura (cola), por las plumas rígidas que sobresalen de la cola.  \nApodiformes Trochilidae Colibri coruscans Sparkling Violetear - Colibri es el nombre español del colibrí y coruscans del latín coruscans (brillante, centelleante).  \nApodiformes Trochilidae Ensifera ensifera Sword-billed Hummingbird - Ensifera del latín ensifer (portador de espada), por su pico largo y recto como una espada.  \nApodiformes Trochilidae Eutoxeres aquila White-tipped Sicklebill - Eutoxeres del griego eu (bueno) y toxērēs (arquero), y aquila del latín aquila (águila), por la forma de su pico curvo.  \nApodiformes Trochilidae Amazilia tzacatl Rufous-tailed Hummingbird - Amazilia proviene de la heroína inca de una novela de Marmontel, y tzacatl de la mitología azteca, un jefe guerrero.  \nApodiformes Trochilidae Florisuga fusca Black Jacobin - Florisuga del latín floris (flor) y sugere (chupar), y fusca del latín fuscus (oscuro, negro).  \nGruiformes Rallidae Gallinula galeata Common Gallinule - Gallinula es diminutivo del latín gallina (gallina) y galeata del latín galeatus (con casco), por el escudo frontal.  \nGruiformes Rallidae Porphyrio martinica Purple Gallinule - Porphyrio del griego porphyra (púrpura) y martinica (de Martinica).  \nGruiformes Psophiidae Psophia crepitans Grey-winged Trumpeter - Psophia del griego psophos (ruido) y crepitans del latín crepitans (que resuena), por su fuerte llamada.  \nCharadriiformes Jacanidae Jacana jacana Wattled Jacana - Jacana deriva del tupí ñaha'nã (ave muy ruidosa), y jacana es la misma palabra latinizada.  \nCharadriiformes Charadriidae Vanellus chilensis Southern Lapwing - Vanellus del latín vannus (aventar) y chilensis (de Chile).  \nSuliformes Phalacrocoracidae Phalacrocorax brasilianus Neotropic Cormorant - Phalacrocorax del griego phalakros (calvo) y korax (cuervo), y brasilianus (de Brasil).  \nPelecaniformes Ardeidae Ardea alba Great Egret - Ardea del latín ardea (garza) y alba del latín alba (blanca).  \nPelecaniformes Ardeidae Cochlearius cochlearius Boat-billed Heron - Cochlearius del latín cocleare (cuchara en forma de concha de caracol), por su pico ancho.  \nPelecaniformes Ardeidae Tigrisoma fasciatum Fasciated Tiger-Heron - Tigrisoma del griego tigris (tigre) y soma (cuerpo), y fasciatum del latín fasciatus (con bandas).  \nPelecaniformes Threskiornithidae Platalea ajaja Roseate Spoonbill - Platalea del latín platalea (espátula) y ajaja del tupí aya'á (rosa), por su pico en forma de espátula y su color rosado.  \nPelecaniformes Threskiornithidae Phimosus infuscatus Bare-faced Ibis - Phimosus del griego phimos (rienda) e infuscatus del latín infuscatus (oscurecido), por su cara desnuda y plumaje oscuro.  \nCathartiformes Cathartidae Vultur gryphus Andean Condor - Vultur del latín vultur (buitre) y gryphus del griego gryps (grifo), por su pico ganchudo y su gran tamaño.  \nCathartiformes Cathartidae Sarcoramphus papa King Vulture - Sarcoramphus del griego sarx (carne) y rhamphos (pico), y papa del latín papa (obispo), por su plumaje que recuerda a la vestimenta episcopal.  \nAccipitriformes Accipitridae Rupornis magnirostris Roadside Hawk - Rupornis del griego rhupos (suciedad) y ornis (ave), y magnirostris del latín magnus (grande) y rostris (pico).  \nAccipitriformes Accipitridae Harpia harpyja Harpy Eagle - Harpia y harpyja provienen del griego harpyia, las arpías de la mitología griega, mitad mujer y mitad ave de presa.  \nAccipitriformes Accipitridae Buteo platypterus Broad-winged Hawk - Buteo del latín buteo (busardo) y platypterus del griego platys (ancho) y pteron (ala).  \nStrigiformes Strigidae Megascops choliba Tropical Screech-Owl - Megascops del griego megas (grande) y skops (búho), y choliba del nombre aragonés para el autillo.  \nStrigiformes Tytonidae Tyto alba Barn Owl - Tyto del griego tyto (búho) y alba del latín alba (blanca), literalmente “búho blanco”.  \nTrogoniformes Trogonidae Trogon violaceus Guianan Trogon - Trogon del griego trogon (roedor, por su pico) y violaceus del latín violaceus (violáceo).  \nCoraciiformes Momotidae Baryphthengus martii Rufous Motmot - Baryphthengus del griego baruphthenktes (voz profunda) y martii en honor al botánico Carl Friedrich Philipp von Martius.  \nCoraciiformes Momotidae Momotus momota Amazonian Motmot - Momotus deriva de la palabra azteca momot, nombre nativo para estas aves, y momota es la misma palabra repetida.  \nCoraciiformes Momotidae Momotus aequatorialis Andean Motmot - Momotus del azteca momot y aequatorialis del latín (ecuatorial), por su distribución en los Andes.  \nCoraciiformes Alcedinidae Megaceryle torquata Ringed Kingfisher - Megaceryle del griego megas (grande) y Ceryle (un ave mítica), y torquata del latín torquatus (con collar).  \nCoraciiformes Cerylidae Chloroceryle amazona Amazon Kingfisher - Chloroceryle del griego khlōros (verde) y Ceryle (ave mítica), y amazona (de la Amazonía).  \nCoraciiformes Bucerotidae Buceros bicornis Great Hornbill - Buceros del latín becerus (con cuernos como un buey) y bicornis del latín bicornis (de dos cuernos), por el casco córneo de su pico.  \nGalbuliformes Galbulidae Galbula ruficauda Rufous-tailed Jacamar - Galbula del latín galbula (pájaro amarillo) y ruficauda del latín rufus (rojo) y cauda (cola).  \nPiciformes Picidae Celeus loricatus Cinnamon Woodpecker - Celeus del griego keleos (pájaro carpintero verde) y loricatus del latín loricatus (con loriga o coraza), por su plumaje.  \nPiciformes Picidae Colaptes punctigula Spot-breasted Woodpecker - Colaptes del griego kolaptēs (cincelador) y punctigula del latín punctum (punto) y gula (garganta).  \nPiciformes Ramphastidae Pteroglossus torquatus Collared Aracari - Pteroglossus del griego pteron (ala) y glossa (lengua) y torquatus del latín torquatus (con collar).  \nPiciformes Ramphastidae Ramphastos tucanus White-throated Toucan - Ramphastos del griego rhamphēstēs (con pico) y tucanus del guaraní tucá (tucán).  \nPiciformes Semnornithidae Semnornis ramphastinus Toucan Barbet - Semnornis del griego semnos (majestuoso) y ornis (ave) y ramphastinus del griego rhamphos (pico), por su parecido con los tucanes.  \nPiciformes Bucconidae Monasa morpheus White-fronted Nunbird - Monasa del griego monas (solitario) y morpheus de Morfeo, el dios griego del sueño, por su aspecto somnoliento.  \nFalconiformes Falconidae Falco sparverius American Kestrel - Falco del latín falco (halcón) y sparverius del latín sparvarius (gorrión), por su tamaño pequeño y su dieta de gorriones.  \nFalconiformes Falconidae Caracara plancus Crested Caracara - Caracara del tupí karakará (onomatopeya de su grito) y plancus del latín plancus (águila).  \nPsittaciformes Psittacidae Pionus menstruus Blue-headed Parrot - Pionus del griego pion (gordo, por su cuerpo robusto) y menstruus del latín menstruus (mensual), quizás por su ciclo reproductivo.  \nPsittaciformes Psittacidae Amazona ochrocephala Yellow-crowned Amazon - Amazona del nombre francés “Amazone” para los loros tropicales y ochrocephala del griego ochros (amarillo) y kephale (cabeza).  \nPsittaciformes Psittacidae Psittacara wagleri Scarlet-fronted Parakeet - Psittacara del griego psittakos (loro) y kara (cabeza) y wagleri en honor al naturalista Johann Georg Wagler.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 140,
+      "courseOrder": 50
+    },
+    {
+      "id": "tor-de-la-orn-col-us-on-tifi-in",
+      "title": "Historia de la ornitología colombiana: sus colecciones científicas, investigador",
+      "text": "Resumen\nEl presente escrito es un corto recuento histórico de la ornitología en Colombia desde finales del siglo XVIII hasta el presente. Este abarca desde las primeras aves descritas a partir de ejemplares de Colombia, las primeras expediciones, personajes y colectas que dieron lugar al conocimiento de las aves; hasta muchos de los museos y colecciones biológicas que se crearon y aun hoy persisten. Posteriormente se reseña como se documentó la diversidad de aves gracias a exploraciones a diferentes regiones y al impulso de diferentes instituciones y personas que más tarde dieron lugar a la formación de escuelas ornitológicas. Estas escuelas permitieron el surgimiento de las asociaciones, fundaciones y sociedades ornitológicas que han fomentado y apoyado no solo el estudio e interés en las aves sino también su conservación y admiración. Por ultimo, se señalan algunos vacíos del conocimiento en aves colombianas, los cuales podemos abordar más fácilmente desde nuestro momento histórico al entender el contexto que ha influido en su desarrollo.\nPalabras clave: aves, colecciones de historia natural, Colombia, ornitología, Suramérica",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 150,
+      "courseOrder": 50
+    },
+    {
+      "id": "ter-of-gene-ver-in-5-spp-of-fo-co-is-in-env-ient",
+      "title": "Patterns of genetic diversity in 5 spp of Passeriformes co-dist. in env gradient",
+      "text": "Understanding the evolutionary processes that influence the distribution of genetic diversity in natural populations is a key issue in evolutionary biology. Both species’ distribution ranges and environmental gradients can influence this diversity through mechanisms such as gene flow, selection, and genetic drift. To explore how these forces interact, we assessed neutral and adaptive genetic variation in three widely distributed and two narrowly distributed bird species co-occurring along the Cauca River canyon in Antioquia, Colombia—a region of pronounced environmental heterogeneity. We sampled individuals across eight sites spanning the canyon’s gradient and analyzed genetic diversity and structure using microsatellites and toll-like receptors (TLRs), a gene family involved in innate immunity. Widely distributed species consistently exhibited higher genetic diversity at both marker types compared to their narrowly distributed counterparts. Although we did not find a significant relationship between microsatellite heterozygosity and TLR heterozygosity, we evidenced a negative trend for widely distributed species and a positive trend for narrowly distributed species. This result suggests that there is a stronger effect of genetic drift in narrowly distributed species. Our results highlight the role of distribution range in maintaining genetic diversity and suggest that environmental gradients, by interacting with gene flow and selection, may influence patterns of adaptive variation.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 160,
+      "courseOrder": 50
+    },
+    {
+      "id": "wo-ex",
+      "title": "exporniswo",
+      "text": "**1. Introducción y Saludo (¡Parar la oreja en el monte!)**\n\n*\"¡Buenas tardes, muchachos y profe! ¿Cómo van?*\n\n*Hoy les vengo a echar el cuento de un tema muy bacano de la neuroetología aviar: **¿cómo hacen las aves para saber exactamente de dónde viene un sonido?** Piensen en esto: una lechuza cazando en plena noche paisa en absoluta oscuridad, o un pajarito en medio de un rastrojo tupido esquivando un depredador solo por el ruido de una rama que se quiebra.*\n\n*Las aves no tienen orejas externas como nosotros para atrapar el sonido, pero se ubican en el espacio con una precisión impresionante. Para entender este 'GPS auditivo', nos vamos a basar en la revisión neuroetológica de **Lutz Kettler y Catherine Carr (2019)**, donde explican el procesamiento cerebral y sensorial que hace esto posible. Así que acomódense, que vamos a desglosar este mecanismo paso a paso.\"*\n\n\n**2. Las Pistas Acústicas y la Física del Oído Aviar**\n\n*\"Vean pues, para que un cerebro sepa de dónde viene un sonido, necesita comparar dos pistas fundamentales entre ambos oídos:*\n\n**ITD (*Interaural Time Difference* o Diferencia Interaural de Tiempo):** Es la pequeñísima diferencia en el tiempo que tarda la onda sonora en llegar a un oído respecto al otro.\n**ILD (*Interaural Level Difference* o Diferencia Interaural de Nivel):** Es la diferencia en la intensidad o volumen del sonido entre ambos oídos, provocada porque la cabeza hace 'sombra' al sonido.\n\n*Pero aquí viene el primer dato clave de la anatomía aviar: muchas aves tienen cabezas muy chiquitas. En una cabeza pequeña, la distancia entre los oídos es mínima, por lo que las diferencias de tiempo e intensidad serían casi imperceptibles. ¿Cómo resuelven este chicharrón?*\n\n*Resulta que los oídos de las aves no son independientes como los de los mamíferos (que son receptores de presión puros). Las aves tienen **canales interaurales**, que son espacios de aire trabeculados que conectan ambos oídos medios por dentro del cráneo. Esto convierte a sus oídos en **receptores de diferencia de presión**, lo que significa que el sonido interactúa en el tímpano desde adentro y desde afuera, amplificando de forma natural las pistas de dirección para frecuencias bajas. ¡Una verdadera maravilla de la ingeniería evolutiva!\"*\n\n\n**3. El Viaje Neural: Vías Paralelas en el Tallo Cerebral**\n\n*\"Ahora sí, metámonos al cerebro del ave. Cuando el nervio auditivo recibe la señal de la cóclea (papila basilar), entra al tallo cerebral y se bifurca en dos caminos completamente independientes:*\n\n**El camino del tiempo (Vía de ITD):** Va directo al **Nucleus Magnocellularis (NM)**. Las neuronas de este núcleo hacen algo brutal llamado **acoplamiento de fase (*phase-locking*)**, disparando impulsos eléctricos en el punto exacto de la onda sonora. En la lechuza común (*Tyto alba*), este acoplamiento de fase funciona a frecuencias altísimas de hasta 9 kHz, mientras que en una paloma llega hasta los 2 kHz.\n**El camino de la intensidad (Vía de ILD):** Va al **Nucleus Angularis (NA)**, que codifica qué tan fuerte llegó el sonido usando la tasa global de disparos.\n\n*O sea que, desde la primera parada en el cerebro, **tiempo e intensidad se procesan en paralelo**.\"*\n\n\n**4. El Modelo de Jeffress y el Núcleo Laminar**\n\n*\"Ojo a este detalle, que es el corazón del artículo. ¿Cómo mide el cerebro esas microfracciones de segundo del tiempo (ITD)?*\n\n*El **Nucleus Magnocellularis (NM)** le manda información de ambos oídos al **Nucleus Laminaris (NL)**. En el núcleo laminar se aplica a la perfección el famoso **modelo de Jeffress**:*\n\n*Los axones que vienen del NM actúan como **líneas de retardo** (*delay lines*), variando en longitud.*\n*Las neuronas del núcleo laminar actúan como **detectores de coincidencia** (*coincidence detectors*). Solo se activan al máximo cuando las señales de ambos oídos llegan **exactamente al mismo tiempo**.*\n\n*Esto traduce las diferencias de tiempo en un **código de lugar (*place code*)** o mapa topográfico de azimut (el plano horizontal). Si el sonido viene de la derecha, el camino neural izquierdo compensa el retraso y se activa una neurona específica en la hilera.\"*\n\n\n**5. La Lechuza (*Tyto alba*): La Reina de la Cacería Nocturna**\n\n*\"Aunque la mayoría de aves tienen oídos simétricos y usan este sistema para el plano horizontal, la lechuza común es el modelo estrella de la neuroetología por sus especializaciones extremas:*\n\n**Ángulo mínimo de resolución:** Una lechuza puede discriminar cambios de ubicación de apenas **2° a 3°**, mientras que un pinzón (*zebra finch*) tiene un umbral de más de 100°.\n**Asimetría auricular y el disco facial:** La lechuza tiene las aberturas de los oídos asimétricas (una más arriba que la otra) y un disco facial de plumas que dirigen el sonido. La asimetría hace que la diferencia de intensidad (ILD) determine la **elevación (arriba/abajo)**, mientras que la diferencia de tiempo (ITD) determina el **azimut (izquierda/derecha)**.\"*\n\n\n**6. Integración en el Colículo Inferior y el Mapa del Espacio Auditivo**\n\n*\"Pero hay un pequeño problema en el núcleo laminar: la **ambigüedad de fase** (*phase ambiguity*). Si el sonido es un tono puro, el cerebro no sabe si la onda viene de frente o de un lado por la repetición del ciclo.*\n\n*Para resolver esto, la información sube al **Colículo Inferior (IC)**:*\n\nEn el **núcleo central (ICCc)**, se combinan distintas frecuencias (*across-frequency integration*) para eliminar los picos ambiguos y dejar solo la ubicación real.\nEn el **núcleo externo (ICX)**, se juntan por fin la vía del tiempo (ITD) y la vía de la intensidad (ILD). Aquí se crea un verdadero **mapa topográfico del espacio auditivo**.\n\n*De ahí, el mapa auditivo se proyecta al **Téctum Óptico** (o lóbulo óptico), alineándose perfectamente con el mapa visual. ¡Por eso cuando la lechuza oye un ratón, voltea la cabeza instantáneamente hacia el punto exacto!\"*\n\n\n**7. Evolución Paralela: Aves vs. Mamíferos**\n\n*\"Aquí va una pregunta para la clase: ¿los mamíferos hacemos lo mismo? ¡Sorpresa! **No.**\n\n*Los ancestros de aves y mamíferos divergieron antes de desarrollar oído timpánico. Por eso, evolucionaron respuestas paralelas pero diferentes:*\n\n**Las aves** (y sus parientes cercanos los cocodrilos) usan el **modelo de Jeffress con mapa de lugar** en el núcleo laminar.\n**Los mamíferos** en su núcleo equivalente (la oliva superior medial o MSO) no usan mapa de lugar, sino un **código de pendiente hemisférica** (*slope code*), comparando la tasa de disparo entre los dos hemisferios cerebrales.\n\n*Esto demuestra que la evolución no siempre encuentra una única solución 'perfecta', sino soluciones locales totalmente funcionales.\"*\n\n\n**8. Plasticidad y Calibración Visual**\n\n*\"Para ir cerrando, ¿qué pasa si el sistema falla o cambia? Kettler y Carr resaltan los famosos experimentos de **Eric Knudsen y Michael Brainard** con lechuzas jóvenes:*\n\nLes pusieron gafas con **prismas ópticos** que desviaban su vista.\nAl principio la lechuza fallaba, pero con los días, **el sistema visual recalibró el mapa auditivo en el colículo inferior** para ajustarlo a la nueva visión.\nEsta plasticidad se logra mediante remodelación de axones, receptores NMDA y ajustes en la inhibición por GABA. O sea, ¡la vista manda e instruye al oído sobre dónde está el mundo exterior!\"*\n\n\n**9. Conclusión y Cierre**\n\n*\"En resumen, muchachos, la localización del sonido en aves es una joya neuroetológica:\nAprovecha canales interaurales para amplificar señales.\nProcesa tiempo e intensidad por vías cerebrales paralelas.\nConstruye un mapa espacial en el colículo inferior usando líneas de retardo y detectores de coincidencia.\nSe recalibra constantemente con la experiencia visual.\n\n*Muchas gracias a todos por la atención. ¿Tienen alguna pregunta o inquietud sobre el tema?\"*",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 170,
+      "courseOrder": 50
+    },
+    {
+      "id": "cial-as",
+      "title": "parcial-passeriformes",
+      "text": "Order, Family, Genus, Species, English common name, Spanish common name\nPasseriformes, Thamnophilidae, Gymnopithys, Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco\nPasseriformes, Grallariidae, Grallaria, Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre\nPasseriformes, Furnariidae, Margarornis, Margarornis squamiger, Pearled Treerunner, Subepalo Perlado\nPasseriformes, Furnariidae, Xiphorhynchus, Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva\nPasseriformes, Pipridae, Lepidothrix, Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul\nPasseriformes, Cotingidae, Cephalopterus, Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado\nPasseriformes, Tyrannidae, Tyrannus, Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental\nPasseriformes, Vireonidae, Hylophilus, Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro\nPasseriformes, Donacobiidae, Donacobius, Donacobius atricapilla, Black-capped Donacobius, Angú\nPasseriformes, Hirundinidae, Pygochelidon, Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera\nPasseriformes, Hirundinidae, Stelgidopteryx, Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa\nPasseriformes, Polioptilidae, Ramphocaenus, Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo\nPasseriformes, Troglodytidae, Cantorchilus, Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro\nPasseriformes, Turdidae, Catharus, Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson\nPasseriformes, Turdidae, Turdus, Turdus serranus, Glossy-black Thrush, Mirlo Serrano\nPasseriformes, Passerellidae, Arremon, Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño\nPasseriformes, Icteridae, Psarocolius, Psarocolius decumanus, Crested Oropendola, Cacique Crestado\nPasseriformes, Icteridae, Hypopyrrhus, Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo\nPasseriformes, Icteridae, Leistes, Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja\nPasseriformes, Parulidae, Myioborus, Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada\nPasseriformes, Cardinalidae, Pheucticus, Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado\nPasseriformes, Thraupidae, Chlorophanes, Chlorophanes spiza, Green Honeycreeper, Mielero Verde\nPasseriformes, Thraupidae, Chrysothlypis, Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca\nPasseriformes, Thraupidae, Sporophila, Sporophila corvina, Variable Seedeater, Semillero Corvino\nPasseriformes, Thraupidae, Tangara, Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 180,
+      "courseOrder": 50
+    },
+    {
+      "id": "yec-oye",
+      "title": "proyectornis",
+      "text": "*Notes de terrain sur les oiseaux, l’altitude et notre manière d’habiter le monde.*\n\nIl existe des lieux où le temps semble s’écouler autrement. Il y paraît souvent moins pressé, et il y règne une discrétion que les villes nous ont fait oublier. Dans la Réserve naturelle ProAves Las Tángaras, à El Carmen de Atrato, dans le Chocó, la forêt semble entretenir une conversation permanente. Celle-ci se manifeste parfois dans le mouvement des feuilles ; d’autres fois, dans un son venu de quelque part entre la végétation, que nous ne parvenons pas toujours à identifier.\n\nNous sommes arrivés avec une question apparemment simple : la communauté d’oiseaux change-t-elle à mesure que l’altitude augmente ? Nous avions des instruments d’observation, des registres, des connaissances préalables et une hypothèse. Nous voulions comprendre comment l’altitude et la couverture végétale pouvaient transformer la richesse, l’abondance et la composition des espèces.\n\nNous avons divisé le territoire en trois bandes : basse, moyenne et haute. Trois manières de rencontrer un même paysage. Dans chacune, nous avons établi des points d’observation et consigné ce qui pouvait être vu ou entendu. Pendant trois jours, les oiseaux sont apparus dans nos matrices de données. Certains se sont laissé observer ; d’autres sont restés dans l’anonymat de leurs vocalisations.\n\n**Note de terrain I. La bande basse.**\n\nÀ 1 500 mètres, le paysage se rapprochait davantage des espaces modifiés par les activités humaines. Les pâturages, les cultures et les fragments naturels composaient une frontière irrégulière entre la forêt et nos manières de l’occuper.\n\nC’est là que nous avons enregistré la plus grande richesse cumulée : 95 espèces et 323 individus. Ces chiffres semblaient confirmer notre hypothèse initiale. Les données ne racontent cependant pas toujours l’histoire que nous espérons entendre.\n\nLa plus grande abondance ne signifiait pas nécessairement une répartition plus équilibrée. Certaines espèces concentraient une proportion importante des relevés. La forêt, même lorsqu’elle paraît pleine de vie, porte ses propres inégalités.\n\n**Note de terrain II. L’altitude.**\n\nDans les bandes moyenne et haute, nous avons trouvé 85 et 84 espèces, respectivement. Toutes deux comptaient 231 individus. La différence numérique était faible, même si la composition de leurs communautés racontait une autre histoire.\n\nDans la bande haute, l’indice de Shannon atteignait 4,08 et l’équitabilité de Pielou, 0,93. Les individus se répartissaient de manière plus uniforme entre les espèces recensées.\n\nNous avons alors pensé à une idée qui traverse aussi notre expérience quotidienne : avoir davantage ne signifie pas toujours une meilleure répartition. L’abondance et l’équilibre sont des dimensions distinctes. En écologie, comme dans tant d’autres questions humaines, les chiffres ont besoin de contexte pour prendre sens.\n\n**Note de terrain III. Ce qui change sans disparaître.**\n\nL’analyse statistique a apporté l’une des conclusions les plus intéressantes de l’étude. Le test de Kruskal-Wallis n’a pas mis en évidence de différences statistiquement significatives entre les bandes pour les indices de diversité alpha. Le PERMANOVA a toutefois identifié des différences significatives dans la composition des espèces (p = 0,004), avec 39 % de variation expliqués par le gradient altitudinal.\n\nAutrement dit, la diversité pouvait conserver des ordres de grandeur relativement proches tandis que les espèces qui la composaient changeaient.\n\nLes bandes moyenne et haute présentaient la plus grande similarité (Sørensen = 0,43), tandis que la bande basse montrait une composition plus différenciée. *Ramphocelus flammigerus*, *Henicorhina leucophrys* et *Boissonneaua jardini* figurent parmi les noms qui nous ont permis de reconnaître une identité écologique propre à chaque secteur.\n\nL’histoire du paysage s’ajoutait à la question de l’altitude : les forêts denses, la végétation secondaire, les pâturages et les cultures.\n\nLa forêt ne change peut-être pas d’un seul coup. Elle change peut-être comme les personnes : par de petites transformations qui, observées à une certaine distance, finissent par révéler une différence profonde.\n\n**Une réflexion depuis le terrain.**\n\nLa recherche scientifique porte une responsabilité qui commence bien avant la publication de ses résultats : apprendre à observer sans imposer au territoire nos attentes.\n\nNotre échantillonnage avait ses limites. Il a duré trois jours consécutifs, avec peu de points et des conditions de détectabilité variables. Nous ne pouvons confondre une espèce non recensée avec une espèce absente. Nous ne pouvons pas davantage transformer une association observée en explication définitive. Reconnaître ces limites rend la connaissance plus honnête et ne l’affaiblit en rien.\n\nCette considération a une dimension pédagogique importante. L’éducation à l’environnement englobe l’apprentissage de la classification des organismes, la mémorisation des noms scientifiques et l’interprétation des indices ; elle implique aussi d’apprendre à reconnaître les relations entre les êtres vivants, les décisions humaines et les transformations du territoire.\n\nEn temps de crise climatique, de perte de biodiversité et d’expansion des activités qui modifient les écosystèmes, observer un oiseau peut devenir un exercice de responsabilité. Sa présence nous rappelle que le monde ne s’organise pas exclusivement autour de nos besoins.\n\nLa Réserve Las Tángaras abrite des espèces présentant un intérêt biogéographique particulier, notamment *Bangsia aureocincta*, *Bangsia melanochlamys* et *Hypopyrrhus pyrohypogaster*, ainsi que des oiseaux migrateurs comme *Setophaga fusca*. Sa conservation relève d’une responsabilité collective face à la continuité de la vie, et elle dépasse largement la préoccupation des spécialistes.\n\nÀ la fin de l’exercice, il reste les matrices, les indices, les cartes et les conclusions. Il reste aussi des questions auxquelles aucune analyse statistique ne peut répondre entièrement : que savons-nous vraiment des lieux que nous habitons, que sommes-nous prêts à protéger et quelle relation voulons-nous construire avec ce qui ne nous appartient pas ?\n\nTel est peut-être l’enseignement le plus important de ces journées : la forêt n’a pas besoin que nous la convertissions en métaphore pour reconnaître sa valeur. Elle a ses propres règles, ses propres rythmes et une complexité que nous commençons à peine à comprendre.\n\nNous sommes allés là-bas pour compter des oiseaux. Nous en sommes revenus avec 181 espèces recensées et 785 individus documentés ; nous en revenons aussi avec une certitude moins quantifiable : conserver un écosystème exige d’apprendre à regarder au-delà de l’évidence.\n\nParce que, parfois, comprendre un territoire commence par accepter que nous ne sommes pas les seuls à l’habiter.",
+      "course": "ornito",
+      "courseId": "rnit-to",
+      "targetWPM": 30,
+      "targetAccuracy": 95,
+      "order": 190,
+      "courseOrder": 50
+    }
+  ],
+  "marks": [
+    {
+      "id": "mark-66e476b1-2336-470d-a6f0-8e11f99fbdfb",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco",
+      "start": 7190,
+      "end": 7257,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-d9631402-f6fa-4c18-aa76-d2eb6b83a201",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Gymnopithys-leucaspis-001.jpg/250px-Gymnopithys-leucaspis-001.jpg",
+          "alt": "Gymnopithys leucaspis",
+          "caption": "Gymnopithys leucaspis"
+        }
+      ]
+    },
+    {
+      "id": "mark-568e61bb-7982-4084-be3f-48c67a3d1d40",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre",
+      "start": 7379,
+      "end": 7445,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-2314eacf-4769-4908-85f2-77ae625ebf2f",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg/330px-Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg",
+          "alt": "Grallaria ruficapilla",
+          "caption": "Grallaria ruficapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-23dd5135-f933-4b51-9de9-448a2864c5bd",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Margarornis squamiger, Pearled Treerunner, Subepalo Perlado",
+      "start": 7550,
+      "end": 7609,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-30c6f79a-4162-4c7b-bbe6-a0e40a5e96f3",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Margarornis_squamiger_68812121.jpg/330px-Margarornis_squamiger_68812121.jpg",
+          "alt": "Margarornis squamiger",
+          "caption": "Margarornis squamiger"
+        }
+      ]
+    },
+    {
+      "id": "mark-5545cf84-8787-47bb-a4a3-341026cc4608",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva",
+      "start": 7731,
+      "end": 7808,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-9f89eae2-5926-428c-a1ca-cbf96182763f",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Xiphorhynchus_triangularis_162661112.jpg/330px-Xiphorhynchus_triangularis_162661112.jpg",
+          "alt": "Xiphorhynchus triangularis",
+          "caption": "Xiphorhynchus triangularis"
+        }
+      ]
+    },
+    {
+      "id": "mark-ee9e1b56-7a40-40bf-85f7-a90aa79be13a",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul",
+      "start": 7923,
+      "end": 7985,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-c8d414a6-a048-4c63-a76d-3112dacc7392",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Lepidothrix_coronata_1.jpg/250px-Lepidothrix_coronata_1.jpg",
+          "alt": "Lepidothrix coronata",
+          "caption": "Lepidothrix coronata"
+        }
+      ]
+    },
+    {
+      "id": "mark-ae0b29ce-8d83-4391-956a-a1cd6bae4a24",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado",
+      "start": 8099,
+      "end": 8162,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-3616d138-cab9-46b5-be4d-0f142bf34d05",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg/250px-Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg",
+          "alt": "Cephalopterus ornatus",
+          "caption": "Cephalopterus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-a73be2ae-0cc0-4e3e-b8f2-3ac723f45a5b",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental",
+      "start": 8266,
+      "end": 8318,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-d32ecddf-1fdf-450a-ba04-336b8f4f9927",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Tyrannus_tyrannus_CT.jpg/250px-Tyrannus_tyrannus_CT.jpg",
+          "alt": "Tyrannus tyrannus",
+          "caption": "Tyrannus tyrannus"
+        }
+      ]
+    },
+    {
+      "id": "mark-1048b38a-c675-4d2b-8d2f-99222910e5d9",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro",
+      "start": 8405,
+      "end": 8460,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-6fd05a01-9479-402c-befd-1e6522a8bd5d",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Scrub_Greenlet.jpg/250px-Scrub_Greenlet.jpg",
+          "alt": "Hylophilus flavipes",
+          "caption": "Hylophilus flavipes"
+        }
+      ]
+    },
+    {
+      "id": "mark-689ab105-f12e-42f8-aff5-b90dde84d6d6",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Donacobius atricapilla, Black-capped Donacobius, Angú",
+      "start": 8574,
+      "end": 8627,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-acca23ce-1ed2-4326-a1c9-a66d51ee5ce8",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg/250px-Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg",
+          "alt": "Donacobius atricapilla",
+          "caption": "Donacobius atricapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-79c1c8aa-d560-4ec5-b754-91a67c2c784d",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera",
+      "start": 8743,
+      "end": 8814,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-ab4fc425-49ad-48f5-9ed3-8d8434a173aa",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg/250px-Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg",
+          "alt": "Pygochelidon cyanoleuca",
+          "caption": "Pygochelidon cyanoleuca"
+        }
+      ]
+    },
+    {
+      "id": "mark-f31e1642-20d9-41d9-a177-48c8844ae06b",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa",
+      "start": 8921,
+      "end": 9000,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-31c74c47-08d6-40a1-884d-07c0c561a72d",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG/250px-Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG",
+          "alt": "Stelgidopteryx ruficollis",
+          "caption": "Stelgidopteryx ruficollis"
+        }
+      ]
+    },
+    {
+      "id": "mark-20ef62e2-74a2-42e7-933a-819cc59a1c84",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo",
+      "start": 9098,
+      "end": 9160,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-b967a809-777f-459e-ada5-7a1f5f27fce1",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Long-billed_Gnatwren.jpg/330px-Long-billed_Gnatwren.jpg",
+          "alt": "Ramphocaenus melanurus",
+          "caption": "Ramphocaenus melanurus"
+        }
+      ]
+    },
+    {
+      "id": "mark-377fdff6-1587-40b1-a761-e833ff7125cc",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro",
+      "start": 9256,
+      "end": 9317,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-e0bd9a78-8c09-4398-a98d-3d3fd4499641",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Bay_Wren.jpg/250px-Bay_Wren.jpg",
+          "alt": "Cantorchilus nigricapillus",
+          "caption": "Cantorchilus nigricapillus"
+        }
+      ]
+    },
+    {
+      "id": "mark-ce845469-4237-442a-b4b9-f191159f9157",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson",
+      "start": 9414,
+      "end": 9474,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-d2870c5f-e448-4b48-9a93-7fc9d1bbd07a",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg/330px-Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg",
+          "alt": "Catharus ustulatus",
+          "caption": "Catharus ustulatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-2d787ca5-9f8a-4e4d-b8ca-500f404ceb1f",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Turdus serranus, Glossy-black Thrush, Mirlo Serrano",
+      "start": 9563,
+      "end": 9614,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-7df33877-f30e-4740-9bc7-373171b35a71",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Glossy-black_Thrush_RWD3.jpg/250px-Glossy-black_Thrush_RWD3.jpg",
+          "alt": "Turdus serranus",
+          "caption": "Turdus serranus"
+        }
+      ]
+    },
+    {
+      "id": "mark-c0dd4ded-e883-48b0-b013-a5a64ff6c0b6",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño",
+      "start": 9704,
+      "end": 9776,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-fe11a381-279d-46c7-b991-bf6a4932969e",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg/250px-Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg",
+          "alt": "Arremon brunneinucha",
+          "caption": "Arremon brunneinucha"
+        }
+      ]
+    },
+    {
+      "id": "mark-49e8a0f1-fa38-4635-bb69-4e5c2b59c9cf",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Psarocolius decumanus, Crested Oropendola, Cacique Crestado",
+      "start": 9859,
+      "end": 9918,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-9651f103-87e6-4058-86ab-05205c924333",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg/330px-Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg",
+          "alt": "Psarocolius decumanus",
+          "caption": "Psarocolius decumanus"
+        }
+      ]
+    },
+    {
+      "id": "mark-083ea998-ac55-49df-8fc1-d2beed229a33",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo",
+      "start": 10046,
+      "end": 10113,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-9987c46f-2fdb-4704-84db-3f5fb712086b",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg/330px-Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg",
+          "alt": "Hypopyrrhus pyrohypogaster",
+          "caption": "Hypopyrrhus pyrohypogaster"
+        }
+      ]
+    },
+    {
+      "id": "mark-52372b3c-b5e6-4b8d-a0c6-4531b6cff634",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja",
+      "start": 10221,
+      "end": 10281,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-bd13c2b3-618a-46c6-9227-4971fe26c19a",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg/250px-Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg",
+          "alt": "Leistes militaris",
+          "caption": "Leistes militaris"
+        }
+      ]
+    },
+    {
+      "id": "mark-3dfc9906-c947-4da1-b89c-43dba20652de",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada",
+      "start": 10377,
+      "end": 10441,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-c8b4498a-b706-4359-a67e-a31248516ed3",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg/330px-Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg",
+          "alt": "Myioborus ornatus",
+          "caption": "Myioborus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-d0db96ca-546e-43ab-9a4e-b6adcfe48e5b",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado",
+      "start": 10555,
+      "end": 10627,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-930bae0c-c394-475a-bfad-327efb3703aa",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg/250px-Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg",
+          "alt": "Pheucticus ludovicianus",
+          "caption": "Pheucticus ludovicianus"
+        }
+      ]
+    },
+    {
+      "id": "mark-61178993-2cc0-4171-8dfb-d295d18b075c",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Chlorophanes spiza, Green Honeycreeper, Mielero Verde",
+      "start": 10718,
+      "end": 10771,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-7fffd220-2a07-4289-a6dd-4ef472511369",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg/330px-Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg",
+          "alt": "Chlorophanes spiza",
+          "caption": "Chlorophanes spiza"
+        }
+      ]
+    },
+    {
+      "id": "mark-88ea4951-484d-4e6b-8040-643c9eaf3977",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca",
+      "start": 10862,
+      "end": 10930,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-b6396b41-91c7-42d3-a42e-2a22fc70ac65",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg/330px-Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg",
+          "alt": "Chrysothlypis salmoni",
+          "caption": "Chrysothlypis salmoni"
+        }
+      ]
+    },
+    {
+      "id": "mark-5f97a9e4-563b-4b33-9315-c9bb8c68de5b",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Sporophila corvina, Variable Seedeater, Semillero Corvino",
+      "start": 11024,
+      "end": 11081,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-e2a6d900-7166-4bdc-849e-02ea438e9a6f",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sporophila-corvina-002.jpg/250px-Sporophila-corvina-002.jpg",
+          "alt": "Sporophila corvina",
+          "caption": "Sporophila corvina"
+        }
+      ]
+    },
+    {
+      "id": "mark-b8eadf94-3a0b-4f49-9522-5ff10b807c31",
+      "kind": "mark",
+      "lessonId": "nes-io",
+      "lessonTitle": "gorriones",
+      "course": "ornito",
+      "text": "Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas",
+      "start": 11186,
+      "end": 11254,
+      "createdAt": 1795698540000,
+      "media": [
+        {
+          "id": "media-e09a52f6-6f42-49d1-8659-9bae57d4ee7d",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg/330px-Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg",
+          "alt": "Tangara nigroviridis",
+          "caption": "Tangara nigroviridis"
+        }
+      ]
+    },
+    {
+      "id": "mark-e88ca323-52bf-4315-9292-629c65c157b5",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "entramos de lleno en la filogenia y la sistemática. La fig. 7 despliega el árbol filogenético de los Amniotas, destacando la dicotomía fundamental entre Sinápsidos —linaje del cual derivan los mamíferos, ilustrados aquí con roedores y primates— y Laurópsidos o Saurópsidos. Dentro de los Saurópsidos, la rama de los Arcosaurios hermana directamente a Crocodilianos y Aves.",
+      "start": 2786,
+      "end": 3158,
+      "createdAt": 1792542546677,
+      "media": [
+        {
+          "id": "media-2f831ed2-b764-497c-992e-767e13673460",
+          "src": "figures/fig7.png",
+          "alt": "fig. 7",
+          "caption": "fig. 7"
+        }
+      ]
+    },
+    {
+      "id": "mark-fe7760ff-79d6-45a1-bb61-2612d446852a",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "Las fig. 8",
+      "start": 3159,
+      "end": 3169,
+      "createdAt": 1792543726611,
+      "media": [
+        {
+          "id": "media-f14a6519-82d0-4515-9edb-fede640a7e41",
+          "src": "figures/fig8.png",
+          "alt": "fig. 8",
+          "caption": "fig. 8"
+        }
+      ]
+    },
+    {
+      "id": "mark-9b575898-e1af-48a3-bc14-a658f5aaba1c",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "y 9 fo",
+      "start": 3170,
+      "end": 3176,
+      "createdAt": 1792543770200,
+      "media": [
+        {
+          "id": "media-3160c07a-cc78-4212-be6b-7f438cdd2e81",
+          "src": "figures/fig9.png",
+          "alt": "fig. 9",
+          "caption": "fig. 9"
+        }
+      ]
+    },
+    {
+      "id": "mark-7d89c8be-ae22-4b37-8ff6-9f8fdabfaefe",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "El cladograma formal encierra en una elipse roja a Sauropsida y Archosauria, posicionando al clado Aves como el grupo hermano de Crocodylia.",
+      "start": 3336,
+      "end": 3476,
+      "createdAt": 1792544371765,
+      "media": [
+        {
+          "id": "media-31a5c24c-7120-4e31-acdc-328038efe896",
+          "src": "figures/fig9.png",
+          "alt": "fig. 9",
+          "caption": "fig. 9"
+        }
+      ]
+    },
+    {
+      "id": "mark-bbb931da-a9f0-4f42-9126-f9bc8cbd3a41",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "el cráneo diápsido,",
+      "start": 3805,
+      "end": 3824,
+      "createdAt": 1792545066859,
+      "media": [
+        {
+          "id": "media-e563d658-7520-4ba8-bc32-0b7ae50c7812",
+          "src": "figures/diapsido.png",
+          "alt": "cráneo diápsido",
+          "caption": "cráneo diápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-cb58f409-072a-4967-8e49-8fa3c1f70f30",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "la estructura de las escamas podotecas que recubren sus patas -una fotografía de garras de rapaz—",
+      "start": 3872,
+      "end": 3969,
+      "createdAt": 1792545351858,
+      "media": [
+        {
+          "id": "media-ee3cf1a6-0816-4ada-ac5b-0e58a47755fb",
+          "src": "figures/garrapodoteca.png",
+          "alt": "la estructura de las escamas podotecas que recubren sus patas -una fotografía de garras de rapaz—",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-6052c47e-5959-404d-8bfa-a63396dd76b9",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "anápsida,",
+      "start": 4057,
+      "end": 4066,
+      "createdAt": 1792546159516,
+      "media": [
+        {
+          "id": "media-67c93b8a-6639-40b7-a0ca-1dcb13f7777b",
+          "src": "figures/anapsido.png",
+          "alt": "anápsido",
+          "caption": "anápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-658d4270-4e6f-48f2-bf07-4c1141c8887d",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "sinápsida",
+      "start": 4067,
+      "end": 4076,
+      "createdAt": 1792546193297,
+      "media": [
+        {
+          "id": "media-efdb2c35-fba7-48e4-833c-f4cb6db74bdd",
+          "src": "figures/sinapsido.png",
+          "alt": "sinápsido",
+          "caption": "sinápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-b9a0a5a7-e873-4106-a160-ae769f3b535c",
+      "kind": "mark",
+      "lessonId": "i-la-enog-ic",
+      "lessonTitle": "I: La Escenografía Mesozoica",
+      "course": "ornito",
+      "text": "diápsida, esta caracterizada por las dos fosas temporales que definen a la estirpe arcosauriana.",
+      "start": 4079,
+      "end": 4175,
+      "createdAt": 1792546274686,
+      "media": [
+        {
+          "id": "media-caac636e-8d8a-488a-ac89-a01a950c8665",
+          "src": "figures/diapsidoo.png",
+          "alt": "diápsida, esta caracterizada por las dos fosas temporales que definen a la estirpe arcosauriana.",
+          "caption": "diápsido"
+        }
+      ]
+    },
+    {
+      "id": "mark-9f473c3e-9c6b-4895-a841-43916bf5fe31",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Anseriformes Anatidae Dendrocygna viduata White-faced Whistling Duck - del griego dendron (árbol) y Cygnus (cisne), y del latín viduata (viuda), por su cara blanca y su llamada silbante.",
+      "start": 0,
+      "end": 186,
+      "createdAt": 1792717349916,
+      "media": [
+        {
+          "id": "media-4af64091-b6a0-4958-b7b2-c92df449b215",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/87/DendrocygnaViduataDavies.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Anseriformes Anatidae Dendrocygna viduata White-faced Whistling Duck - del griego dendron (árbol) y Cygnus (cisne), y del latín viduata (viuda), por su cara blanca y su llamada silbante.",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-a53b1080-3582-4ced-994d-20c5ea0ce52b",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Anseriformes Anhimidae Anhima cornuta Horned Screamer - Anhima proviene del tupí ña'un (ave negra) y cornuta del latín cornutus (con cuernos), por el apéndice córneo en su cabeza.",
+      "start": 189,
+      "end": 368,
+      "createdAt": 1792717501733,
+      "media": [
+        {
+          "id": "media-c4b4239b-81a8-47c7-9ae2-9979c0e97b15",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Palamedra_cornuta_white_background.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Anseriformes Anhimidae Anhima cornuta Horned Screamer - Anhima proviene del tupí ña'un (ave negra) y cornuta del latín cornutus (con cuernos), por el apéndice córneo en su cabeza.",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-e2ff5667-76a3-45d2-9c64-054076e1f951",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galliformes Cracidae Penelope purpurascens Crested Guan - Penelope hace referencia a la esposa de Ulises en la mitología griega, y purpurascens al latín purpurascens (que se vuelve púrpura).",
+      "start": 371,
+      "end": 561,
+      "createdAt": 1792718400712,
+      "media": [
+        {
+          "id": "media-457fddb2-f0a3-4e9b-89d6-0fecd17b6eb6",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Central_Atlas_f%C3%BCr_zoologische_G%C3%A4rten_%28Taf._271b%29_%286436438553%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Galliformes Cracidae Penelope purpurascens Crested Guan - Penelope hace referencia a la esposa de Ulises en la mitología griega, y purpurascens al latín purpurascens (que se vuelve púrpura).",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-6849c269-a050-4f23-968b-d28377d255af",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galliformes Odontophoridae Colinus cristatus Crested Bobwhite - Colinus deriva del náhuatl zolin (codorniz) y cristatus del latín cristatus (crestado).",
+      "start": 564,
+      "end": 715,
+      "createdAt": 1792718679825,
+      "media": [
+        {
+          "id": "media-f32bffc9-0f8e-448b-af55-da70661498c7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Colinus_cristatus_mocquerysi_1894.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colinus cristatus",
+          "caption": "Colinus cristatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-0dfecb04-2d06-4aeb-8813-3ad50fac9134",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Podicipediformes Podicipedidae Podilymbus podiceps Pied-billed Grebe - Podilymbus es una contracción del latín podicipes (pies en las posaderas) y del griego kolymbos (zambullidor), y podiceps del latín podicis (posaderas) y pedis (pie).",
+      "start": 718,
+      "end": 955,
+      "createdAt": 1792719014968,
+      "media": [
+        {
+          "id": "media-9ff9736f-3962-4fb9-970c-65faaecd2bd6",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Podiceps_St._Thomae_-_1700-1880_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17800057.tif/lossy-page1-1280px-Podiceps_St._Thomae_-_1700-1880_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17800057.tif.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "alt": "Podilymbus podiceps",
+          "caption": "Podilymbus podiceps"
+        }
+      ]
+    },
+    {
+      "id": "mark-2e2d4de0-5895-4151-953e-053faf99f895",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Columbiformes Columbidae Zenaida auriculata Eared Dove - Zenaida honra a Zénaïde Bonaparte, y auriculata del latín auriculatus (con orejas pequeñas), por la mancha oscura tras el ojo.",
+      "start": 958,
+      "end": 1141,
+      "createdAt": 1792719524872,
+      "media": [
+        {
+          "id": "media-31779f3c-ab5c-448a-b1c4-62fdbb854904",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/6/69/Zenaida_auriculata_Historia_fisica_y_politica_de_Chile.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Columbiformes Columbidae Zenaida auriculata Eared Dove - Zenaida honra a Zénaïde Bonaparte, y auriculata del latín auriculatus (con orejas pequeñas), por la mancha oscura tras el ojo.",
+          "caption": "Zenaida auriculata"
+        }
+      ]
+    },
+    {
+      "id": "mark-4373de66-bfa1-4c6b-aa2e-c87d85b8ce24",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Columbiformes Columbidae Columbina talpacoti Ruddy Ground Dove - Columbina es diminutivo de Columba (paloma) y talpacoti proviene del nombre indígena náhuatl tlapalcocotli.",
+      "start": 1144,
+      "end": 1316,
+      "createdAt": 1792719768127,
+      "media": [
+        {
+          "id": "media-fc5e27a1-c163-42ce-af6d-97f61d03ecd7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Pigeons_%28Plate_22%29_%286976197569%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Columbiformes Columbidae Columbina talpacoti Ruddy Ground Dove - Columbina es diminutivo de Columba (paloma) y talpacoti proviene del nombre indígena náhuatl tlapalcocotli.",
+          "caption": "Columbina talpacoti"
+        }
+      ]
+    },
+    {
+      "id": "mark-bf7fd0b0-2fb1-4ad4-a36d-6075d9b4f873",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cuculiformes Cuculidae Coccyzus americanus Yellow-billed Cuckoo - Coccyzus del griego kokkuzo (llamar como un cuco) y americanus (de América).",
+      "start": 1319,
+      "end": 1461,
+      "createdAt": 1792720238172,
+      "media": [
+        {
+          "id": "media-9cae0148-805a-4a66-b2dc-bb94043490b0",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Coccyzus_Americanus_by_John_Gould.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Cuculiformes Cuculidae Coccyzus americanus Yellow-billed Cuckoo - Coccyzus del griego kokkuzo (llamar como un cuco) y americanus (de América).",
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "mark-b57e8919-572a-435b-9ef0-cefff987b58b",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cuculiformes Cuculidae Crotophaga ani Smooth-billed Ani - Crotophaga del griego krotōn (garrapata) y phagos (comedor), y ani del tupí anim (ave social).",
+      "start": 1464,
+      "end": 1616,
+      "createdAt": 1792720554877,
+      "media": [
+        {
+          "id": "media-5ec0c17f-cb25-4518-991e-58b9fb13c759",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Birds_of_the_Bahama_Islands_%28Cory_1880%29_Crotophaga_ani.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Crotophaga ani",
+          "caption": "Crotophaga ani"
+        }
+      ]
+    },
+    {
+      "id": "mark-58418e27-42da-4fd6-9487-1041d78f9536",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Steatornithiformes Steatornithidae Steatornis caripensis Oilbird - Steatornis del griego stear (grasa) y ornis (ave), y caripensis (de Caripe, Venezuela), por la grasa de los polluelos.",
+      "start": 1619,
+      "end": 1804,
+      "createdAt": 1792720885449,
+      "media": [
+        {
+          "id": "media-c3410758-85f0-4444-9232-11fa191b9704",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/88/Steatornis_caripensis_Pr%C3%AAtre.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Steatornis caripensis",
+          "caption": "Steatornis caripensis"
+        }
+      ]
+    },
+    {
+      "id": "mark-fe4cbc27-3244-4763-80c1-ce73c5749526",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Caprimulgiformes Caprimulgidae Nyctipolus nigrescens Blackish Nightjar - Nyctipolus del griego nuktipolos (que deambula de noche) y nigrescens del latín nigrescens (negruzco).",
+      "start": 1807,
+      "end": 1982,
+      "createdAt": 1792721214845,
+      "media": [
+        {
+          "id": "media-17c1b274-f655-43f2-b65c-35135ccf6081",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c6/The_genera_of_birds_%28PL._XVII%29_%287439900524%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Nyctipolus nigrescens",
+          "caption": "Nyctipolus nigrescens"
+        }
+      ]
+    },
+    {
+      "id": "mark-f82315ae-62b5-408b-98e6-5641b3fb871c",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Caprimulgiformes Caprimulgidae Nyctidromus albicollis Pauraque - Nyctidromus del griego nukti- (noche) y -dromos (corredor), y albicollis del latín albus (blanco) y collis (cuello).",
+      "start": 1985,
+      "end": 2166,
+      "createdAt": 1792721758797,
+      "media": [
+        {
+          "id": "media-2f3de74d-735a-4801-a90f-70277c276b9c",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Nyctidromus_albicollisDF28N04B1.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Nyctidromus albicollis",
+          "caption": "Nyctidromus albicollis"
+        }
+      ]
+    },
+    {
+      "id": "mark-3c3a9252-bf30-4bf2-93ad-b6fced7e8dd2",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Apodidae Streptoprocne rutila Chestnut-collared Swift - Streptoprocne del griego streptos (collar) y prokne (golondrina), y rutila del latín rutilus (rojizo, castaño).",
+      "start": 2169,
+      "end": 2348,
+      "createdAt": 1792762999554,
+      "media": [
+        {
+          "id": "media-f731366b-6e00-48f5-969c-55eee80af0af",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/32/Streptoprocne_rutila_1860.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Streptoprocne rutila",
+          "caption": "Streptoprocne rutila"
+        }
+      ]
+    },
+    {
+      "id": "mark-c1f3d6bb-7a3a-4331-a6e2-e479790d0d7a",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Apodidae Chaetura sp. Swift - Chaetura del griego khaitē (cabello largo) y oura (cola), por las plumas rígidas que sobresalen de la cola.",
+      "start": 2351,
+      "end": 2500,
+      "createdAt": 1792764120569,
+      "media": [
+        {
+          "id": "media-4c26df34-e3ab-40e9-bb7a-b3a0dae33a40",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Chaetura_cinereiventris_cinereiventris.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Chaetura sp.",
+          "caption": "Chaetura sp."
+        }
+      ]
+    },
+    {
+      "id": "mark-ed206315-9f9a-4851-808c-95430119157e",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Colibri coruscans Sparkling Violetear - Colibri es el nombre español del colibrí y coruscans del latín coruscans (brillante, centelleante).",
+      "start": 2503,
+      "end": 2666,
+      "createdAt": 1792764358697,
+      "media": [
+        {
+          "id": "media-c49c4e2a-8844-4fb3-8536-a47bfcfc26d7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Sparkling_violetear_%28Colibri_coruscans%29_-_BioDivLibrary_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colibri coruscans",
+          "caption": "Colibri coruscans"
+        }
+      ]
+    },
+    {
+      "id": "mark-7abe1ae5-6553-4d4d-ae6a-9c2559345dca",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Ensifera ensifera Sword-billed Hummingbird - Ensifera del latín ensifer (portador de espada), por su pico largo y recto como una espada.",
+      "start": 2669,
+      "end": 2829,
+      "createdAt": 1792764603541,
+      "media": [
+        {
+          "id": "media-1854e044-fa13-4cd4-901b-e460d10751cd",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/6/63/Ensifera_ensifera.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Apodiformes Trochilidae Ensifera ensifera Sword-billed Hummingbird - Ensifera del latín ensifer (portador de espada), por su pico largo y recto como una espada.",
+          "caption": "Ensifera ensifera"
+        }
+      ]
+    },
+    {
+      "id": "mark-e46449fc-34fb-4a6c-875d-7b937c0c2b61",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Eutoxeres aquila White-tipped Sicklebill - Eutoxeres del griego eu (bueno) y toxērēs (arquero), y aquila del latín aquila (águila), por la forma de su pico curvo.",
+      "start": 2832,
+      "end": 3018,
+      "createdAt": 1792764892388,
+      "media": [
+        {
+          "id": "media-2618c372-23fe-4814-baa7-0bde170130c2",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Histoirenaturell11874muls_0197.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Eutoxeres aquila",
+          "caption": "Eutoxeres aquila"
+        }
+      ]
+    },
+    {
+      "id": "mark-54d297dc-ca1b-47cc-9f1c-e98d3fd66590",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Amazilia tzacatl Rufous-tailed Hummingbird - Amazilia proviene de la heroína inca de una novela de Marmontel, y tzacatl de la mitología azteca, un jefe guerrero.",
+      "start": 3021,
+      "end": 3206,
+      "createdAt": 1792765100777,
+      "media": [
+        {
+          "id": "media-353b0372-ce2b-4227-9b2e-5793f9129653",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b6/MonographTrochi5Goul_0120.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Amazilia tzacatl",
+          "caption": "Amazilia tzacatl"
+        }
+      ]
+    },
+    {
+      "id": "mark-bdd18ff1-463b-4dfd-8943-d26e4e820b08",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Apodiformes Trochilidae Florisuga fusca Black Jacobin - Florisuga del latín floris (flor) y sugere (chupar), y fusca del latín fuscus (oscuro, negro).",
+      "start": 3209,
+      "end": 3359,
+      "createdAt": 1792766064903,
+      "media": [
+        {
+          "id": "media-dd3d67da-19ac-4456-9ec5-8c6de7b6eb94",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/95/Zoological_Illustrations_Volume_II_Plate_82.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Florisuga fusca",
+          "caption": "Florisuga fusca"
+        }
+      ]
+    },
+    {
+      "id": "mark-0066f893-d2db-4025-83d1-4b0a765e875c",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Rallidae Gallinula galeata Common Gallinule - Gallinula es diminutivo del latín gallina (gallina) y galeata del latín galeatus (con casco), por el escudo frontal.",
+      "start": 3362,
+      "end": 3535,
+      "createdAt": 1792766276462,
+      "media": [
+        {
+          "id": "media-d6232469-94e5-4f79-8133-a986a1d86174",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Birds_and_nature_%281903%29_%2814754987412%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Gallinula galeata",
+          "caption": "Gallinula galeata"
+        }
+      ]
+    },
+    {
+      "id": "mark-556b0959-1fd2-4c0e-be5b-fb9c4917cee5",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Rallidae Porphyrio martinica Purple Gallinule - Porphyrio del griego porphyra (púrpura) y martinica (de Martinica).",
+      "start": 3538,
+      "end": 3664,
+      "createdAt": 1792766645038,
+      "media": [
+        {
+          "id": "media-3413f5bc-ecac-4c4f-9e7a-8729fa3e3762",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/06/305_Purple_Gallinule_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Porphyrio martinica",
+          "caption": "Porphyrio martinica"
+        }
+      ]
+    },
+    {
+      "id": "mark-58a99a5c-e4cb-430f-8cd4-55b9e70cc585",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Gruiformes Psophiidae Psophia crepitans Grey-winged Trumpeter - Psophia del griego psophos (ruido) y crepitans del latín crepitans (que resuena), por su fuerte llamada.",
+      "start": 3667,
+      "end": 3835,
+      "createdAt": 1792766902508,
+      "media": [
+        {
+          "id": "media-99bf657d-ecc1-4494-abd4-9ac29ace7b2a",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Aloys_Z%C3%B6tl_Der_Agami_1877.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Psophia crepitans",
+          "caption": "Psophia crepitans"
+        }
+      ]
+    },
+    {
+      "id": "mark-81a7cda6-d3b4-4493-99c3-3fd5aafe22fe",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Charadriiformes Jacanidae Jacana jacana Wattled Jacana - Jacana deriva del tupí ñaha'nã (ave muy ruidosa), y jacana es la misma palabra latinizada.",
+      "start": 3838,
+      "end": 3985,
+      "createdAt": 1792767181872,
+      "media": [
+        {
+          "id": "media-728f3cb1-bec5-43dc-b969-973cde9eb2f6",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/96/Jacana_jacana_-_cropped_illustration.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Jacana jacana",
+          "caption": "Jacana jacana"
+        }
+      ]
+    },
+    {
+      "id": "mark-03335e90-17d8-4e96-b376-c179249394a5",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Charadriiformes Charadriidae Vanellus chilensis Southern Lapwing - Vanellus del latín vannus (aventar) y chilensis (de Chile).",
+      "start": 3988,
+      "end": 4114,
+      "createdAt": 1792767483971,
+      "media": [
+        {
+          "id": "media-9d60e3b5-1b33-4a4b-afb9-91c97176b9a3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c1/The_birds_of_South_America_%28Pl._29%29_%287822928214%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Vanellus chilensis",
+          "caption": "Vanellus chilensis"
+        }
+      ]
+    },
+    {
+      "id": "mark-5f1f8f28-1d20-421e-aeb4-5473448223f3",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Suliformes Phalacrocoracidae Phalacrocorax brasilianus Neotropic Cormorant - Phalacrocorax del griego phalakros (calvo) y korax (cuervo), y brasilianus (de Brasil).",
+      "start": 4117,
+      "end": 4281,
+      "createdAt": 1792767729644,
+      "media": [
+        {
+          "id": "media-1a15968c-a822-472f-9946-bb12202f29b6",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/3d/Phalacrocorax_brasilianus_%28GM%29_LCCN2003662380.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "alt": "Phalacrocorax brasilianus",
+          "caption": "Phalacrocorax brasilianus"
+        }
+      ]
+    },
+    {
+      "id": "mark-b2b2ced5-fc77-434f-8d47-5e865645febb",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Ardea alba Great Egret - Ardea del latín ardea (garza) y alba del latín alba (blanca).",
+      "start": 4284,
+      "end": 4394,
+      "createdAt": 1792767945889,
+      "media": [
+        {
+          "id": "media-7a502737-3b58-4518-b13c-2c514d11a1e0",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a9/OrnithologiaNeerlandica01Pl26.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Ardea alba",
+          "caption": "Ardea alba"
+        }
+      ]
+    },
+    {
+      "id": "mark-5ffb158b-7bb7-46b2-9af7-1633eaf65d14",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Cochlearius cochlearius Boat-billed Heron - Cochlearius del latín cocleare (cuchara en forma de concha de caracol), por su pico ancho.",
+      "start": 4397,
+      "end": 4555,
+      "createdAt": 1792768200656,
+      "media": [
+        {
+          "id": "media-f154e113-55a6-42e0-b4e3-cdfe97495699",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Musei_Leveriani_explicatio%2C_anglica_et_latina_%281792%29_%2814747534424%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Cochlearius cochlearius",
+          "caption": "Cochlearius cochlearius"
+        }
+      ]
+    },
+    {
+      "id": "mark-9a962ac6-4b0b-4ece-ab77-1d1639c5737a",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Ardeidae Tigrisoma fasciatum Fasciated Tiger-Heron - Tigrisoma del griego tigris (tigre) y soma (cuerpo), y fasciatum del latín fasciatus (con bandas).",
+      "start": 4558,
+      "end": 4724,
+      "createdAt": 1792768488492,
+      "media": [
+        {
+          "id": "media-0fa0b34e-fa66-4454-ac65-32b58ee2c27a",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/fc/TigrisomaFasciatumSmit.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Tigrisoma fasciatum",
+          "caption": "Tigrisoma fasciatum"
+        }
+      ]
+    },
+    {
+      "id": "mark-2b0ebf6d-61fc-47c1-b18b-3e5c3a21d2c7",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Threskiornithidae Platalea ajaja Roseate Spoonbill - Platalea del latín platalea (espátula) y ajaja del tupí aya'á (rosa), por su pico en forma de espátula y su color rosado.",
+      "start": 4727,
+      "end": 4916,
+      "createdAt": 1792768797523,
+      "media": [
+        {
+          "id": "media-5ce2ee8e-8654-4a7d-b264-e7c1608f59a7",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Rawpixel_original_lithographs_by_rawpixel-com_00025_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Platalea ajaja",
+          "caption": "Platalea ajaja"
+        }
+      ]
+    },
+    {
+      "id": "mark-71204c28-e469-40cb-ac58-04696e805228",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Pelecaniformes Threskiornithidae Phimosus infuscatus Bare-faced Ibis - Phimosus del griego phimos (rienda) e infuscatus del latín infuscatus (oscurecido), por su cara desnuda y plumaje oscuro.",
+      "start": 4919,
+      "end": 5111,
+      "createdAt": 1792769121512,
+      "media": [
+        {
+          "id": "media-082554af-d311-4fef-80db-dd52575b92a3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Avium_Species_Novae_%288422859343%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Phimosus infuscatus",
+          "caption": "Phimosus infuscatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-3ba661a8-c1d1-4d74-9271-b359d5f2f8aa",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cathartiformes Cathartidae Vultur gryphus Andean Condor - Vultur del latín vultur (buitre) y gryphus del griego gryps (grifo), por su pico ganchudo y su gran tamaño.",
+      "start": 5114,
+      "end": 5279,
+      "createdAt": 1792769344469,
+      "media": [
+        {
+          "id": "media-9eefbee0-cdfa-44e1-b1bf-61dee56508af",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/NSRW_Vultur_gryphus.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Vultur gryphus",
+          "caption": "Vultur gryphus"
+        }
+      ]
+    },
+    {
+      "id": "mark-1a07d63e-2e13-4e5e-99ef-686f1c7bdec4",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Cathartiformes Cathartidae Sarcoramphus papa King Vulture - Sarcoramphus del griego sarx (carne) y rhamphos (pico), y papa del latín papa (obispo), por su plumaje que recuerda a la vestimenta episcopal.",
+      "start": 5282,
+      "end": 5484,
+      "createdAt": 1792769638976,
+      "media": [
+        {
+          "id": "media-09c8436d-0066-4935-b360-705edbf7e863",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Koningsgier_%28Sarcoramphus_papa%29%2C_RP-T-FM-139.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Sarcoramphus papa",
+          "caption": "Sarcoramphus papa"
+        }
+      ]
+    },
+    {
+      "id": "mark-cd98a015-db1a-4fbf-b1b1-dce1aaa775bc",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Rupornis magnirostris Roadside Hawk - Rupornis del griego rhupos (suciedad) y ornis (ave), y magnirostris del latín magnus (grande) y rostris (pico).",
+      "start": 5487,
+      "end": 5665,
+      "createdAt": 1792769831374,
+      "media": [
+        {
+          "id": "media-926356a4-13dc-437a-84b6-a1f3537a31ab",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Nouveau_recueil_de_planches_colori%C3%A9es_d%27oiseaux_%286285716147%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Rupornis magnirostris",
+          "caption": "Rupornis magnirostris"
+        }
+      ]
+    },
+    {
+      "id": "mark-2d494069-e784-4f90-b539-3e1766a20211",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Harpia harpyja Harpy Eagle - Harpia y harpyja provienen del griego harpyia, las arpías de la mitología griega, mitad mujer y mitad ave de presa.",
+      "start": 5668,
+      "end": 5841,
+      "createdAt": 1792770352154,
+      "media": [
+        {
+          "id": "media-17fea3fb-c8fb-4b8f-9a19-9207b2a09539",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Harpia_harpyja_1841.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Harpia harpyja",
+          "caption": "Harpia harpyja"
+        }
+      ]
+    },
+    {
+      "id": "mark-35c86e4e-4506-45b3-b3a1-b372c60358ad",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Accipitriformes Accipitridae Buteo platypterus Broad-winged Hawk - Buteo del latín buteo (busardo) y platypterus del griego platys (ancho) y pteron (ala).",
+      "start": 5844,
+      "end": 5998,
+      "createdAt": 1792770618552,
+      "media": [
+        {
+          "id": "media-6f6d1bbb-c194-413c-a552-1de8ed4a17b3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Buteo_platypterusAAP048B.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Buteo platypterus",
+          "caption": "Buteo platypterus"
+        }
+      ]
+    },
+    {
+      "id": "mark-36b5eb7c-1c86-42f9-afe5-320381eb7b13",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Strigiformes Strigidae Megascops choliba Tropical Screech-Owl - Megascops del griego megas (grande) y skops (búho), y choliba del nombre aragonés para el autillo.",
+      "start": 6001,
+      "end": 6163,
+      "createdAt": 1792770822620,
+      "media": [
+        {
+          "id": "media-7bc9e5b0-d9dd-4aff-8c30-8ef370ccca2b",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Megascops_choliba_cruciger_1849.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Megascops choliba",
+          "caption": "Megascops choliba"
+        }
+      ]
+    },
+    {
+      "id": "mark-15fce3a0-35b9-42f1-b16f-3b7f52ed867b",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Strigiformes Tytonidae Tyto alba Barn Owl - Tyto del griego tyto (búho) y alba del latín alba (blanca), literalmente “búho blanco”.",
+      "start": 6166,
+      "end": 6297,
+      "createdAt": 1792771826302,
+      "media": [
+        {
+          "id": "media-0c67dcad-f387-4b94-ae1c-62782b00e5d3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/75/Strix_Flammea.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Strigiformes Tytonidae Tyto alba Barn Owl - Tyto del griego tyto (búho) y alba del latín alba (blanca), literalmente “búho blanco”.",
+          "caption": "Tyto alba"
+        }
+      ]
+    },
+    {
+      "id": "mark-30c2c083-ca1c-401c-8f99-8c9193c80348",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Trogoniformes Trogonidae Trogon violaceus Guianan Trogon - Trogon del griego trogon (roedor, por su pico) y violaceus del latín violaceus (violáceo).",
+      "start": 6300,
+      "end": 6449,
+      "createdAt": 1792773225709,
+      "media": [
+        {
+          "id": "media-03b396ab-f9cc-4029-bee4-73337adf6439",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/7b/A_monograph_of_the_Trogonidae%2C_or_family_of_trogons_%2839675734755%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Trogon violaceus",
+          "caption": "Trogon violaceus"
+        }
+      ]
+    },
+    {
+      "id": "mark-512029cf-c435-43e5-a186-fb4ac20a5e67",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Baryphthengus martii Rufous Motmot - Baryphthengus del griego baruphthenktes (voz profunda) y martii en honor al botánico Carl Friedrich Philipp von Martius.",
+      "start": 6452,
+      "end": 6633,
+      "createdAt": 1792773500806,
+      "media": [
+        {
+          "id": "media-6581dd18-7001-4dfc-a34e-cc1546a563f5",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Bulletin_-_United_States_National_Museum_%281914%29_%2820321962699%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Baryphthengus martii",
+          "caption": "Baryphthengus martii"
+        }
+      ]
+    },
+    {
+      "id": "mark-66fec068-8314-4a34-898c-03f5fe8f4a73",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Momotus momota Amazonian Motmot - Momotus deriva de la palabra azteca momot, nombre nativo para estas aves, y momota es la misma palabra repetida.",
+      "start": 6636,
+      "end": 6806,
+      "createdAt": 1792773994703,
+      "media": [
+        {
+          "id": "media-7b3a3fe0-8fcd-49d3-9fb7-7c120cb78925",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/86/Momotus_momotaAQBIP08CA.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Momotus momota",
+          "caption": "Momotus momota"
+        }
+      ]
+    },
+    {
+      "id": "mark-6b23464b-6465-4763-962b-6a027a3a26f6",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Momotidae Momotus aequatorialis Andean Motmot - Momotus del azteca momot y aequatorialis del latín (ecuatorial), por su distribución en los Andes.",
+      "start": 6809,
+      "end": 6969,
+      "createdAt": 1792774203735,
+      "media": [
+        {
+          "id": "media-e3643949-7cf6-4877-aa6a-5aa77ea40b59",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/8/86/Momotus_momotaAQBIP08CA.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Momotus aequatorialis",
+          "caption": "Momotus aequatorialis"
+        }
+      ]
+    },
+    {
+      "id": "mark-b65f9321-11b6-4c1f-b20b-032b721ad452",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Alcedinidae Megaceryle torquata Ringed Kingfisher - Megaceryle del griego megas (grande) y Ceryle (un ave mítica), y torquata del latín torquatus (con collar).",
+      "start": 6972,
+      "end": 7145,
+      "createdAt": 1792774460192,
+      "media": [
+        {
+          "id": "media-b2526f0b-cd4d-451f-b5e3-7503c7a4821e",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Planches_enlumin%C3%A9es_d%27histoire_naturelle_%289932716675%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Megaceryle torquata",
+          "caption": "Megaceryle torquata"
+        }
+      ]
+    },
+    {
+      "id": "mark-194c19be-1e58-46bc-ab2b-d946cb84fbc9",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Cerylidae Chloroceryle amazona Amazon Kingfisher - Chloroceryle del griego khlōros (verde) y Ceryle (ave mítica), y amazona (de la Amazonía).",
+      "start": 7148,
+      "end": 7303,
+      "createdAt": 1792774803553,
+      "media": [
+        {
+          "id": "media-54d4483d-c7eb-4761-b6a2-16cc68d086cd",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/25/Chloroceryle_amazona_Keulemans.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Chloroceryle amazona",
+          "caption": "Chloroceryle amazona"
+        }
+      ]
+    },
+    {
+      "id": "mark-76f3d540-bea0-47f2-86b9-c76d4f7eade9",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Coraciiformes Bucerotidae Buceros bicornis Great Hornbill - Buceros del latín becerus (con cuernos como un buey) y bicornis del latín bicornis (de dos cuernos), por el casco córneo de su pico.",
+      "start": 7306,
+      "end": 7498,
+      "createdAt": 1792775360583,
+      "media": [
+        {
+          "id": "media-e31d6389-a3b0-4894-b08f-2a3ac4a746ea",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/3/37/Buceros_bicornis_Wytsman.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Buceros bicornis",
+          "caption": "Buceros bicornis"
+        }
+      ]
+    },
+    {
+      "id": "mark-20574d99-4fe7-46d9-8be1-2da39d6725ac",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Galbuliformes Galbulidae Galbula ruficauda Rufous-tailed Jacamar - Galbula del latín galbula (pájaro amarillo) y ruficauda del latín rufus (rojo) y cauda (cola).",
+      "start": 7501,
+      "end": 7662,
+      "createdAt": 1792775590874,
+      "media": [
+        {
+          "id": "media-4098cab7-fa54-40fb-b776-dc205a587087",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Galbula_ruficauda_-_Keulemans.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Gabula ruficauda",
+          "caption": "Gabula ruficauda"
+        }
+      ]
+    },
+    {
+      "id": "mark-65a5385e-31a1-4f8b-ace5-cfbb8aca121f",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Picidae Celeus loricatus Cinnamon Woodpecker - Celeus del griego keleos (pájaro carpintero verde) y loricatus del latín loricatus (con loriga o coraza), por su plumaje.",
+      "start": 7665,
+      "end": 7844,
+      "createdAt": 1792775765531,
+      "media": [
+        {
+          "id": "media-0b007745-c986-4fff-9c56-a3c3df067280",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Cinnamon_Woodpecker_%28Celeus_loricatus%29_male.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Celeus loricatus",
+          "caption": "Celeus loricatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-8c5e1e63-4fe0-4fb5-b7fd-ec2b9a608c90",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Picidae Colaptes punctigula Spot-breasted Woodpecker - Colaptes del griego kolaptēs (cincelador) y punctigula del latín punctum (punto) y gula (garganta).",
+      "start": 7847,
+      "end": 8012,
+      "createdAt": 1792776017315,
+      "media": [
+        {
+          "id": "media-de703b6b-d6ba-432c-aa20-eaca9d55bf5b",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/28/Las_aves_de_Cali_-_Gloria_Sthefany_Muriel_Lorza.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Colaptes punctigula & others",
+          "caption": "Colaptes punctigula & others"
+        }
+      ]
+    },
+    {
+      "id": "mark-eb182eb2-90f1-4dd3-92f9-c624d9307e88",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Ramphastidae Pteroglossus torquatus Collared Aracari - Pteroglossus del griego pteron (ala) y glossa (lengua) y torquatus del latín torquatus (con collar).",
+      "start": 8015,
+      "end": 8181,
+      "createdAt": 1792776238708,
+      "media": [
+        {
+          "id": "media-9142a528-4d09-4b5d-87fc-f172c8c90288",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/92/The_zoology_of_the_voyage_of_H.M.S._Sulphur_%288328961203%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pteroglossus torquatus",
+          "caption": "Pteroglossus torquatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-b6461a19-bed5-421b-ab2a-2b716b4507fe",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Ramphastidae Ramphastos tucanus White-throated Toucan - Ramphastos del griego rhamphēstēs (con pico) y tucanus del guaraní tucá (tucán).",
+      "start": 8184,
+      "end": 8331,
+      "createdAt": 1792776488770,
+      "media": [
+        {
+          "id": "media-7df5d9b0-2314-4787-a918-3a5ce8b98a47",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/77/Gemeinn%C3%BCzzige_Naturgeschichte_des_Thierreichs_%28Plate_67%29_%286009080930%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Ramphastos tucanus",
+          "caption": "Ramphastos tucanus"
+        }
+      ]
+    },
+    {
+      "id": "mark-f755f9a1-cb29-436f-aae9-3243aa11550f",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Semnornithidae Semnornis ramphastinus Toucan Barbet - Semnornis del griego semnos (majestuoso) y ornis (ave) y ramphastinus del griego rhamphos (pico), por su parecido con los tucanes.",
+      "start": 8334,
+      "end": 8529,
+      "createdAt": 1792776778674,
+      "media": [
+        {
+          "id": "media-0d237160-33fc-4039-8bcf-acc401c49906",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/2/24/Semnornis_ramphastinus_1861.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Semnornis ramphastinus",
+          "caption": "Semnornis ramphastinus"
+        }
+      ]
+    },
+    {
+      "id": "mark-af6d7915-3287-4abc-ab61-829934096561",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Piciformes Bucconidae Monasa morpheus White-fronted Nunbird - Monasa del griego monas (solitario) y morpheus de Morfeo, el dios griego del sueño, por su aspecto somnoliento.",
+      "start": 8532,
+      "end": 8705,
+      "createdAt": 1792776924114,
+      "media": [
+        {
+          "id": "media-a27b7a70-5ea4-4b00-811a-edebbaee8018",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/7/73/The_animal_kingdom%2C_arranged_according_to_its_organization%2C_serving_as_a_foundation_for_the_natural_history_of_animals_-_and_an_introduction_to_comparative_anatomy_%28Vol._1%29_%281834%29_%2818193392402%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Piciformes Bucconidae Monasa morpheus White-fronted Nunbird - Monasa del griego monas (solitario) y morpheus de Morfeo, el dios griego del sueño, por su aspecto somnoliento.",
+          "caption": "Monasa"
+        }
+      ]
+    },
+    {
+      "id": "mark-9daa2ba4-7998-4e21-a17c-21f7bda28257",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Falconiformes Falconidae Falco sparverius American Kestrel - Falco del latín falco (halcón) y sparverius del latín sparvarius (gorrión), por su tamaño pequeño y su dieta de gorriones.",
+      "start": 8708,
+      "end": 8891,
+      "createdAt": 1792777264906,
+      "media": [
+        {
+          "id": "media-c702dbec-6c0b-4f56-ac53-b7504cedb71e",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/9/93/Falco_sparverius_Tarvies.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Falco sparverius",
+          "caption": "Falco sparverius"
+        }
+      ]
+    },
+    {
+      "id": "mark-aa595662-3bdc-4883-97c6-d7aaf0b9fa98",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Falconiformes Falconidae Caracara plancus Crested Caracara - Caracara del tupí karakará (onomatopeya de su grito) y plancus del latín plancus (águila).",
+      "start": 8894,
+      "end": 9045,
+      "createdAt": 1792777455720,
+      "media": [
+        {
+          "id": "media-72deaa3b-ac08-4f90-9909-b59d7a29e1c3",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Zoological_Illustrations_Volume_I_Series_2_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Caracara plancus",
+          "caption": "Caracara plancus"
+        }
+      ]
+    },
+    {
+      "id": "mark-ec00c5fd-9c82-4ef7-84fe-f9c3af8c1c22",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Pionus menstruus Blue-headed Parrot - Pionus del griego pion (gordo, por su cuerpo robusto) y menstruus del latín menstruus (mensual), quizás por su ciclo reproductivo.",
+      "start": 9048,
+      "end": 9243,
+      "createdAt": 1792777644774,
+      "media": [
+        {
+          "id": "media-daa91c09-725d-4df1-8fcc-ce8d1ba41441",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Levaillant_Parrot_114.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pionus menstruus",
+          "caption": "Pionus menstruus"
+        }
+      ]
+    },
+    {
+      "id": "mark-0fd50481-a14b-4f85-864d-af62f2e47268",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Amazona ochrocephala Yellow-crowned Amazon - Amazona del nombre francés “Amazone” para los loros tropicales y ochrocephala del griego ochros (amarillo) y kephale (cabeza).",
+      "start": 9246,
+      "end": 9444,
+      "createdAt": 1792777800600,
+      "media": [
+        {
+          "id": "media-3ee332b1-b435-40a8-a498-9ecc2bd5ad86",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Levaillant_Parrot_86.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Amazona ochrocephala",
+          "caption": "Amazona ochrocephala"
+        }
+      ]
+    },
+    {
+      "id": "mark-40a4cc8b-75cb-4807-b597-b7fb1a3a9df6",
+      "kind": "mark",
+      "lessonId": "ar-no-as",
+      "lessonTitle": "parcial no-passeriformes",
+      "course": "ornito",
+      "text": "Psittaciformes Psittacidae Psittacara wagleri Scarlet-fronted Parakeet - Psittacara del griego psittakos (loro) y kara (cabeza) y wagleri en honor al naturalista Johann Georg Wagler.",
+      "start": 9447,
+      "end": 9629,
+      "createdAt": 1792777946733,
+      "media": [
+        {
+          "id": "media-6989bb61-c3f8-45b2-aa9a-a8798661385f",
+          "src": "https://upload.wikimedia.org/wikipedia/commons/f/f4/The_genera_of_birds_%2818988825860%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+          "alt": "Pisttacara wagleri",
+          "caption": "Pisttacara wagleri"
+        }
+      ]
+    },
+    {
+      "id": "mark-99404c9c-8e71-482c-841d-fa30153ad8b5",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Thamnophilidae, Gymnopithys, Gymnopithys leucaspis, White-cheeked Antbird, Hormiguero Cariblanco",
+      "start": 72,
+      "end": 183,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-a2165731-980d-4766-bb81-af5666e26153",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Gymnopithys-leucaspis-001.jpg/250px-Gymnopithys-leucaspis-001.jpg",
+          "alt": "Gymnopithys leucaspis",
+          "caption": "Gymnopithys leucaspis"
+        }
+      ]
+    },
+    {
+      "id": "mark-f157a7ca-9aec-4e04-8ac1-b8d591f24094",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Grallariidae, Grallaria, Grallaria ruficapilla, Chestnut-crowned Antpitta, Tororoí Compadre",
+      "start": 184,
+      "end": 290,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-6e2fb0e7-678d-4c02-b720-6f7c3044e075",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg/330px-Chestnut-crowned_antpitta_%28Grallaria_ruficapilla_ruficapilla%29_Caldas.jpg",
+          "alt": "Grallaria ruficapilla",
+          "caption": "Grallaria ruficapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-19b4279a-dd1a-4aad-8eaa-a1f201fd1797",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Furnariidae, Margarornis, Margarornis squamiger, Pearled Treerunner, Subepalo Perlado",
+      "start": 291,
+      "end": 391,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-a60de77e-6d4a-459e-92a5-7c2ab2c56ca7",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Margarornis_squamiger_68812121.jpg/330px-Margarornis_squamiger_68812121.jpg",
+          "alt": "Margarornis squamiger",
+          "caption": "Margarornis squamiger"
+        }
+      ]
+    },
+    {
+      "id": "mark-837ed798-1d54-4e3c-abad-5e18e1220320",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Furnariidae, Xiphorhynchus, Xiphorhynchus triangularis, Olive-backed Woodcreeper, Trepatroncos Dorsioliva",
+      "start": 392,
+      "end": 512,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-6a965c67-fe8b-4647-8efa-8c4bddffdccf",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Xiphorhynchus_triangularis_162661112.jpg/330px-Xiphorhynchus_triangularis_162661112.jpg",
+          "alt": "Xiphorhynchus triangularis",
+          "caption": "Xiphorhynchus triangularis"
+        }
+      ]
+    },
+    {
+      "id": "mark-fb661de2-f11d-4d76-ba7b-c956e255955c",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Pipridae, Lepidothrix, Lepidothrix coronata, Blue-capped Manakin, Saltarín Coroniazul",
+      "start": 513,
+      "end": 613,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-dfe9a748-f62c-453b-b8ca-0d0740ebb883",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Lepidothrix_coronata_1.jpg/250px-Lepidothrix_coronata_1.jpg",
+          "alt": "Lepidothrix coronata",
+          "caption": "Lepidothrix coronata"
+        }
+      ]
+    },
+    {
+      "id": "mark-943fbec8-2a6a-4b77-8790-e96245ae51fc",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Cotingidae, Cephalopterus, Cephalopterus ornatus, Amazonian Umbrellabird, Paragüero Ornado",
+      "start": 614,
+      "end": 719,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-1cf1daff-54e8-49fa-b1e1-42a01cf6b647",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg/250px-Cephalopterus_ornatus_-_Amazonian_umbrellabird%3B_Alta_Floresta%2C_Mato_Grosso%2C_Brazil.jpg",
+          "alt": "Cephalopterus ornatus",
+          "caption": "Cephalopterus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-71a292ba-3158-4fce-9d74-0732a90c5009",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Tyrannidae, Tyrannus, Tyrannus tyrannus, Eastern Kingbird, Tirano Oriental",
+      "start": 720,
+      "end": 809,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-94c9ab80-3305-4395-aecc-82074b8690d8",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Tyrannus_tyrannus_CT.jpg/250px-Tyrannus_tyrannus_CT.jpg",
+          "alt": "Tyrannus tyrannus",
+          "caption": "Tyrannus tyrannus"
+        }
+      ]
+    },
+    {
+      "id": "mark-b1d634f0-bf9e-4d15-8c3a-53b367b4073c",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Vireonidae, Hylophilus, Hylophilus flavipes, Scrub Greenlet, Verdillo Paticlaro",
+      "start": 810,
+      "end": 904,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-4cdd43d0-d0a1-42e1-a6bd-039da45be6d2",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Scrub_Greenlet.jpg/250px-Scrub_Greenlet.jpg",
+          "alt": "Hylophilus flavipes",
+          "caption": "Hylophilus flavipes"
+        }
+      ]
+    },
+    {
+      "id": "mark-02fce29f-47c6-4368-8323-250e14d31421",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Donacobiidae, Donacobius, Donacobius atricapilla, Black-capped Donacobius, Angú",
+      "start": 905,
+      "end": 999,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-03a406a3-2d53-497f-ac0f-f13d1413e75d",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg/250px-Donacobius_atricapilla_-Fazenda_Campo_de_Ouro%2C_Piraju%2C_Sao_Paulo%2C_Brasil-8.jpg",
+          "alt": "Donacobius atricapilla",
+          "caption": "Donacobius atricapilla"
+        }
+      ]
+    },
+    {
+      "id": "mark-d9508ee1-d976-4cdf-9be3-65ed6c4d8206",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Hirundinidae, Pygochelidon, Pygochelidon cyanoleuca, Blue-and-white Swallow, Golondrina Barranquera",
+      "start": 1000,
+      "end": 1114,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-e8b1048b-960f-42c3-b18a-9ad7e61e1315",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg/250px-Pygochelidon_cyanoleuca_%28Golondrina_azul_y_blanca%29_%2814025350735%29.jpg",
+          "alt": "Pygochelidon cyanoleuca",
+          "caption": "Pygochelidon cyanoleuca"
+        }
+      ]
+    },
+    {
+      "id": "mark-4fe10fca-4673-41bf-9a20-9a99cb983fbb",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Hirundinidae, Stelgidopteryx, Stelgidopteryx ruficollis, Southern Rough-winged Swallow, Golondrina Gorjirrufa",
+      "start": 1115,
+      "end": 1239,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-e88d371b-5bc9-4865-a83d-1a3b260673f7",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG/250px-Southern_rough-winged_swallow_%28Stelgidopteryx_ruficollis_ruficollis%29.JPG",
+          "alt": "Stelgidopteryx ruficollis",
+          "caption": "Stelgidopteryx ruficollis"
+        }
+      ]
+    },
+    {
+      "id": "mark-4daafd71-5d7d-426c-b039-300ce848bb09",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Polioptilidae, Ramphocaenus, Ramphocaenus melanurus, Long-billed Gnatwren, Soterillo Picudo",
+      "start": 1240,
+      "end": 1346,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-9c445911-1384-4f5b-9419-42adbf8be9a0",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Long-billed_Gnatwren.jpg/330px-Long-billed_Gnatwren.jpg",
+          "alt": "Ramphocaenus melanurus",
+          "caption": "Ramphocaenus melanurus"
+        }
+      ]
+    },
+    {
+      "id": "mark-bca83969-ff96-457c-9045-15ac3ad71abd",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Troglodytidae, Cantorchilus, Cantorchilus nigricapillus, Bay Wren, Cucarachero Cabecinegro",
+      "start": 1347,
+      "end": 1452,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-ead44b2a-b544-4656-a55f-4ca85cbd45f8",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Bay_Wren.jpg/250px-Bay_Wren.jpg",
+          "alt": "Cantorchilus nigricapillus",
+          "caption": "Cantorchilus nigricapillus"
+        }
+      ]
+    },
+    {
+      "id": "mark-4feadbff-f3e9-4136-96e5-ce81347e13d2",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Turdidae, Catharus, Catharus ustulatus, Swainson's Thrush, Zorzalito de Swainson",
+      "start": 1453,
+      "end": 1548,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-01639be8-af01-45a5-9de5-94e8afd32df2",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg/330px-Russet-backed_Swainson%27s_thrush_%28Catharus_ustulatus_ustulatus%29_Seward_Park.jpg",
+          "alt": "Catharus ustulatus",
+          "caption": "Catharus ustulatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-2b9e5221-6942-43bd-b800-2e491bffc5e4",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Turdidae, Turdus, Turdus serranus, Glossy-black Thrush, Mirlo Serrano",
+      "start": 1549,
+      "end": 1633,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-3bae3453-f85b-48e4-990c-16b50b75adb9",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Glossy-black_Thrush_RWD3.jpg/250px-Glossy-black_Thrush_RWD3.jpg",
+          "alt": "Turdus serranus",
+          "caption": "Turdus serranus"
+        }
+      ]
+    },
+    {
+      "id": "mark-3c2711e4-f834-450a-8521-5d1286b4a7f4",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Passerellidae, Arremon, Arremon brunneinucha, Chestnut-capped Brushfinch, Cerquero Coronicastaño",
+      "start": 1634,
+      "end": 1745,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-127c2e8a-fc39-40fe-8853-bbad066b8c22",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg/250px-Chestnut-capped_brushfinch_%28Arremon_brunneinucha_elsae%29.jpg",
+          "alt": "Arremon brunneinucha",
+          "caption": "Arremon brunneinucha"
+        }
+      ]
+    },
+    {
+      "id": "mark-be0f2606-9482-414f-bc39-97fa2cc50ff8",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Icteridae, Psarocolius, Psarocolius decumanus, Crested Oropendola, Cacique Crestado",
+      "start": 1746,
+      "end": 1844,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-479f139b-2179-4ff3-97f3-d30848828923",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg/330px-Crested_oropendola_%28Psarocolius_decumanus_insularis%29.jpg",
+          "alt": "Psarocolius decumanus",
+          "caption": "Psarocolius decumanus"
+        }
+      ]
+    },
+    {
+      "id": "mark-eea61c1f-a825-40d2-84af-bd4c9c2e710f",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Icteridae, Hypopyrrhus, Hypopyrrhus pyrohypogaster, Red-bellied Grackle, Chango Ventrirrojo",
+      "start": 1845,
+      "end": 1951,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-24ebf389-cfa0-43ce-9684-99ae5205a96c",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg/330px-Hypopyrrhus_pyrohypogaster_Cacique_candela_Red-bellied_Grackle_%2813724950754%29.jpg",
+          "alt": "Hypopyrrhus pyrohypogaster",
+          "caption": "Hypopyrrhus pyrohypogaster"
+        }
+      ]
+    },
+    {
+      "id": "mark-033f2dc8-1ab3-42e0-8263-47594d95dffb",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Icteridae, Leistes, Leistes militaris, Red-breasted Meadowlark, Loica Pechirroja",
+      "start": 1952,
+      "end": 2047,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-087b43b5-21d3-40c5-805b-97cf0146feb3",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg/250px-Sturnella_militaris_-_Red-breasted_Blackbird_%28female%29.jpg",
+          "alt": "Leistes militaris",
+          "caption": "Leistes militaris"
+        }
+      ]
+    },
+    {
+      "id": "mark-d51fa965-4071-45d8-9e8b-19466bd0215e",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Parulidae, Myioborus, Myioborus ornatus, Golden-fronted Whitestart, Candelita Adornada",
+      "start": 2048,
+      "end": 2149,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-1a229c32-e524-4c3d-a5a9-dc8c85142639",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg/330px-Golden-fronted_redstart_%28Myioborus_ornatus_chrysops%29_Caldas.jpg",
+          "alt": "Myioborus ornatus",
+          "caption": "Myioborus ornatus"
+        }
+      ]
+    },
+    {
+      "id": "mark-5f93c8e4-53f0-4957-9fc0-73fddb66e61a",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Cardinalidae, Pheucticus, Pheucticus ludovicianus, Rose-breasted Grosbeak, Picogrueso Pechirrosado",
+      "start": 2150,
+      "end": 2263,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-6c01d3c8-e183-4bd5-92c0-f8c3d27145b2",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg/250px-Rose-breasted_grosbeak_in_GWC_%2824998%29.jpg",
+          "alt": "Pheucticus ludovicianus",
+          "caption": "Pheucticus ludovicianus"
+        }
+      ]
+    },
+    {
+      "id": "mark-c4effdc3-9ca4-4d38-81ff-b804c5482820",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Thraupidae, Chlorophanes, Chlorophanes spiza, Green Honeycreeper, Mielero Verde",
+      "start": 2264,
+      "end": 2358,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-bd61b1cc-218e-4094-96a2-3c6e8c67cc78",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg/330px-Green_honeycreeper_%28Chlorophanes_spiza_spiza%29_male.jpg",
+          "alt": "Chlorophanes spiza",
+          "caption": "Chlorophanes spiza"
+        }
+      ]
+    },
+    {
+      "id": "mark-2ef188bb-0995-406b-8d0d-75df71f00a89",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Thraupidae, Chrysothlypis, Chrysothlypis salmoni, Scarlet-and-white Tanager, Tangara Rojiblanca",
+      "start": 2359,
+      "end": 2469,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-e92160d9-b8f8-4bce-addc-349e00110cae",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg/330px-Chrysothlypis_salmoni_-_Scarlet-and-White_Tanager.jpg",
+          "alt": "Chrysothlypis salmoni",
+          "caption": "Chrysothlypis salmoni"
+        }
+      ]
+    },
+    {
+      "id": "mark-2f5b109a-573e-4784-8e20-428ab0b04df1",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Thraupidae, Sporophila, Sporophila corvina, Variable Seedeater, Semillero Corvino",
+      "start": 2470,
+      "end": 2566,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-315e4199-3aef-4759-a8d4-e16f47d6f9bd",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Sporophila-corvina-002.jpg/250px-Sporophila-corvina-002.jpg",
+          "alt": "Sporophila corvina",
+          "caption": "Sporophila corvina"
+        }
+      ]
+    },
+    {
+      "id": "mark-932e7859-a004-4ba7-b654-8dc54e182198",
+      "kind": "mark",
+      "lessonId": "cial-as",
+      "lessonTitle": "parcial-passeriformes",
+      "course": "ornito",
+      "text": "Passeriformes, Thraupidae, Tangara, Tangara nigroviridis, Beryl-spangled Tanager, Tangara de Lentejuelas",
+      "start": 2567,
+      "end": 2671,
+      "createdAt": 1795654111878,
+      "media": [
+        {
+          "id": "media-bbde56fb-8d06-46dc-b5d1-877ee3751802",
+          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg/330px-Tangara_nigroviridis_T%C3%A1ngara_berlina_Beryl-spangled_Tanager_%2814996504381%29_%28cropped%29.jpg",
+          "alt": "Tangara nigroviridis",
+          "caption": "Tangara nigroviridis"
+        }
+      ]
+    }
+  ]
+}

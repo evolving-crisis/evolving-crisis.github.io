@@ -1,0 +1,1495 @@
+{
+  "format": "pomoudying-user-stats.v1",
+  "exportedAt": "2026-11-27T00:54:51.076Z",
+  "app": {
+    "name": "Pomoudying",
+    "statsSchemaVersion": 1,
+    "historyNote": "Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates."
+  },
+  "identity": {
+    "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+    "firstSeenAt": "2026-11-18T19:03:29.135Z",
+    "idGeneratedAt": "2026-11-26T01:08:19.105Z",
+    "idStrategy": "coarse-derived.v1",
+    "persistent": true,
+    "currentSessionId": "session-7d5bb030-4273-4d73-8d4e-efac7e62db8c",
+    "currentSessionStartedAt": "2026-11-27T00:53:23.655Z",
+    "sessionPersistent": true
+  },
+  "summary": {
+    "lessons": 11,
+    "runs": 18,
+    "avgWpm": 31,
+    "avgAccuracy": 89,
+    "bestWpm": 58,
+    "lastAt": 1795724617851,
+    "longestCleanStreak": 0
+  },
+  "fragmentCoverage": {
+    "version": 1,
+    "lessons": {}
+  },
+  "courses": [
+    {
+      "courseId": "odos-odo",
+      "title": "TODOS",
+      "lessonIds": [
+        "day-ay",
+        "custom-mwnqa1ov-lcrt",
+        "custom-mwwne68k-2q5y"
+      ]
+    },
+    {
+      "courseId": "ndr-vin-ri",
+      "title": "Comprendre Evolving Crisis",
+      "lessonIds": [
+        "01-le-an-du-odu",
+        "02-le-rage-a-un-cont",
+        "02-la-uc-ml",
+        "03-des-ilit-dans-un-seul-ich",
+        "03-le-sig-qui-s-pt",
+        "04-un-ote-usi-acti",
+        "04-l-etat-et-le-yc-de-vi",
+        "05-le-text-es-plus-que-de-lyph",
+        "05-les-nnee-et-la-ance",
+        "06-si-sans-veu",
+        "06-le-oteu-de-pp",
+        "07-le-de-ten-la-mo",
+        "07-efi-dif-an-as",
+        "08-es-omm-com-ansa",
+        "09-se-uve-ns-eler",
+        "10-urer-le-emps-uit",
+        "11-vu-fina-nte-la-ite"
+      ]
+    },
+    {
+      "courseId": "rnit-to",
+      "title": "ornito",
+      "lessonIds": [
+        "prel-lud",
+        "que-es-un-ave-5d",
+        "ogy-mol",
+        "la-olid-st-y-el-ca-de-ma-tivo",
+        "ur-to",
+        "erm-y-ra-vi",
+        "i-la-enog-ic",
+        "ii-omia-y-la-ci-fosi-de-las-zas-de-ofen-a-los-ac",
+        "iii-pis-e-io-de-la-ienc-la-po-opo-f",
+        "iv-luc-de-as-ni-del-elo-y-om-evol",
+        "v-las-tera-el-on-y-epi",
+        "2do-nfo",
+        "nes-io",
+        "ar-no-as",
+        "tor-de-la-orn-col-us-on-tifi-in",
+        "ter-of-gene-ver-in-5-spp-of-fo-co-is-in-env-ient",
+        "wo-ex",
+        "cial-as",
+        "yec-oye",
+        "custom-mvb9pzom-w74d",
+        "custom-mvk2vkg9-xc2k",
+        "custom-mvk79ci8-mfaf",
+        "custom-mvh0xew8-l6we",
+        "custom-mvh1cgw5-flrq",
+        "custom-mvh2el59-r7zb",
+        "custom-mvh5y6xy-p03k",
+        "custom-mvhabmyx-r4wd",
+        "custom-mvhajt2e-u8me",
+        "custom-mvhbusxh-q7y4"
+      ]
+    },
+    {
+      "courseId": "bzoo-la",
+      "title": "labzoo",
+      "lessonIds": [
+        "1-lav-nom",
+        "2-ra-phyl-rif",
+        "unit-2-ara-ph-fe",
+        "8-um-ol",
+        "9-um-ra-hylu-dig",
+        "10-hylu-poda",
+        "itch-dos-ops-si-pal",
+        "pr-de-abor-13-ali-de-amp-ur",
+        "custom-mva3pab0-fptl"
+      ]
+    },
+    {
+      "courseId": "te-ate",
+      "title": "Invertabrates",
+      "lessonIds": [
+        "trod-to-th-nima-ingd",
+        "los-uat-etes-de-nth",
+        "los-inco-ilo-una-fo-de-cio",
+        "los-de-ida-la-dis-del-smo",
+        "lave-cot-uc",
+        "es-ages",
+        "mar-log-gl",
+        "arco-ico-al-is",
+        "rco-etic-bal-y-ori-ut-lave",
+        "um-ia-an-pene",
+        "ph-ul-san-ne",
+        "ph-ki-dra-de-barr",
+        "yly-ic",
+        "arb-net-hroz",
+        "iral-ia",
+        "ylu-eto-anos-fle",
+        "hyl-nath",
+        "phy-roti",
+        "hy-proc",
+        "lum-at-sano-lan",
+        "custom-mv52ggom-cefi",
+        "custom-mv534pvo-fg5t",
+        "custom-mv5ii2qt-1yoh",
+        "custom-mv5j4rsq-l0dg",
+        "custom-mv5k1l6g-7e1t"
+      ]
+    },
+    {
+      "courseId": "ai-cai",
+      "title": "français",
+      "lessonIds": [
+        "in-1-ion",
+        "la-amm-he",
+        "la-ire-de-ha",
+        "nc-entr-a-y-a",
+        "ar-ks",
+        "le-yst-du-ary-le"
+      ]
+    },
+    {
+      "courseId": "onai-fi",
+      "title": "FICTIONAI",
+      "lessonIds": [
+        "por-tuni",
+        "el-culo-de-las-mas"
+      ]
+    },
+    {
+      "courseId": "ansk-ansk",
+      "title": "Sanskrit",
+      "lessonIds": [
+        "lv-hta",
+        "dr-hkha-dah-am-vaya-sto",
+        "irav-ca"
+      ]
+    },
+    {
+      "courseId": "programmer's practice",
+      "title": "Programmer's Practice",
+      "lessonIds": [
+        "prog-js-basics",
+        "prog-python-basics"
+      ]
+    },
+    {
+      "courseId": "aper-pape",
+      "title": "papers",
+      "lessonIds": [
+        "a-hy-of-xtan-uin-av-phen-bin-olog-and",
+        "mpa-of-ara-tio-ods-and-heir-mpa-on-eci-tree-to",
+        "an-ive-ston-ag-hamp-and-nze",
+        "ce-and-ligi-omp-or-ibl-pl-lms"
+      ]
+    },
+    {
+      "courseId": "tar-cap-geno",
+      "title": "Target Capture Phylogenomics",
+      "lessonIds": [
+        "01-act-and-ti",
+        "02-ling-and-nc-ly",
+        "03-ral-dent-kflo",
+        "04-nc-geno-hm",
+        "05-cies-ee-th",
+        "06-esu-ce-reco-nd-para-de",
+        "07-ult-eci-tr-and-ua-ng",
+        "08-lts-gene-rees-and-gy-co",
+        "09-cu-par-ra-etho",
+        "ogou-or",
+        "10-sion-omm-and-onc",
+        "iloe-pt"
+      ]
+    },
+    {
+      "courseId": "my marks",
+      "title": "My Marks",
+      "lessonIds": [
+        "custom-marks-digest"
+      ]
+    },
+    {
+      "courseId": "chapter three",
+      "title": "chapter three",
+      "lessonIds": [
+        "custom-mv8u01nf-axed"
+      ]
+    },
+    {
+      "courseId": "raw-ab",
+      "title": "raw-lab",
+      "lessonIds": [
+        "17-nov-ch-ibuj",
+        "10-nov-hyl-opod-ii-dra",
+        "16-ct-lum-cnid-cora",
+        "22-sep-ma",
+        "24-sep-st",
+        "6-oct-nnel",
+        "8-ubr-dos",
+        "13-oct-co-m",
+        "11-ctin-zoa",
+        "11-ep-mint",
+        "11-ep-phor",
+        "25-aug-me",
+        "15-sep-la-m",
+        "lmin-11-ep",
+        "custom-mvcozzec-tcdj",
+        "custom-mvcpvmky-nlwv",
+        "custom-mvcqxuzx-d4jc",
+        "custom-mvcz610s-01fg",
+        "custom-mvfxljj0-q91q",
+        "custom-mvg5t9fh-yecg",
+        "custom-mvg7rynk-bkqq",
+        "custom-mvg8n65x-mc3i",
+        "custom-mvg9cyim-zwok",
+        "custom-mvgb729i-fzfx",
+        "custom-mwns004o-li1i",
+        "custom-mwnsdki8-cpa2",
+        "custom-mwntiw8m-txur"
+      ]
+    },
+    {
+      "courseId": "classical molecular genetics",
+      "title": "classical molecular genetics",
+      "lessonIds": [
+        "custom-mv7eilqb-7rpx"
+      ]
+    },
+    {
+      "courseId": "filogeny",
+      "title": "Filogeny",
+      "lessonIds": [
+        "custom-mvb7xza8-n0lf"
+      ]
+    },
+    {
+      "courseId": "guiasbai",
+      "title": "guiasbai",
+      "lessonIds": [
+        "custom-mva3i5rc-id3c",
+        "custom-mvbngvfx-0vvh"
+      ]
+    },
+    {
+      "courseId": "papers-abastract",
+      "title": "papers-abastract",
+      "lessonIds": [
+        "custom-mvbq01f1-4mhg"
+      ]
+    },
+    {
+      "courseId": "invertebrados draft",
+      "title": "invertebrados draft",
+      "lessonIds": [
+        "custom-mv8nu2i6-a7v9"
+      ]
+    },
+    {
+      "courseId": "apt-hr",
+      "title": "chapter-three",
+      "lessonIds": [
+        "ion-to-the-ma-ingd",
+        "custom-mv8twdc7-8q27"
+      ]
+    },
+    {
+      "courseId": "ta-ndat",
+      "title": "metalhead-foundations",
+      "lessonIds": [
+        "ngo-fang",
+        "custom-mvcuwp3c-9f7i"
+      ]
+    },
+    {
+      "courseId": "ser-d-mid-op",
+      "title": "Observation d'Oedipomidas leucopus",
+      "lessonIds": [
+        "17-ct-20",
+        "custom-mvcwc24d-52tm"
+      ]
+    },
+    {
+      "courseId": "punctuation & symbols",
+      "title": "Punctuation & Symbols",
+      "lessonIds": [
+        "punct-sentence",
+        "punct-symbols"
+      ]
+    },
+    {
+      "courseId": "el-ppeu",
+      "title": "développeur",
+      "lessonIds": [
+        "js-bas",
+        "yth-cs",
+        "ea-ec",
+        "glos-ecn-con-y-pra-op-fo-nee",
+        "ota-de-lase-er-de-rma-ops-y-hoot-de-on",
+        "ri-de-afo-vops-y-rou-de-uc",
+        "no-de-as-ii-ooti-anza-de-ento-lin-erpr-he-or-y-sili-en-oduc",
+        "ui-udio-ii-evo"
+      ]
+    }
+  ],
+  "runSummary": {
+    "runCount": 9,
+    "totalTypingTimeMs": 4178733.899999993,
+    "totalReadingTimeMs": 11977.699999999953,
+    "keystrokes": 13076,
+    "correctKeystrokes": 11894,
+    "errors": 1182,
+    "backspaces": 1173,
+    "averageWpm": 38,
+    "averageAccuracy": 94,
+    "longestCleanStreak": null
+  },
+  "courseStats": [
+    {
+      "courseId": "odos-odo",
+      "title": "TODOS",
+      "runCount": 1,
+      "totalTypingTimeMs": 43410.5,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 108,
+      "correctKeystrokes": 96,
+      "errors": 12,
+      "backspaces": 10,
+      "averageWpm": 27,
+      "averageAccuracy": 89,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ndr-vin-ri",
+      "title": "Comprendre Evolving Crisis",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "rnit-to",
+      "title": "ornito",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "bzoo-la",
+      "title": "labzoo",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "te-ate",
+      "title": "Invertabrates",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ai-cai",
+      "title": "français",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "onai-fi",
+      "title": "FICTIONAI",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ansk-ansk",
+      "title": "Sanskrit",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "programmer's practice",
+      "title": "Programmer's Practice",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "aper-pape",
+      "title": "papers",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "tar-cap-geno",
+      "title": "Target Capture Phylogenomics",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "my marks",
+      "title": "My Marks",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "chapter three",
+      "title": "chapter three",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "raw-ab",
+      "title": "raw-lab",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "classical molecular genetics",
+      "title": "classical molecular genetics",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "filogeny",
+      "title": "Filogeny",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "guiasbai",
+      "title": "guiasbai",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "papers-abastract",
+      "title": "papers-abastract",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "invertebrados draft",
+      "title": "invertebrados draft",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "apt-hr",
+      "title": "chapter-three",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ta-ndat",
+      "title": "metalhead-foundations",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ser-d-mid-op",
+      "title": "Observation d'Oedipomidas leucopus",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "punctuation & symbols",
+      "title": "Punctuation & Symbols",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "el-ppeu",
+      "title": "développeur",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "todos",
+      "title": "TODOS",
+      "runCount": 3,
+      "totalTypingTimeMs": 94606.59999999963,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 422,
+      "correctKeystrokes": 409,
+      "errors": 13,
+      "backspaces": 14,
+      "averageWpm": 52,
+      "averageAccuracy": 97,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "raw-lab",
+      "title": "raw-lab",
+      "runCount": 2,
+      "totalTypingTimeMs": 178588.79999999702,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 452,
+      "correctKeystrokes": 430,
+      "errors": 22,
+      "backspaces": 45,
+      "averageWpm": 29,
+      "averageAccuracy": 95,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "sanskrit",
+      "title": "sanskrit",
+      "runCount": 1,
+      "totalTypingTimeMs": 832459.1999999995,
+      "totalReadingTimeMs": 11977.699999999953,
+      "keystrokes": 2307,
+      "correctKeystrokes": 2196,
+      "errors": 111,
+      "backspaces": 70,
+      "averageWpm": 32,
+      "averageAccuracy": 95,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "ornito",
+      "title": "ornito",
+      "runCount": 1,
+      "totalTypingTimeMs": 2150942,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 6942,
+      "correctKeystrokes": 6114,
+      "errors": 828,
+      "backspaces": 860,
+      "averageWpm": 34,
+      "averageAccuracy": 88,
+      "longestCleanStreak": null
+    },
+    {
+      "courseId": "more lessons",
+      "title": "More Lessons",
+      "runCount": 1,
+      "totalTypingTimeMs": 878726.799999997,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 2845,
+      "correctKeystrokes": 2649,
+      "errors": 196,
+      "backspaces": 174,
+      "averageWpm": 36,
+      "averageAccuracy": 93,
+      "longestCleanStreak": null
+    }
+  ],
+  "lessonRunStats": {
+    "custom-mwnqa1ov-lcrt": {
+      "title": "today",
+      "courseIds": [
+        "todos"
+      ],
+      "runCount": 3,
+      "totalTypingTimeMs": 94606.59999999963,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 422,
+      "correctKeystrokes": 409,
+      "errors": 13,
+      "backspaces": 14,
+      "averageWpm": 52,
+      "averageAccuracy": 97,
+      "longestCleanStreak": null
+    },
+    "custom-mwns004o-li1i": {
+      "title": "17-nov-echinodermata-dibujos",
+      "courseIds": [
+        "raw-lab"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 88544.70000000298,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 228,
+      "correctKeystrokes": 222,
+      "errors": 6,
+      "backspaces": 25,
+      "averageWpm": 30,
+      "averageAccuracy": 97,
+      "longestCleanStreak": null
+    },
+    "custom-mwnsdki8-cpa2": {
+      "title": "10-nov-phylum-artropoda-ii-drawings",
+      "courseIds": [
+        "raw-lab"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 90044.09999999404,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 224,
+      "correctKeystrokes": 208,
+      "errors": 16,
+      "backspaces": 20,
+      "averageWpm": 28,
+      "averageAccuracy": 93,
+      "longestCleanStreak": null
+    },
+    "kalabhairava": {
+      "title": "Kālabhairavāṣṭakam - Śaṅkarācāryaa",
+      "courseIds": [
+        "sanskrit"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 832459.1999999995,
+      "totalReadingTimeMs": 11977.699999999953,
+      "keystrokes": 2307,
+      "correctKeystrokes": 2196,
+      "errors": 111,
+      "backspaces": 70,
+      "averageWpm": 32,
+      "averageAccuracy": 95,
+      "longestCleanStreak": null
+    },
+    "custom-mvk2vkg9-xc2k": {
+      "title": "2do informe",
+      "courseIds": [
+        "ornito"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 2150942,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 6942,
+      "correctKeystrokes": 6114,
+      "errors": 828,
+      "backspaces": 860,
+      "averageWpm": 34,
+      "averageAccuracy": 88,
+      "longestCleanStreak": null
+    },
+    "parcial-passeriformes": {
+      "title": "parcial-passeriformes",
+      "courseIds": [
+        "more lessons"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 878726.799999997,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 2845,
+      "correctKeystrokes": 2649,
+      "errors": 196,
+      "backspaces": 174,
+      "averageWpm": 36,
+      "averageAccuracy": 93,
+      "longestCleanStreak": null
+    },
+    "day-ay": {
+      "title": "today",
+      "courseIds": [
+        "odos-odo"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 43410.5,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 108,
+      "correctKeystrokes": 96,
+      "errors": 12,
+      "backspaces": 10,
+      "averageWpm": 27,
+      "averageAccuracy": 89,
+      "longestCleanStreak": null
+    }
+  },
+  "lessonStats": {
+    "prog-js-basics": {
+      "bestWpm": 19,
+      "bestAccuracy": 98,
+      "attempts": 6,
+      "lastAt": 1792441186210
+    },
+    "punct-sentence": {
+      "bestWpm": 4,
+      "bestAccuracy": 41,
+      "attempts": 1,
+      "lastAt": 1792019065162
+    },
+    "custom-mvcuwp3c-9f7i": {
+      "bestWpm": 45,
+      "bestAccuracy": 98,
+      "attempts": 1,
+      "lastAt": 1792442551150
+    },
+    "custom-mvfxljj0-q91q": {
+      "bestWpm": 30,
+      "bestAccuracy": 87,
+      "attempts": 1,
+      "lastAt": 1792461724539
+    },
+    "custom-mwnqa1ov-lcrt": {
+      "bestWpm": 58,
+      "bestAccuracy": 99,
+      "attempts": 3,
+      "lastAt": 1795624052356
+    },
+    "custom-mwns004o-li1i": {
+      "bestWpm": 30,
+      "bestAccuracy": 97,
+      "attempts": 1,
+      "lastAt": 1795106502347
+    },
+    "custom-mwnsdki8-cpa2": {
+      "bestWpm": 28,
+      "bestAccuracy": 93,
+      "attempts": 1,
+      "lastAt": 1795107129920
+    },
+    "kalabhairava": {
+      "bestWpm": 32,
+      "bestAccuracy": 95,
+      "attempts": 1,
+      "lastAt": 1795128715102
+    },
+    "custom-mvk2vkg9-xc2k": {
+      "bestWpm": 34,
+      "bestAccuracy": 88,
+      "attempts": 1,
+      "lastAt": 1795196248927
+    },
+    "parcial-passeriformes": {
+      "bestWpm": 36,
+      "bestAccuracy": 93,
+      "attempts": 1,
+      "lastAt": 1795655260328
+    },
+    "day-ay": {
+      "bestWpm": 27,
+      "bestAccuracy": 89,
+      "attempts": 1,
+      "lastAt": 1795724617851
+    }
+  },
+  "sessions": [
+    {
+      "sessionId": "session-2af8ef1b-23fe-4a7b-a8bd-600a264c44ad",
+      "firstRunAt": "2026-11-19T15:51:48.799Z",
+      "lastRunAt": "2026-11-19T16:52:09.920Z",
+      "runCount": 4,
+      "totalTypingTimeMs": 238526.09999999776,
+      "courseIds": [
+        "todos",
+        "raw-lab"
+      ],
+      "lessonIds": [
+        "custom-mwnqa1ov-lcrt",
+        "custom-mwns004o-li1i",
+        "custom-mwnsdki8-cpa2"
+      ]
+    },
+    {
+      "sessionId": "session-d9780cae-6f8d-4777-8117-7b4e79e10be8",
+      "firstRunAt": "2026-11-19T22:37:48.298Z",
+      "lastRunAt": "2026-11-19T22:51:55.097Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 832459.1999999995,
+      "courseIds": [
+        "sanskrit"
+      ],
+      "lessonIds": [
+        "kalabhairava"
+      ]
+    },
+    {
+      "sessionId": "session-448223aa-e18a-42b9-90b6-e6574c9b98bc",
+      "firstRunAt": "2026-11-20T17:00:04.574Z",
+      "lastRunAt": "2026-11-20T17:37:28.926Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 2150942,
+      "courseIds": [
+        "ornito"
+      ],
+      "lessonIds": [
+        "custom-mvk2vkg9-xc2k"
+      ]
+    },
+    {
+      "sessionId": "session-d138397a-38d3-49a3-9c73-f1fb8d0ae61e",
+      "firstRunAt": "2026-11-25T16:26:57.685Z",
+      "lastRunAt": "2026-11-25T16:27:32.355Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 34669.29999999888,
+      "courseIds": [
+        "todos"
+      ],
+      "lessonIds": [
+        "custom-mwnqa1ov-lcrt"
+      ]
+    },
+    {
+      "sessionId": "session-1ae48999-ba70-4a65-8fda-b3b16d3c8897",
+      "firstRunAt": "2026-11-26T00:52:30.763Z",
+      "lastRunAt": "2026-11-26T01:07:40.327Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 878726.799999997,
+      "courseIds": [
+        "more lessons"
+      ],
+      "lessonIds": [
+        "parcial-passeriformes"
+      ]
+    },
+    {
+      "sessionId": "session-d0af8040-547e-4121-ac82-53384e1b016a",
+      "firstRunAt": "2026-11-26T20:22:09.512Z",
+      "lastRunAt": "2026-11-26T20:23:37.850Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 43410.5,
+      "courseIds": [
+        "odos-odo"
+      ],
+      "lessonIds": [
+        "day-ay"
+      ]
+    },
+    {
+      "sessionId": "session-7d5bb030-4273-4d73-8d4e-efac7e62db8c",
+      "startedAt": "2026-11-27T00:53:23.655Z",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "courseIds": [],
+      "lessonIds": []
+    }
+  ],
+  "runs": [
+    {
+      "runId": "run-22a63e89-b859-462a-ad4d-e940218f6373",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-2af8ef1b-23fe-4a7b-a8bd-600a264c44ad",
+      "startedAt": "2026-11-19T15:51:48.799Z",
+      "completedAt": "2026-11-19T15:52:07.084Z",
+      "courseId": "todos",
+      "courseTitle": "TODOS",
+      "lessonId": "custom-mwnqa1ov-lcrt",
+      "lessonTitle": "today",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 50,
+        "accuracy": 99,
+        "elapsedMs": 18284.700000001118,
+        "readingTimeMs": 0,
+        "keystrokes": 77,
+        "correctKeystrokes": 76,
+        "errors": 1,
+        "backspaces": 1
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 18281,
+          "charIndex": 75,
+          "wpm": 50
+        }
+      ],
+      "pauses": []
+    },
+    {
+      "runId": "run-60cfe846-8fd2-4be7-b279-5e5b088fccbe",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-2af8ef1b-23fe-4a7b-a8bd-600a264c44ad",
+      "startedAt": "2026-11-19T15:52:41.919Z",
+      "completedAt": "2026-11-19T15:59:08.169Z",
+      "courseId": "todos",
+      "courseTitle": "TODOS",
+      "lessonId": "custom-mwnqa1ov-lcrt",
+      "lessonTitle": "today",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 48,
+        "accuracy": 97,
+        "elapsedMs": 41652.59999999963,
+        "readingTimeMs": 0,
+        "keystrokes": 171,
+        "correctKeystrokes": 166,
+        "errors": 5,
+        "backspaces": 4
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 368956,
+          "charIndex": 79,
+          "wpm": 39
+        },
+        {
+          "elapsedMs": 383498,
+          "charIndex": 154,
+          "wpm": 62
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-19T15:52:42.791Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T15:52:47.139Z",
+          "durationMs": 4348
+        },
+        {
+          "startedAt": "2026-11-19T15:53:17.139Z",
+          "reason": "idle",
+          "resumedAt": "2026-11-19T15:57:10.879Z",
+          "durationMs": 233740
+        },
+        {
+          "startedAt": "2026-11-19T15:57:16.850Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T15:58:33.359Z",
+          "durationMs": 76509
+        }
+      ]
+    },
+    {
+      "runId": "run-d07bb5ef-7b8c-4629-bf29-84af8e0cf7a7",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-2af8ef1b-23fe-4a7b-a8bd-600a264c44ad",
+      "startedAt": "2026-11-19T16:39:59.042Z",
+      "completedAt": "2026-11-19T16:41:42.346Z",
+      "courseId": "raw-lab",
+      "courseTitle": "raw-lab",
+      "lessonId": "custom-mwns004o-li1i",
+      "lessonTitle": "17-nov-echinodermata-dibujos",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 30,
+        "accuracy": 97,
+        "elapsedMs": 88544.70000000298,
+        "readingTimeMs": 0,
+        "keystrokes": 228,
+        "correctKeystrokes": 222,
+        "errors": 6,
+        "backspaces": 25
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 15554,
+          "charIndex": 57,
+          "wpm": 45
+        },
+        {
+          "elapsedMs": 66120,
+          "charIndex": 139,
+          "wpm": 27
+        },
+        {
+          "elapsedMs": 100730,
+          "charIndex": 193,
+          "wpm": 19
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-19T16:40:33.605Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T16:40:41.971Z",
+          "durationMs": 8366
+        },
+        {
+          "startedAt": "2026-11-19T16:40:42.631Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T16:40:49.022Z",
+          "durationMs": 6391
+        }
+      ]
+    },
+    {
+      "runId": "run-c9c7ebab-6398-4d9c-ac80-057f34c196b4",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-2af8ef1b-23fe-4a7b-a8bd-600a264c44ad",
+      "startedAt": "2026-11-19T16:50:33.124Z",
+      "completedAt": "2026-11-19T16:52:09.920Z",
+      "courseId": "raw-lab",
+      "courseTitle": "raw-lab",
+      "lessonId": "custom-mwnsdki8-cpa2",
+      "lessonTitle": "10-nov-phylum-artropoda-ii-drawings",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 28,
+        "accuracy": 93,
+        "elapsedMs": 90044.09999999404,
+        "readingTimeMs": 0,
+        "keystrokes": 224,
+        "correctKeystrokes": 208,
+        "errors": 16,
+        "backspaces": 20
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 22709,
+          "charIndex": 59,
+          "wpm": 32
+        },
+        {
+          "elapsedMs": 68415,
+          "charIndex": 137,
+          "wpm": 24
+        },
+        {
+          "elapsedMs": 91356,
+          "charIndex": 184,
+          "wpm": 25
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-19T16:51:11.929Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T16:51:13.791Z",
+          "durationMs": 1862
+        },
+        {
+          "startedAt": "2026-11-19T16:51:15.065Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T16:51:19.955Z",
+          "durationMs": 4890
+        }
+      ]
+    },
+    {
+      "runId": "run-b43bf101-1d1c-4af5-ab15-d902c032d840",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-d9780cae-6f8d-4777-8117-7b4e79e10be8",
+      "startedAt": "2026-11-19T22:37:48.298Z",
+      "completedAt": "2026-11-19T22:51:55.097Z",
+      "courseId": "sanskrit",
+      "courseTitle": "sanskrit",
+      "lessonId": "kalabhairava",
+      "lessonTitle": "Kālabhairavāṣṭakam - Śaṅkarācāryaa",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 32,
+        "accuracy": 95,
+        "elapsedMs": 832459.1999999995,
+        "readingTimeMs": 11977.699999999953,
+        "keystrokes": 2307,
+        "correctKeystrokes": 2196,
+        "errors": 111,
+        "backspaces": 70
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 215602,
+          "charIndex": 491,
+          "wpm": 27
+        },
+        {
+          "elapsedMs": 436470,
+          "charIndex": 1030,
+          "wpm": 30
+        },
+        {
+          "elapsedMs": 614742,
+          "charIndex": 1598,
+          "wpm": 39
+        },
+        {
+          "elapsedMs": 792653,
+          "charIndex": 2185,
+          "wpm": 41
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-19T22:42:22.378Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T22:42:25.246Z",
+          "durationMs": 2868
+        },
+        {
+          "startedAt": "2026-11-19T22:46:05.932Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T22:46:08.376Z",
+          "durationMs": 2444
+        },
+        {
+          "startedAt": "2026-11-19T22:47:32.432Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T22:47:35.020Z",
+          "durationMs": 2588
+        },
+        {
+          "startedAt": "2026-11-19T22:48:52.015Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T22:48:55.874Z",
+          "durationMs": 3859
+        },
+        {
+          "startedAt": "2026-11-19T22:50:21.977Z",
+          "reason": "command",
+          "resumedAt": "2026-11-19T22:50:24.554Z",
+          "durationMs": 2577
+        }
+      ]
+    },
+    {
+      "runId": "run-8420d876-b10f-4c4b-832d-b17a539a46fb",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-448223aa-e18a-42b9-90b6-e6574c9b98bc",
+      "startedAt": "2026-11-20T17:00:04.574Z",
+      "completedAt": "2026-11-20T17:37:28.926Z",
+      "courseId": "ornito",
+      "courseTitle": "ornito",
+      "lessonId": "custom-mvk2vkg9-xc2k",
+      "lessonTitle": "2do informe",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 34,
+        "accuracy": 88,
+        "elapsedMs": 2150942,
+        "readingTimeMs": 0,
+        "keystrokes": 6942,
+        "correctKeystrokes": 6114,
+        "errors": 828,
+        "backspaces": 860
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 633432,
+          "charIndex": 1480,
+          "wpm": 29
+        },
+        {
+          "elapsedMs": 1277966,
+          "charIndex": 2997,
+          "wpm": 32
+        },
+        {
+          "elapsedMs": 1765626,
+          "charIndex": 4605,
+          "wpm": 40
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-20T17:01:44.252Z",
+          "reason": "command",
+          "resumedAt": "2026-11-20T17:01:56.129Z",
+          "durationMs": 11877
+        },
+        {
+          "startedAt": "2026-11-20T17:17:23.584Z",
+          "reason": "blur",
+          "resumedAt": "2026-11-20T17:17:24.936Z",
+          "durationMs": 1352
+        },
+        {
+          "startedAt": "2026-11-20T17:18:53.690Z",
+          "reason": "idle",
+          "resumedAt": "2026-11-20T17:19:43.829Z",
+          "durationMs": 50139
+        }
+      ]
+    },
+    {
+      "runId": "run-b388a848-2a62-4b22-a79b-e730a858dc69",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-d138397a-38d3-49a3-9c73-f1fb8d0ae61e",
+      "startedAt": "2026-11-25T16:26:57.685Z",
+      "completedAt": "2026-11-25T16:27:32.355Z",
+      "courseId": "todos",
+      "courseTitle": "TODOS",
+      "lessonId": "custom-mwnqa1ov-lcrt",
+      "lessonTitle": "today",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 58,
+        "accuracy": 96,
+        "elapsedMs": 34669.29999999888,
+        "readingTimeMs": 0,
+        "keystrokes": 174,
+        "correctKeystrokes": 167,
+        "errors": 7,
+        "backspaces": 9
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 13316,
+          "charIndex": 66,
+          "wpm": 60
+        },
+        {
+          "elapsedMs": 29857,
+          "charIndex": 148,
+          "wpm": 59
+        }
+      ],
+      "pauses": []
+    },
+    {
+      "runId": "run-eea4b90e-15fa-4285-a7eb-a7d2cda17d4c",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-1ae48999-ba70-4a65-8fda-b3b16d3c8897",
+      "startedAt": "2026-11-26T00:52:30.763Z",
+      "completedAt": "2026-11-26T01:07:40.327Z",
+      "courseId": "more lessons",
+      "courseTitle": "More Lessons",
+      "lessonId": "parcial-passeriformes",
+      "lessonTitle": "parcial-passeriformes",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 36,
+        "accuracy": 93,
+        "elapsedMs": 878726.799999997,
+        "readingTimeMs": 0,
+        "keystrokes": 2845,
+        "correctKeystrokes": 2649,
+        "errors": 196,
+        "backspaces": 174
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 259909,
+          "charIndex": 746,
+          "wpm": 37
+        },
+        {
+          "elapsedMs": 512945,
+          "charIndex": 1496,
+          "wpm": 38
+        },
+        {
+          "elapsedMs": 751943,
+          "charIndex": 2164,
+          "wpm": 34
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-26T00:52:53.097Z",
+          "reason": "blur",
+          "resumedAt": "2026-11-26T00:53:10.579Z",
+          "durationMs": 17482
+        },
+        {
+          "startedAt": "2026-11-26T01:00:23.342Z",
+          "reason": "command",
+          "resumedAt": "2026-11-26T01:00:36.697Z",
+          "durationMs": 13355
+        }
+      ]
+    },
+    {
+      "runId": "run-ec6bd83e-da4a-49fb-9f6b-a0b8bc942629",
+      "userId": "ty9b6d21b27db64374c7ca5d8cperr",
+      "sessionId": "session-d0af8040-547e-4121-ac82-53384e1b016a",
+      "startedAt": "2026-11-26T20:22:09.512Z",
+      "completedAt": "2026-11-26T20:23:37.850Z",
+      "courseId": "odos-odo",
+      "courseTitle": "TODOS",
+      "lessonId": "day-ay",
+      "lessonTitle": "today",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 27,
+        "accuracy": 89,
+        "elapsedMs": 43410.5,
+        "readingTimeMs": 0,
+        "keystrokes": 108,
+        "correctKeystrokes": 96,
+        "errors": 12,
+        "backspaces": 10
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 67707,
+          "charIndex": 154,
+          "wpm": 82
+        }
+      ],
+      "pauses": [
+        {
+          "startedAt": "2026-11-26T20:22:13.582Z",
+          "reason": "command",
+          "resumedAt": "2026-11-26T20:22:58.507Z",
+          "durationMs": 44925
+        }
+      ]
+    }
+  ]
+}

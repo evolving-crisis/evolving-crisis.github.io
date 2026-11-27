@@ -1,0 +1,530 @@
+{
+  "format": "pomoudying-user-stats.v1",
+  "exportedAt": "2026-11-26T18:49:59.103Z",
+  "app": {
+    "name": "Pomoudying",
+    "statsSchemaVersion": 1,
+    "historyNote": "Run-by-run history is recorded from the first export feature release; earlier activity is available only in lesson aggregates."
+  },
+  "identity": {
+    "userId": "pyu7abf42dpr",
+    "firstSeenAt": "2026-11-26T18:15:38.428Z",
+    "idGeneratedAt": "2026-11-26T18:49:35.117Z",
+    "idStrategy": "coarse-derived.v1",
+    "persistent": true,
+    "currentSessionId": "session-27ecf78c-9f52-4980-a520-ecfe10607cc7",
+    "currentSessionStartedAt": "2026-11-26T18:15:38.441Z",
+    "sessionPersistent": true
+  },
+  "summary": {
+    "lessons": 1,
+    "runs": 1,
+    "avgWpm": 27,
+    "avgAccuracy": 100,
+    "bestWpm": 27,
+    "lastAt": 1795717552934
+  },
+  "courses": [
+    {
+      "courseId": "todos",
+      "title": "TODOS",
+      "lessonIds": [
+        "custom-mwnqa1ov-lcrt"
+      ]
+    },
+    {
+      "courseId": "invertabrates",
+      "title": "Invertabrates",
+      "lessonIds": [
+        "custom-mv8u01nf-axed",
+        "custom-mv52ggom-cefi",
+        "custom-mv534pvo-fg5t",
+        "custom-mv5ii2qt-1yoh",
+        "custom-mv5j4rsq-l0dg",
+        "custom-mv5k1l6g-7e1t",
+        "custom-mvppz40x-ojrn",
+        "custom-mvpq6t0j-rj2q",
+        "custom-mvo3eyzv-gx5i",
+        "custom-mvo8xlcq-wgkq",
+        "custom-mvo8xm61-00le",
+        "custom-mvoh0ieg-shl2",
+        "custom-mvpm6xk7-2ic6",
+        "custom-mvpvc01c-p87h",
+        "custom-mvrclbg6-vgsz",
+        "custom-mvrd5d3w-4ger",
+        "custom-mvrdttcg-vc4l",
+        "custom-mvsqwdeu-ifwd",
+        "custom-mvu27cuk-1ejl",
+        "custom-mvu3stl1-acgk"
+      ]
+    },
+    {
+      "courseId": "raw-lab",
+      "title": "raw-lab",
+      "lessonIds": [
+        "custom-mwns004o-li1i",
+        "custom-mwnsdki8-cpa2",
+        "custom-mwntiw8m-txur",
+        "custom-mvg5t9fh-yecg",
+        "custom-mvg7rynk-bkqq",
+        "custom-mvg8n65x-mc3i",
+        "custom-mvg9cyim-zwok",
+        "custom-mvgb729i-fzfx",
+        "custom-mvcozzec-tcdj",
+        "custom-mvcpvmky-nlwv",
+        "custom-mvcqxuzx-d4jc",
+        "custom-mvcz610s-01fg",
+        "custom-mvfxljj0-q91q",
+        "custom-mv8nu2i6-a7v9"
+      ]
+    },
+    {
+      "courseId": "labzoo",
+      "title": "labzoo",
+      "lessonIds": [
+        "custom-mvbngvfx-0vvh",
+        "custom-mva3pab0-fptl",
+        "custom-mva3i5rc-id3c",
+        "custom-mw9xi0ek-fqd5",
+        "custom-mw8k7zd4-6n1z",
+        "custom-mw8l47n9-36jd",
+        "custom-mw3zhqq2-033j",
+        "guia-lab-salida-campo"
+      ]
+    },
+    {
+      "courseId": "ornito",
+      "title": "ornito",
+      "lessonIds": [
+        "custom-mvb9pzom-w74d",
+        "custom-mvh1cgw5-flrq",
+        "custom-mvh2el59-r7zb",
+        "custom-mvh5y6xy-p03k",
+        "custom-mvhabmyx-r4wd",
+        "custom-mvhajt2e-u8me",
+        "custom-mvhbusxh-q7y4",
+        "custom-mvi36133-nzyf",
+        "custom-mvi3sydz-d0x0",
+        "custom-mvi5d0io-m04o",
+        "custom-mvi6000w-um3d",
+        "custom-mvk2vkg9-xc2k",
+        "gorrinea",
+        "custom-mvk79ci8-mfaf",
+        "custom-mvh0xew8-l6we",
+        "custom-mvsgr9o4-ijhb",
+        "exporniswo",
+        "parcial-passeriformes",
+        "proyectornis"
+      ]
+    },
+    {
+      "courseId": "papers",
+      "title": "papers",
+      "lessonIds": [
+        "custom-mvb7xza8-n0lf",
+        "custom-mwb6s24s-29hj",
+        "custom-mv7eilqb-7rpx",
+        "custom-mvbq01f1-4mhg"
+      ]
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "lessonIds": [
+        "custom-mwfilq13-e9yy",
+        "custom-mwfkktyf-b7ln",
+        "custom-mw2t7vo6-b5zn",
+        "custom-mwfjmtxy-nwqo",
+        "margrtikst",
+        "maryslzk"
+      ]
+    },
+    {
+      "courseId": "fictionai",
+      "title": "FICTIONAI",
+      "lessonIds": [
+        "custom-mw44jn78-6jrh",
+        "custom-mw2k06x3-o0gg"
+      ]
+    },
+    {
+      "courseId": "sanskrit",
+      "title": "Sanskrit",
+      "lessonIds": [
+        "custom-mw8i4dzv-iylf",
+        "custom-mwwsld6p-tf2a",
+        "kalabhairava"
+      ]
+    },
+    {
+      "courseId": "metalhead-foundations",
+      "title": "metalhead-foundations",
+      "lessonIds": [
+        "custom-mvcuwp3c-9f7i"
+      ]
+    },
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "lessonIds": [
+        "evolving-crisis-code-intro",
+        "evolving-crisis-code-startup",
+        "evolving-crisis-code-html",
+        "evolving-crisis-code-boundaries",
+        "evolving-crisis-code-css",
+        "evolving-crisis-code-events",
+        "evolving-crisis-code-state",
+        "evolving-crisis-code-text",
+        "evolving-crisis-code-data",
+        "evolving-crisis-code-storage",
+        "evolving-crisis-code-engine",
+        "evolving-crisis-code-identity",
+        "evolving-crisis-code-challenge",
+        "evolving-crisis-code-commands",
+        "evolving-crisis-code-memory",
+        "evolving-crisis-code-time",
+        "evolving-crisis-code-review"
+      ]
+    },
+    {
+      "courseId": "chapter-three",
+      "title": "chapter-three",
+      "lessonIds": [
+        "custom-mv8twdc7-8q27"
+      ]
+    },
+    {
+      "courseId": "développeur",
+      "title": "développeur",
+      "lessonIds": [
+        "glosario-devops",
+        "devops-platform-engineering",
+        "guia-estudio-ii-devops",
+        "guia-estudio-iii-devops",
+        "devops-platform-engineering-unal",
+        "prog-js-basics",
+        "prog-python-basics",
+        "custom-mwcls9jt-bhxs"
+      ]
+    },
+    {
+      "courseId": "observation d'oedipomidas leucopus",
+      "title": "Observation d'Oedipomidas leucopus",
+      "lessonIds": [
+        "custom-mvcwc24d-52tm"
+      ]
+    },
+    {
+      "courseId": "target capture phylogenomics",
+      "title": "Target Capture Phylogenomics",
+      "lessonIds": [
+        "filoexponetypgs-01",
+        "filoexponetypgs-02",
+        "filoexponetypgs-03",
+        "filoexponetypgs-04",
+        "filoexponetypgs-05",
+        "filoexponetypgs-06",
+        "filoexponetypgs-07",
+        "filoexponetypgs-08",
+        "filoexponetypgs-09",
+        "ortoncept",
+        "filoexponetypgs-10",
+        "filoexponetyps-script"
+      ]
+    }
+  ],
+  "runSummary": {
+    "runCount": 1,
+    "totalTypingTimeMs": 18233,
+    "totalReadingTimeMs": 0,
+    "keystrokes": 41,
+    "correctKeystrokes": 41,
+    "errors": 0,
+    "backspaces": 0,
+    "averageWpm": 27,
+    "averageAccuracy": 100
+  },
+  "courseStats": [
+    {
+      "courseId": "todos",
+      "title": "TODOS",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "invertabrates",
+      "title": "Invertabrates",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "raw-lab",
+      "title": "raw-lab",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "labzoo",
+      "title": "labzoo",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "ornito",
+      "title": "ornito",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "papers",
+      "title": "papers",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "français",
+      "title": "français",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "fictionai",
+      "title": "FICTIONAI",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "sanskrit",
+      "title": "Sanskrit",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "metalhead-foundations",
+      "title": "metalhead-foundations",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "evolving-crisis-code-fr",
+      "title": "Comprendre Evolving Crisis",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "chapter-three",
+      "title": "chapter-three",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "développeur",
+      "title": "développeur",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "observation d'oedipomidas leucopus",
+      "title": "Observation d'Oedipomidas leucopus",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "target capture phylogenomics",
+      "title": "Target Capture Phylogenomics",
+      "runCount": 0,
+      "totalTypingTimeMs": 0,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 0,
+      "correctKeystrokes": 0,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": null,
+      "averageAccuracy": null
+    },
+    {
+      "courseId": "smoke test course",
+      "title": "Smoke test course",
+      "runCount": 1,
+      "totalTypingTimeMs": 18233,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 41,
+      "correctKeystrokes": 41,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": 27,
+      "averageAccuracy": 100
+    }
+  ],
+  "lessonRunStats": {
+    "custom-mwwsffvo-udyk": {
+      "title": "Session export smoke test",
+      "courseIds": [
+        "smoke test course"
+      ],
+      "runCount": 1,
+      "totalTypingTimeMs": 18233,
+      "totalReadingTimeMs": 0,
+      "keystrokes": 41,
+      "correctKeystrokes": 41,
+      "errors": 0,
+      "backspaces": 0,
+      "averageWpm": 27,
+      "averageAccuracy": 100
+    }
+  },
+  "lessonStats": {
+    "custom-mwwsffvo-udyk": {
+      "bestWpm": 27,
+      "bestAccuracy": 100,
+      "attempts": 1,
+      "lastAt": 1795717552934
+    }
+  },
+  "sessions": [
+    {
+      "sessionId": "session-27ecf78c-9f52-4980-a520-ecfe10607cc7",
+      "firstRunAt": "2026-11-26T18:25:34.702Z",
+      "lastRunAt": "2026-11-26T18:25:52.934Z",
+      "runCount": 1,
+      "totalTypingTimeMs": 18233,
+      "courseIds": [
+        "smoke test course"
+      ],
+      "lessonIds": [
+        "custom-mwwsffvo-udyk"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "runId": "run-a47d54b2-daea-46f7-8194-b1481ccdf5eb",
+      "userId": "pyu7abf42dpr",
+      "sessionId": "session-27ecf78c-9f52-4980-a520-ecfe10607cc7",
+      "startedAt": "2026-11-26T18:25:34.702Z",
+      "completedAt": "2026-11-26T18:25:52.934Z",
+      "courseId": "smoke test course",
+      "courseTitle": "Smoke test course",
+      "lessonId": "custom-mwwsffvo-udyk",
+      "lessonTitle": "Session export smoke test",
+      "targetWpm": 30,
+      "targetAccuracy": 95,
+      "stats": {
+        "wpm": 27,
+        "accuracy": 100,
+        "elapsedMs": 18233,
+        "readingTimeMs": 0,
+        "keystrokes": 41,
+        "correctKeystrokes": 41,
+        "errors": 0,
+        "backspaces": 0
+      },
+      "checkpoints": [
+        {
+          "elapsedMs": 3340,
+          "charIndex": 22,
+          "wpm": 83
+        }
+      ],
+      "pauses": []
+    }
+  ]
+}

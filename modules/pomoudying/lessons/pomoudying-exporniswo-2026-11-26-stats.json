@@ -1,0 +1,39 @@
+{
+  "format": "pomoudying-completed-lesson-stats.v1",
+  "exportedAt": "2026-11-26T21:34:55.101Z",
+  "lesson": {
+    "id": "wo-ex",
+    "title": "exporniswo",
+    "courseTitle": "ornito",
+    "targetWpm": 30,
+    "targetAccuracy": 95
+  },
+  "lessonStats": {
+    "bestWpm": 54,
+    "bestAccuracy": 95,
+    "attempts": 1,
+    "lastAt": 1795728891843
+  },
+  "completedRun": {
+    "startedAt": "2026-11-26T21:33:07.563Z",
+    "completedAt": "2026-11-26T21:34:51.840Z",
+    "stats": {
+      "wpm": 54,
+      "accuracy": 95,
+      "elapsedMs": 104276,
+      "readingTimeMs": 0,
+      "keystrokes": 491,
+      "correctKeystrokes": 467,
+      "errors": 24,
+      "backspaces": 9
+    },
+    "checkpoints": [
+      {
+        "elapsedMs": 1635,
+        "charIndex": 7092,
+        "wpm": 52059
+      }
+    ],
+    "pauses": []
+  }
+}

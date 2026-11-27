@@ -116,7 +116,7 @@ Generated directories such as `_site/`, `.jekyll-cache/`, and `.sass-cache/` are
 The build includes the static files under `modules/pomoudying/` unchanged. The module uses relative asset and lesson URLs so it works at its published subpath.
 The Radio Chaito module under [`modules/radio-chaito/`](./modules/radio-chaito/) is also copied unchanged and is available at `/modules/radio-chaito/`.
 
-The generated [`service-worker.js`](./service-worker.js) precaches the site's pages and static files when the site is first visited. It serves the last cached copy while offline and updates that copy in the background when a connection is available. The first visit must be online so the browser can install the service worker and cache the site. Browser storage limits may prevent unusually large or less-used files from being cached.
+The generated [`service-worker.js`](./service-worker.js) precaches the site's pages and non-image static files when the site is first visited. It serves the last cached copy while offline and updates that copy in the background when a connection is available; image requests are fetched without being stored by the service worker. The Radio Chaito header embed is available offline after its assets have been cached. The first visit must be online so the browser can install the service worker and cache the site. Browser storage limits may prevent unusually large or less-used files from being cached.
 
 ## Adding content
 
